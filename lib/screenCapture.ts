@@ -3,6 +3,9 @@
  * Captures screenshots every 15 minutes during active work sessions
  */
 
+import { offlineStorageService } from './offlineStorage';
+import { networkDetectionService } from './networkDetection';
+
 export interface ScreenCaptureSettings {
   enabled: boolean;
   intervalMinutes: number;
@@ -237,8 +240,15 @@ export class ScreenCaptureService {
         isActive: await this.detectActivity(),
       };
 
-      // Save capture
-      await this.saveCapture(capture);
+      // Save capture (online or offline)
+      const isOnline = networkDetectionService.isCurrentlyOnline();
+      if (isOnline) {
+        await this.saveCapture(capture);
+      } else {
+        // Store offline for later sync
+        await offlineStorageService.storeScreenCapture(capture);
+        console.log('Offline: Screen capture stored locally for sync');
+      }
 
       console.log(`Screen captured at ${capture.timestamp.toLocaleTimeString()}`);
       

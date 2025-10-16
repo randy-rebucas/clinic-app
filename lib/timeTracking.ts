@@ -14,6 +14,8 @@ import {
 import { WorkSession, BreakSession } from '@/types';
 import { isDemoMode } from './demoMode';
 import { TimeFormat } from './timeFormat';
+import { offlineStorageService } from './offlineStorage';
+import { networkDetectionService } from './networkDetection';
 
 export interface ClockInData {
   employeeId: string;
@@ -50,25 +52,51 @@ export class TimeTrackingService {
       throw new Error('Employee already has an active work session');
     }
 
-    // Create time entry
-    const timeEntryId = await createTimeEntry({
-      employeeId: data.employeeId,
-      type: 'clock_in',
-      timestamp: now,
-      notes: data.notes,
-      location: data.location,
-    });
+    const isOnline = networkDetectionService.isCurrentlyOnline();
+    
+    if (isOnline) {
+      // Online: Create in database
+      const timeEntryId = await createTimeEntry({
+        employeeId: data.employeeId,
+        type: 'clock_in',
+        timestamp: now,
+        notes: data.notes,
+        location: data.location,
+      });
 
-    // Create work session
-    const workSessionId = await createWorkSession({
-      employeeId: data.employeeId,
-      clockInTime: now,
-      totalBreakTime: 0,
-      totalWorkTime: 0,
-      status: 'active',
-    });
+      const workSessionId = await createWorkSession({
+        employeeId: data.employeeId,
+        clockInTime: now,
+        totalBreakTime: 0,
+        totalWorkTime: 0,
+        status: 'active',
+      });
 
-    return { workSessionId, timeEntryId };
+      return { workSessionId, timeEntryId };
+    } else {
+      // Offline: Store locally
+      console.log('Offline: Storing clock in data locally');
+      
+      const timeEntryId = await offlineStorageService.storeTimeEntry({
+        employeeId: data.employeeId,
+        type: 'clock_in',
+        timestamp: now,
+        notes: data.notes,
+        location: data.location,
+      });
+
+      const workSessionId = await offlineStorageService.storeWorkSession({
+        employeeId: data.employeeId,
+        clockInTime: now,
+        totalBreakTime: 0,
+        totalWorkTime: 0,
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      return { workSessionId, timeEntryId };
+    }
   }
 
   static async clockOut(data: ClockOutData): Promise<{ workSessionId: string; timeEntryId: string }> {
@@ -94,28 +122,55 @@ export class TimeTrackingService {
       throw new Error('Cannot clock out while on break. Please end your break first.');
     }
 
-    // Create time entry
-    const timeEntryId = await createTimeEntry({
-      employeeId: data.employeeId,
-      type: 'clock_out',
-      timestamp: now,
-      notes: data.notes,
-    });
+    const isOnline = networkDetectionService.isCurrentlyOnline();
+    
+    if (isOnline) {
+      // Online: Update in database
+      const timeEntryId = await createTimeEntry({
+        employeeId: data.employeeId,
+        type: 'clock_out',
+        timestamp: now,
+        notes: data.notes,
+      });
 
-    // Calculate total work time
-    const totalWorkTime = this.calculateWorkTime(activeSession.clockInTime, now, activeSession.totalBreakTime);
+      // Calculate total work time
+      const totalWorkTime = this.calculateWorkTime(activeSession.clockInTime, now, activeSession.totalBreakTime);
 
-    // Update work session
-    await updateWorkSession(activeSession.id, {
-      clockOutTime: now,
-      totalWorkTime,
-      status: 'completed',
-    });
+      // Update work session
+      await updateWorkSession(activeSession.id, {
+        clockOutTime: now,
+        totalWorkTime,
+        status: 'completed',
+      });
 
-    // Update daily summary
-    await this.updateDailySummary(data.employeeId, now);
+      // Update daily summary
+      await this.updateDailySummary(data.employeeId, now);
 
-    return { workSessionId: activeSession.id, timeEntryId };
+      return { workSessionId: activeSession.id, timeEntryId };
+    } else {
+      // Offline: Store locally
+      console.log('Offline: Storing clock out data locally');
+      
+      const timeEntryId = await offlineStorageService.storeTimeEntry({
+        employeeId: data.employeeId,
+        type: 'clock_out',
+        timestamp: now,
+        notes: data.notes,
+      });
+
+      // Calculate total work time
+      const totalWorkTime = this.calculateWorkTime(activeSession.clockInTime, now, activeSession.totalBreakTime);
+
+      // Update work session offline
+      await offlineStorageService.updateWorkSessionOffline(activeSession.id, {
+        clockOutTime: now,
+        totalWorkTime,
+        status: 'completed',
+        updatedAt: now,
+      });
+
+      return { workSessionId: activeSession.id, timeEntryId };
+    }
   }
 
   // Break Operations
@@ -134,23 +189,45 @@ export class TimeTrackingService {
       throw new Error('Work session not found');
     }
 
-    // Create time entry
-    const timeEntryId = await createTimeEntry({
-      employeeId: workSession.employeeId,
-      type: 'break_start',
-      timestamp: now,
-      notes: data.notes,
-    });
+    const isOnline = networkDetectionService.isCurrentlyOnline();
+    
+    if (isOnline) {
+      // Online: Create in database
+      const timeEntryId = await createTimeEntry({
+        employeeId: workSession.employeeId,
+        type: 'break_start',
+        timestamp: now,
+        notes: data.notes,
+      });
 
-    // Create break session
-    const breakSessionId = await createBreakSession({
-      workSessionId: data.workSessionId,
-      startTime: now,
-      status: 'active',
-      notes: data.notes,
-    });
+      const breakSessionId = await createBreakSession({
+        workSessionId: data.workSessionId,
+        startTime: now,
+        status: 'active',
+        notes: data.notes,
+      });
 
-    return { breakSessionId, timeEntryId };
+      return { breakSessionId, timeEntryId };
+    } else {
+      // Offline: Store locally
+      console.log('Offline: Storing break start data locally');
+      
+      const timeEntryId = await offlineStorageService.storeTimeEntry({
+        employeeId: workSession.employeeId,
+        type: 'break_start',
+        timestamp: now,
+        notes: data.notes,
+      });
+
+      const breakSessionId = await offlineStorageService.storeBreakSession({
+        workSessionId: data.workSessionId,
+        startTime: now,
+        status: 'active',
+        notes: data.notes,
+      });
+
+      return { breakSessionId, timeEntryId };
+    }
   }
 
   static async endBreak(workSessionId: string, notes?: string): Promise<{ breakSessionId: string; timeEntryId: string }> {
@@ -171,28 +248,58 @@ export class TimeTrackingService {
       throw new Error('Work session not found');
     }
 
-    // Create time entry
-    const timeEntryId = await createTimeEntry({
-      employeeId: workSession.employeeId,
-      type: 'break_end',
-      timestamp: now,
-      notes,
-    });
+    const isOnline = networkDetectionService.isCurrentlyOnline();
+    
+    if (isOnline) {
+      // Online: Update in database
+      const timeEntryId = await createTimeEntry({
+        employeeId: workSession.employeeId,
+        type: 'break_end',
+        timestamp: now,
+        notes,
+      });
 
-    // Update break session
-    await updateBreakSession(activeBreak.id, {
-      endTime: now,
-      duration,
-      status: 'completed',
-    });
+      // Update break session
+      await updateBreakSession(activeBreak.id, {
+        endTime: now,
+        duration,
+        status: 'completed',
+      });
 
-    // Update work session with new break time
-    const newTotalBreakTime = workSession.totalBreakTime + duration;
-    await updateWorkSession(workSessionId, {
-      totalBreakTime: newTotalBreakTime,
-    });
+      // Update work session with new break time
+      const newTotalBreakTime = workSession.totalBreakTime + duration;
+      await updateWorkSession(workSessionId, {
+        totalBreakTime: newTotalBreakTime,
+      });
 
-    return { breakSessionId: activeBreak.id, timeEntryId };
+      return { breakSessionId: activeBreak.id, timeEntryId };
+    } else {
+      // Offline: Store locally
+      console.log('Offline: Storing break end data locally');
+      
+      const timeEntryId = await offlineStorageService.storeTimeEntry({
+        employeeId: workSession.employeeId,
+        type: 'break_end',
+        timestamp: now,
+        notes,
+      });
+
+      // Update break session offline
+      await offlineStorageService.updateBreakSessionOffline(activeBreak.id, {
+        endTime: now,
+        duration,
+        status: 'completed',
+      });
+
+      // Update work session with new break time offline
+      const newTotalBreakTime = workSession.totalBreakTime + duration;
+      await offlineStorageService.updateWorkSessionOffline(workSessionId, {
+        totalBreakTime: newTotalBreakTime,
+        updatedAt: now,
+      });
+
+      return { breakSessionId: activeBreak.id, timeEntryId };
+    }
   }
 
   // Utility Methods

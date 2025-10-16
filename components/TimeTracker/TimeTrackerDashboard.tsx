@@ -10,9 +10,13 @@ import DailySummaryComponent from './DailySummary';
 import { notificationService } from '@/lib/notifications';
 import { TimeFormat } from '@/lib/timeFormat';
 import { screenCaptureService } from '@/lib/screenCapture';
+import { networkDetectionService } from '@/lib/networkDetection';
+import { syncService } from '@/lib/syncService';
+import { offlineStorageService } from '@/lib/offlineStorage';
 import ScreenCaptureSettingsComponent from './ScreenCaptureSettings';
 import ScreenCaptureViewerComponent from './ScreenCaptureViewer';
 import PrivacyNotificationComponent from './PrivacyNotification';
+import OfflineStatusComponent from './OfflineStatus';
 import { 
   Play, 
   Pause, 
@@ -84,6 +88,12 @@ export default function TimeTrackerDashboard() {
         loadActiveSessions();
         // Request notification permission
         notificationService.requestPermission();
+        
+        // Initialize offline services
+        await networkDetectionService.initialize();
+        await syncService.initialize();
+        await offlineStorageService.initialize();
+        
         // Initialize screen capture service
         const initialized = await screenCaptureService.initialize();
         if (initialized) {
@@ -555,7 +565,7 @@ export default function TimeTrackerDashboard() {
 
         {/* Screen Capture & Additional Features */}
         {user && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
             {/* Screen Capture */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
               <div className="flex items-center justify-between mb-3">
@@ -605,6 +615,11 @@ export default function TimeTrackerDashboard() {
               />
                 </div>
               )}
+            </div>
+
+            {/* Offline Status */}
+            <div className="lg:col-span-1">
+              <OfflineStatusComponent />
             </div>
 
             {/* Quick Stats */}
