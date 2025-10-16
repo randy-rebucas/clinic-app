@@ -27,6 +27,8 @@ import {
 } from '@/types';
 import { ApplicationActivity, ApplicationTrackingSettings } from './applicationTracking';
 import { WebsiteActivity, WebsiteTrackingSettings } from './websiteTracking';
+import { ScreenCaptureSettings } from './screenCapture';
+import { AttendanceRecord, PunchRecord, AttendanceSettings } from './attendanceTracking';
 
 // Employee Management
 export const createEmployee = async (employeeData: Omit<Employee, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -991,4 +993,410 @@ export const getWebsiteTrackingSettings = async (employeeId: string): Promise<We
     createdAt: doc.data().createdAt?.toDate() || new Date(),
     updatedAt: doc.data().updatedAt?.toDate() || new Date(),
   } as WebsiteTrackingSettings;
+};
+
+// Screen Capture Settings Management
+export const createScreenCaptureSettings = async (settingsData: Omit<ScreenCaptureSettings, 'id' | 'createdAt' | 'updatedAt'>) => {
+  if (isDemoMode()) {
+    const id = `demo-screen-capture-settings-${Date.now()}`;
+    return { id, ...settingsData, createdAt: new Date(), updatedAt: new Date() };
+  }
+
+  const docRef = await addDoc(collection(db, 'screenCaptureSettings'), {
+    ...settingsData,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return { id: docRef.id, ...settingsData, createdAt: new Date(), updatedAt: new Date() };
+};
+
+export const updateScreenCaptureSettings = async (settingsId: string, updates: Partial<ScreenCaptureSettings>) => {
+  if (isDemoMode()) {
+    return { id: settingsId, ...updates, updatedAt: new Date() };
+  }
+
+  const docRef = doc(db, 'screenCaptureSettings', settingsId);
+  await updateDoc(docRef, {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const getScreenCaptureSettings = async (employeeId: string): Promise<ScreenCaptureSettings | null> => {
+  if (isDemoMode()) {
+    return {
+      id: 'demo-screen-capture-settings',
+      employeeId,
+      enabled: true,
+      intervalMinutes: 15,
+      quality: 0.8,
+      maxCapturesPerDay: 32,
+      requireUserConsent: true,
+      useRandomTiming: true,
+      randomVariationPercent: 25,
+      burstModeEnabled: false,
+      burstIntervalSeconds: 30,
+      burstDurationMinutes: 5,
+      burstFrequency: 'medium',
+      customBurstIntervalMinutes: 30,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  const q = query(
+    collection(db, 'screenCaptureSettings'),
+    where('employeeId', '==', employeeId),
+    limit(1)
+  );
+  const querySnapshot = await getDocs(q);
+  
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  const doc = querySnapshot.docs[0];
+  return {
+    id: doc.id,
+    ...doc.data(),
+    createdAt: doc.data().createdAt?.toDate() || new Date(),
+    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+  } as ScreenCaptureSettings;
+};
+
+export const getAllScreenCaptureSettings = async (): Promise<ScreenCaptureSettings[]> => {
+  if (isDemoMode()) {
+    return [
+      {
+        id: 'demo-screen-capture-settings-1',
+        employeeId: 'demo-employee-1',
+        enabled: true,
+        intervalMinutes: 15,
+        quality: 0.8,
+        maxCapturesPerDay: 32,
+        requireUserConsent: true,
+        useRandomTiming: true,
+        randomVariationPercent: 25,
+        burstModeEnabled: false,
+        burstIntervalSeconds: 30,
+        burstDurationMinutes: 5,
+        burstFrequency: 'medium',
+        customBurstIntervalMinutes: 30,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+  }
+
+  const q = query(
+    collection(db, 'screenCaptureSettings'),
+    orderBy('updatedAt', 'desc')
+  );
+  const querySnapshot = await getDocs(q);
+  
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    createdAt: doc.data().createdAt?.toDate() || new Date(),
+    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+  })) as ScreenCaptureSettings[];
+};
+
+// Attendance Management
+export const createAttendanceRecord = async (recordData: Omit<AttendanceRecord, 'id' | 'createdAt' | 'updatedAt'>) => {
+  if (isDemoMode()) {
+    const id = `demo-attendance-${Date.now()}`;
+    return { id, ...recordData, createdAt: new Date(), updatedAt: new Date() };
+  }
+
+  const docRef = await addDoc(collection(db, 'attendanceRecords'), {
+    ...recordData,
+    date: Timestamp.fromDate(recordData.date),
+    punchInTime: recordData.punchInTime ? Timestamp.fromDate(recordData.punchInTime) : null,
+    punchOutTime: recordData.punchOutTime ? Timestamp.fromDate(recordData.punchOutTime) : null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return { 
+    id: docRef.id, 
+    ...recordData, 
+    createdAt: new Date(), 
+    updatedAt: new Date() 
+  };
+};
+
+export const updateAttendanceRecord = async (recordId: string, updates: Partial<AttendanceRecord>) => {
+  if (isDemoMode()) {
+    return { id: recordId, ...updates, updatedAt: new Date() };
+  }
+
+  const docRef = doc(db, 'attendanceRecords', recordId);
+  const updateData: Record<string, unknown> = {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  };
+
+  if (updates.date) updateData.date = Timestamp.fromDate(updates.date);
+  if (updates.punchInTime) updateData.punchInTime = Timestamp.fromDate(updates.punchInTime);
+  if (updates.punchOutTime) updateData.punchOutTime = Timestamp.fromDate(updates.punchOutTime);
+
+  await updateDoc(docRef, updateData);
+};
+
+export const getAttendanceRecord = async (employeeId: string, date: Date): Promise<AttendanceRecord | null> => {
+  if (isDemoMode()) {
+    return {
+      id: 'demo-attendance-record',
+      employeeId,
+      date,
+      totalWorkingHours: 8,
+      totalBreakTime: 1,
+      status: 'present',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const q = query(
+    collection(db, 'attendanceRecords'),
+    where('employeeId', '==', employeeId),
+    where('date', '>=', Timestamp.fromDate(startOfDay)),
+    where('date', '<=', Timestamp.fromDate(endOfDay)),
+    limit(1)
+  );
+
+  const querySnapshot = await getDocs(q);
+  
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  const doc = querySnapshot.docs[0];
+  const data = doc.data();
+  
+  return {
+    id: doc.id,
+    ...data,
+    date: data.date?.toDate() || date,
+    punchInTime: data.punchInTime?.toDate(),
+    punchOutTime: data.punchOutTime?.toDate(),
+    createdAt: data.createdAt?.toDate() || new Date(),
+    updatedAt: data.updatedAt?.toDate() || new Date(),
+  } as AttendanceRecord;
+};
+
+export const getAttendanceRecords = async (employeeId: string, startDate: Date, endDate: Date): Promise<AttendanceRecord[]> => {
+  if (isDemoMode()) {
+    const records: AttendanceRecord[] = [];
+    const current = new Date(startDate);
+    
+    while (current <= endDate) {
+      records.push({
+        id: `demo-attendance-${current.getTime()}`,
+        employeeId,
+        date: new Date(current),
+        totalWorkingHours: 8,
+        totalBreakTime: 1,
+        status: 'present',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      });
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return records;
+  }
+
+  const q = query(
+    collection(db, 'attendanceRecords'),
+    where('employeeId', '==', employeeId),
+    where('date', '>=', Timestamp.fromDate(startDate)),
+    where('date', '<=', Timestamp.fromDate(endDate)),
+    orderBy('date', 'asc')
+  );
+
+  const querySnapshot = await getDocs(q);
+  
+  return querySnapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      date: data.date?.toDate() || new Date(),
+      punchInTime: data.punchInTime?.toDate(),
+      punchOutTime: data.punchOutTime?.toDate(),
+      createdAt: data.createdAt?.toDate() || new Date(),
+      updatedAt: data.updatedAt?.toDate() || new Date(),
+    };
+  }) as AttendanceRecord[];
+};
+
+// Punch Record Management
+export const createPunchRecord = async (recordData: Omit<PunchRecord, 'id' | 'createdAt'>) => {
+  if (isDemoMode()) {
+    const id = `demo-punch-${Date.now()}`;
+    return { id, ...recordData, createdAt: new Date() };
+  }
+
+  const docRef = await addDoc(collection(db, 'punchRecords'), {
+    ...recordData,
+    punchTime: Timestamp.fromDate(recordData.punchTime),
+    createdAt: serverTimestamp(),
+  });
+
+  return { 
+    id: docRef.id, 
+    ...recordData, 
+    createdAt: new Date() 
+  };
+};
+
+export const getPunchRecords = async (employeeId: string, startDate: Date, endDate: Date): Promise<PunchRecord[]> => {
+  if (isDemoMode()) {
+    return [
+      {
+        id: 'demo-punch-in',
+        employeeId,
+        attendanceRecordId: 'demo-attendance-record',
+        punchType: 'in',
+        punchTime: new Date(),
+        isManual: false,
+        createdAt: new Date()
+      },
+      {
+        id: 'demo-punch-out',
+        employeeId,
+        attendanceRecordId: 'demo-attendance-record',
+        punchType: 'out',
+        punchTime: new Date(Date.now() + 8 * 60 * 60 * 1000), // 8 hours later
+        isManual: false,
+        createdAt: new Date()
+      }
+    ];
+  }
+
+  const q = query(
+    collection(db, 'punchRecords'),
+    where('employeeId', '==', employeeId),
+    where('punchTime', '>=', Timestamp.fromDate(startDate)),
+    where('punchTime', '<=', Timestamp.fromDate(endDate)),
+    orderBy('punchTime', 'asc')
+  );
+
+  const querySnapshot = await getDocs(q);
+  
+  return querySnapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      punchTime: data.punchTime?.toDate() || new Date(),
+      createdAt: data.createdAt?.toDate() || new Date(),
+    };
+  }) as PunchRecord[];
+};
+
+// Attendance Settings Management
+export const createAttendanceSettings = async (settingsData: Omit<AttendanceSettings, 'id' | 'createdAt' | 'updatedAt'>) => {
+  if (isDemoMode()) {
+    const id = `demo-attendance-settings-${Date.now()}`;
+    return { id, ...settingsData, createdAt: new Date(), updatedAt: new Date() };
+  }
+
+  const docRef = await addDoc(collection(db, 'attendanceSettings'), {
+    ...settingsData,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return { id: docRef.id, ...settingsData, createdAt: new Date(), updatedAt: new Date() };
+};
+
+export const updateAttendanceSettings = async (employeeId: string, updates: Partial<AttendanceSettings>) => {
+  if (isDemoMode()) {
+    return { id: 'demo-attendance-settings', ...updates, updatedAt: new Date() };
+  }
+
+  // First, try to find existing settings
+  const q = query(
+    collection(db, 'attendanceSettings'),
+    where('employeeId', '==', employeeId),
+    limit(1)
+  );
+  
+  const querySnapshot = await getDocs(q);
+  
+  if (querySnapshot.empty) {
+    // Create new settings if none exist
+    return await createAttendanceSettings({
+      employeeId,
+      workStartTime: '09:00',
+      workEndTime: '17:00',
+      breakDuration: 60,
+      lateThreshold: 15,
+      earlyLeaveThreshold: 15,
+      overtimeThreshold: 0,
+      workingDays: [1, 2, 3, 4, 5], // Monday to Friday
+      timezone: 'UTC',
+      requireLocation: false,
+      allowRemoteWork: true,
+      autoPunchOut: false,
+      ...updates
+    });
+  }
+
+  const docRef = doc(db, 'attendanceSettings', querySnapshot.docs[0].id);
+  await updateDoc(docRef, {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const getAttendanceSettings = async (employeeId: string): Promise<AttendanceSettings | null> => {
+  if (isDemoMode()) {
+    return {
+      id: 'demo-attendance-settings',
+      employeeId,
+      workStartTime: '09:00',
+      workEndTime: '17:00',
+      breakDuration: 60,
+      lateThreshold: 15,
+      earlyLeaveThreshold: 15,
+      overtimeThreshold: 0,
+      workingDays: [1, 2, 3, 4, 5], // Monday to Friday
+      timezone: 'UTC',
+      requireLocation: false,
+      allowRemoteWork: true,
+      autoPunchOut: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  const q = query(
+    collection(db, 'attendanceSettings'),
+    where('employeeId', '==', employeeId),
+    limit(1)
+  );
+  
+  const querySnapshot = await getDocs(q);
+  
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  const doc = querySnapshot.docs[0];
+  return {
+    id: doc.id,
+    ...doc.data(),
+    createdAt: doc.data().createdAt?.toDate() || new Date(),
+    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+  } as AttendanceSettings;
 };

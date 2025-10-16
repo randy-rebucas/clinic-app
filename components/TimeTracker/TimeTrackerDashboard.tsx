@@ -16,6 +16,7 @@ import { offlineStorageService } from '@/lib/offlineStorage';
 import { idleManagementService } from '@/lib/idleManagement';
 import { applicationTrackingService } from '@/lib/applicationTracking';
 import { websiteTrackingService } from '@/lib/websiteTracking';
+import { attendanceTrackingService } from '@/lib/attendanceTracking';
 import ScreenCaptureSettingsComponent from './ScreenCaptureSettings';
 import ScreenCaptureViewerComponent from './ScreenCaptureViewer';
 import PrivacyNotificationComponent from './PrivacyNotification';
@@ -25,6 +26,7 @@ import IdleWarningComponent, { useIdleWarning } from './IdleWarning';
 import ApplicationUsage from './ApplicationUsage';
 import WebsiteUsage from './WebsiteUsage';
 import TrackingSettings from './TrackingSettings';
+import AttendanceDashboard from './AttendanceDashboard';
 import { 
   Play, 
   Pause, 
@@ -108,8 +110,9 @@ export default function TimeTrackerDashboard() {
         await idleManagementService.initialize(user.uid);
         
         // Initialize tracking services
-        await applicationTrackingService.initialize(user.uid);
-        await websiteTrackingService.initialize(user.uid);
+            await applicationTrackingService.initialize(user.uid);
+            await websiteTrackingService.initialize(user.uid);
+            await attendanceTrackingService.initialize(user.uid);
         
         // Initialize screen capture service
         const initialized = await screenCaptureService.initialize();
@@ -597,12 +600,19 @@ export default function TimeTrackerDashboard() {
         </div>
 
         {/* Application and Website Usage */}
-        {user && workSession && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-            <ApplicationUsage workSessionId={workSession.id} employeeId={user.uid} />
-            <WebsiteUsage workSessionId={workSession.id} employeeId={user.uid} />
-          </div>
-        )}
+          {user && workSession && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <ApplicationUsage workSessionId={workSession.id} employeeId={user.uid} />
+              <WebsiteUsage workSessionId={workSession.id} employeeId={user.uid} />
+            </div>
+          )}
+
+          {/* Attendance Dashboard */}
+          {user && (
+            <div className="mb-6">
+              <AttendanceDashboard employeeId={user.uid} />
+            </div>
+          )}
 
         {/* Screen Capture & Additional Features */}
         {user && (

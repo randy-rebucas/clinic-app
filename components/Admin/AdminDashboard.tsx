@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   Users, 
-  Calendar, 
   TrendingUp, 
   Download, 
   Settings,
@@ -16,8 +15,8 @@ import {
 } from 'lucide-react';
 import AttendanceReport from './AttendanceReport';
 import EmployeeManagement from './EmployeeManagement';
-import TimeEntryManagement from './TimeEntryManagement';
 import ScreenCaptureManagement from './ScreenCaptureManagement';
+import AttendanceManagement from './AttendanceManagement';
 
 export default function AdminDashboard() {
   const { employee } = useAuth();
@@ -48,7 +47,7 @@ export default function AdminDashboard() {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: TrendingUp },
     { id: 'employees', label: 'Employees', icon: Users },
-    { id: 'attendance', label: 'Attendance', icon: Calendar },
+    { id: 'attendance', label: 'Attendance', icon: Clock },
     { id: 'screen-captures', label: 'Screen Captures', icon: Camera },
     { id: 'reports', label: 'Reports', icon: Download },
     { id: 'settings', label: 'Settings', icon: Settings },
@@ -61,7 +60,7 @@ export default function AdminDashboard() {
       case 'employees':
         return <EmployeeManagement />;
       case 'attendance':
-        return <TimeEntryManagement />;
+        return <AttendanceManagement isOpen={true} onClose={() => {}} />;
       case 'screen-captures':
         return <ScreenCaptureManagement />;
       case 'reports':

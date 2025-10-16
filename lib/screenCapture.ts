@@ -12,6 +12,15 @@ export interface ScreenCaptureSettings {
   quality: number; // 0.1 to 1.0
   maxCapturesPerDay: number;
   requireUserConsent: boolean;
+  // New random timing settings
+  useRandomTiming: boolean;
+  randomVariationPercent: number; // 0-100, percentage of variation
+  // Burst mode settings
+  burstModeEnabled: boolean;
+  burstIntervalSeconds: number; // Minimum 30 seconds
+  burstDurationMinutes: number; // How long burst mode lasts
+  burstFrequency: 'low' | 'medium' | 'high' | 'custom'; // How often bursts occur
+  customBurstIntervalMinutes: number; // For custom frequency
 }
 
 export interface ScreenCapture {
@@ -28,14 +37,26 @@ export interface ScreenCapture {
 export class ScreenCaptureService {
   private static instance: ScreenCaptureService;
   private captureInterval: NodeJS.Timeout | null = null;
+  private burstInterval: NodeJS.Timeout | null = null;
+  private burstTimeout: NodeJS.Timeout | null = null;
   private isCapturing = false;
+  private isBurstMode = false;
   private currentStream: MediaStream | null = null;
+  private lastCaptureTime = 0;
+  private burstStartTime = 0;
   private settings: ScreenCaptureSettings = {
     enabled: false,
     intervalMinutes: 15,
     quality: 0.8,
     maxCapturesPerDay: 32, // 8 hours * 4 captures per hour
     requireUserConsent: true,
+    useRandomTiming: true,
+    randomVariationPercent: 25, // 25% variation by default
+    burstModeEnabled: false,
+    burstIntervalSeconds: 30,
+    burstDurationMinutes: 5,
+    burstFrequency: 'medium',
+    customBurstIntervalMinutes: 30,
   };
 
   static getInstance(): ScreenCaptureService {
@@ -126,13 +147,16 @@ export class ScreenCaptureService {
         }
       }
 
-      // Start capture interval
-      this.captureInterval = setInterval(async () => {
-        await this.captureScreen(employeeId, workSessionId);
-      }, this.settings.intervalMinutes * 60 * 1000);
+      // Start capture with random timing or burst mode
+      this.scheduleNextCapture(employeeId, workSessionId);
+      
+      // Start burst mode if enabled
+      if (this.settings.burstModeEnabled) {
+        this.startBurstMode(employeeId, workSessionId);
+      }
 
       this.isCapturing = true;
-      console.log(`Screen capture started - capturing every ${this.settings.intervalMinutes} minutes`);
+      console.log(`Screen capture started - ${this.settings.useRandomTiming ? 'random timing' : 'fixed interval'} mode`);
       
       return true;
     } catch (error) {
@@ -150,12 +174,23 @@ export class ScreenCaptureService {
       this.captureInterval = null;
     }
 
+    if (this.burstInterval) {
+      clearInterval(this.burstInterval);
+      this.burstInterval = null;
+    }
+
+    if (this.burstTimeout) {
+      clearTimeout(this.burstTimeout);
+      this.burstTimeout = null;
+    }
+
     if (this.currentStream) {
       this.currentStream.getTracks().forEach(track => track.stop());
       this.currentStream = null;
     }
 
     this.isCapturing = false;
+    this.isBurstMode = false;
     console.log('Screen capture stopped');
   }
 
@@ -254,6 +289,90 @@ export class ScreenCaptureService {
       
     } catch (error) {
       console.error('Failed to capture screen:', error);
+    }
+  }
+
+  /**
+   * Schedule the next capture with random timing
+   */
+  private scheduleNextCapture(employeeId: string, workSessionId: string): void {
+    if (this.captureInterval) {
+      clearInterval(this.captureInterval);
+    }
+
+    const baseInterval = this.settings.intervalMinutes * 60 * 1000; // Convert to milliseconds
+    let nextInterval = baseInterval;
+
+    if (this.settings.useRandomTiming) {
+      // Add random variation
+      const variation = this.settings.randomVariationPercent / 100;
+      const randomFactor = 1 + (Math.random() - 0.5) * 2 * variation; // -variation to +variation
+      nextInterval = Math.floor(baseInterval * randomFactor);
+      
+      // Ensure minimum interval of 1 minute
+      nextInterval = Math.max(nextInterval, 60 * 1000);
+    }
+
+    this.captureInterval = setTimeout(async () => {
+      await this.captureScreen(employeeId, workSessionId);
+      this.lastCaptureTime = Date.now();
+      
+      // Schedule next capture
+      this.scheduleNextCapture(employeeId, workSessionId);
+    }, nextInterval);
+
+    console.log(`Next capture scheduled in ${Math.round(nextInterval / 1000 / 60)} minutes`);
+  }
+
+  /**
+   * Start burst mode for frequent captures
+   */
+  private startBurstMode(employeeId: string, workSessionId: string): void {
+    if (this.burstInterval) {
+      clearInterval(this.burstInterval);
+    }
+
+    const burstIntervalMs = this.settings.burstIntervalSeconds * 1000;
+    const burstDurationMs = this.settings.burstDurationMinutes * 60 * 1000;
+
+    // Start burst mode
+    this.isBurstMode = true;
+    this.burstStartTime = Date.now();
+
+    this.burstInterval = setInterval(async () => {
+      if (this.isBurstMode) {
+        await this.captureScreen(employeeId, workSessionId);
+      }
+    }, burstIntervalMs);
+
+    // Schedule burst mode end
+    this.burstTimeout = setTimeout(() => {
+      this.isBurstMode = false;
+      if (this.burstInterval) {
+        clearInterval(this.burstInterval);
+        this.burstInterval = null;
+      }
+      console.log('Burst mode ended');
+    }, burstDurationMs);
+
+    console.log(`Burst mode started - capturing every ${this.settings.burstIntervalSeconds} seconds for ${this.settings.burstDurationMinutes} minutes`);
+  }
+
+  /**
+   * Get burst frequency interval in minutes
+   */
+  private getBurstFrequencyInterval(): number {
+    switch (this.settings.burstFrequency) {
+      case 'low':
+        return 60; // Every hour
+      case 'medium':
+        return 30; // Every 30 minutes
+      case 'high':
+        return 15; // Every 15 minutes
+      case 'custom':
+        return this.settings.customBurstIntervalMinutes;
+      default:
+        return 30;
     }
   }
 
@@ -487,6 +606,65 @@ export class ScreenCaptureService {
       totalSize,
       averageSize: captures.length > 0 ? Math.round(totalSize / captures.length) : 0,
     };
+  }
+
+  /**
+   * Get current capture status
+   */
+  getCaptureStatus(): {
+    isCapturing: boolean;
+    isBurstMode: boolean;
+    lastCaptureTime: number;
+    nextCaptureIn?: number;
+    burstModeRemaining?: number;
+  } {
+    const now = Date.now();
+    let nextCaptureIn: number | undefined;
+    let burstModeRemaining: number | undefined;
+
+    if (this.isCapturing && this.captureInterval) {
+      // Calculate approximate next capture time (this is an estimate)
+      const baseInterval = this.settings.intervalMinutes * 60 * 1000;
+      const timeSinceLastCapture = now - this.lastCaptureTime;
+      nextCaptureIn = Math.max(0, baseInterval - timeSinceLastCapture);
+    }
+
+    if (this.isBurstMode) {
+      const burstDurationMs = this.settings.burstDurationMinutes * 60 * 1000;
+      const burstElapsed = now - this.burstStartTime;
+      burstModeRemaining = Math.max(0, burstDurationMs - burstElapsed);
+    }
+
+    return {
+      isCapturing: this.isCapturing,
+      isBurstMode: this.isBurstMode,
+      lastCaptureTime: this.lastCaptureTime,
+      nextCaptureIn,
+      burstModeRemaining,
+    };
+  }
+
+  /**
+   * Manually trigger a burst mode session
+   */
+  async triggerBurstMode(employeeId: string, workSessionId: string): Promise<void> {
+    if (!this.isCapturing) {
+      console.log('Cannot trigger burst mode - capture not active');
+      return;
+    }
+
+    // Stop any existing burst mode
+    if (this.burstInterval) {
+      clearInterval(this.burstInterval);
+      this.burstInterval = null;
+    }
+    if (this.burstTimeout) {
+      clearTimeout(this.burstTimeout);
+      this.burstTimeout = null;
+    }
+
+    // Start new burst mode
+    this.startBurstMode(employeeId, workSessionId);
   }
 }
 

@@ -15,6 +15,13 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
     quality: 0.8,
     maxCapturesPerDay: 32,
     requireUserConsent: true,
+    useRandomTiming: true,
+    randomVariationPercent: 25,
+    burstModeEnabled: false,
+    burstIntervalSeconds: 30,
+    burstDurationMinutes: 5,
+    burstFrequency: 'medium',
+    customBurstIntervalMinutes: 30,
   });
   const [originalSettings, setOriginalSettings] = useState<ScreenCaptureSettings>({
     enabled: false,
@@ -22,6 +29,13 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
     quality: 0.8,
     maxCapturesPerDay: 32,
     requireUserConsent: true,
+    useRandomTiming: true,
+    randomVariationPercent: 25,
+    burstModeEnabled: false,
+    burstIntervalSeconds: 30,
+    burstDurationMinutes: 5,
+    burstFrequency: 'medium',
+    customBurstIntervalMinutes: 30,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -170,6 +184,35 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
         </div>
       </div>
 
+      {/* Capture Status */}
+      {settings.enabled && (
+        <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <div>
+                <div className="text-sm font-medium text-blue-900 dark:text-blue-100">Capture Active</div>
+                <div className="text-xs text-blue-700 dark:text-blue-300">
+                  {settings.useRandomTiming ? 'Random timing' : 'Fixed interval'} • 
+                  {settings.burstModeEnabled ? ' Burst mode enabled' : ' Normal mode'}
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-xs text-blue-700 dark:text-blue-300">
+                Every {settings.intervalMinutes} min
+                {settings.useRandomTiming && ` ±${settings.randomVariationPercent}%`}
+              </div>
+              {settings.burstModeEnabled && (
+                <div className="text-xs text-blue-600 dark:text-blue-400">
+                  Burst: {settings.burstIntervalSeconds}s
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Basic Settings */}
       <div className="space-y-3">
         {/* Enable Screen Capture */}
@@ -272,6 +315,95 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Maximum number of captures per day to prevent storage overflow
             </div>
+          </div>
+
+          {/* Random Timing */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                Random Timing
+              </label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.useRandomTiming}
+                  onChange={(e) => handleSettingChange('useRandomTiming', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+              Add random variation to capture intervals to reduce predictability
+            </div>
+            {settings.useRandomTiming && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Random Variation: {settings.randomVariationPercent}%
+                </label>
+                <input
+                  type="range"
+                  min="0"
+                  max="50"
+                  step="5"
+                  value={settings.randomVariationPercent}
+                  onChange={(e) => handleSettingChange('randomVariationPercent', parseInt(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Burst Mode */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                Burst Mode
+              </label>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={settings.burstModeEnabled}
+                  onChange={(e) => handleSettingChange('burstModeEnabled', e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+              Enable frequent captures during specific periods (minimum 30 seconds)
+            </div>
+            {settings.burstModeEnabled && (
+              <div className="space-y-2">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Burst Interval: {settings.burstIntervalSeconds} seconds
+                  </label>
+                  <input
+                    type="range"
+                    min="30"
+                    max="300"
+                    step="30"
+                    value={settings.burstIntervalSeconds}
+                    onChange={(e) => handleSettingChange('burstIntervalSeconds', parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Burst Duration: {settings.burstDurationMinutes} minutes
+                  </label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="30"
+                    value={settings.burstDurationMinutes}
+                    onChange={(e) => handleSettingChange('burstDurationMinutes', parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
