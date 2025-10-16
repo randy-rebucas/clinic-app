@@ -62,25 +62,54 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/localpro-time-tr
    
    **Important**: Replace the MongoDB URI with your actual database connection string.
 
-5. **Run the development server**
+5. **Set up demo accounts (optional)**
+   ```bash
+   # Create demo employee and admin accounts for testing
+   npx tsx scripts/demo-accounts-summary.ts
+   ```
+   
+   This will show you the available demo accounts:
+   - **Employee**: `john.doe@demo.com` (Software Developer)
+   - **Employee**: `jane.smith@demo.com` (Marketing Manager)  
+   - **Admin**: `admin@demo.com` (System Administrator)
+
+6. **Run the development server**
    ```bash
    npm run dev
    ```
 
-6. **Open your browser**
+7. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
+
+## ⚡ Quick Start with Demo Accounts
+
+To quickly test the application with pre-configured accounts:
+
+1. **View available demo accounts**:
+   ```bash
+   npx tsx scripts/demo-accounts-summary.ts
+   ```
+
+2. **Use demo credentials**:
+   - **Employee**: `john.doe@demo.com` or `jane.smith@demo.com`
+   - **Admin**: `admin@demo.com`
+
+3. **Start testing**:
+   - Navigate to [http://localhost:3000](http://localhost:3000)
+   - Use demo email addresses to sign in
+   - Test time tracking, breaks, and admin features
 
 ## 📱 Usage
 
 ### For Employees
-1. **Sign In** - Use your company email and password
+1. **Sign In** - Use your company email and password (or demo account: `john.doe@demo.com`)
 2. **Clock In** - Click "Clock In" to start your work day
 3. **Take Breaks** - Use "Start Break" and "End Break" buttons
 4. **Clock Out** - Click "Clock Out" to end your work day
 5. **View Summary** - Check your daily time summary at the bottom
 
 ### For Administrators
-1. **Access Admin Panel** - Navigate to `/admin` (admin role required)
+1. **Access Admin Panel** - Navigate to `/admin` (use demo admin: `admin@demo.com`)
 2. **Manage Employees** - Add, edit, or remove employee accounts
 3. **View Attendance** - Monitor all employee time entries
 4. **Generate Reports** - Create attendance reports for any date range
@@ -110,6 +139,44 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/localpro-time-tr
 - `NotificationService` - Browser and push notifications
 - `AdminDashboard` - Administrative interface
 - `TimeTrackerDashboard` - Employee interface
+
+### Scripts Directory
+The `scripts/` directory contains utility scripts for database management and demo setup:
+- `demo-accounts-summary.ts` - Display all demo accounts with details
+- `check-demo-accounts.ts` - Check existing demo accounts
+- `create-admin-account.ts` - Create admin demo accounts
+- `setup-demo-accounts.ts` - Full demo account setup
+- `migrate-data.js` - Database migration utilities
+- `test-mongodb.js` - Database connection testing
+
+## 🎭 Demo Accounts
+
+The application comes with pre-configured demo accounts for testing and development:
+
+### Available Demo Accounts
+- **John Doe** (`john.doe@demo.com`) - Software Developer (Engineering)
+- **Jane Smith** (`jane.smith@demo.com`) - Marketing Manager (Marketing)
+- **Admin User** (`admin@demo.com`) - System Administrator (Administration)
+
+### Demo Account Features
+- ✅ Pre-configured work schedules
+- ✅ Idle detection settings
+- ✅ Attendance tracking setup
+- ✅ Admin panel access (for admin account)
+
+### Demo Account Scripts
+```bash
+# View all demo accounts and their details
+npx tsx scripts/demo-accounts-summary.ts
+
+# Check existing demo accounts
+npx tsx scripts/check-demo-accounts.ts
+
+# Create additional demo accounts (if needed)
+npx tsx scripts/create-admin-account.ts
+```
+
+**Note**: These are demo accounts for testing purposes. In a production environment, implement proper authentication and password management.
 
 ## 🔧 Configuration
 
