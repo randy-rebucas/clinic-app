@@ -13,10 +13,13 @@ import { screenCaptureService } from '@/lib/screenCapture';
 import { networkDetectionService } from '@/lib/networkDetection';
 import { syncService } from '@/lib/syncService';
 import { offlineStorageService } from '@/lib/offlineStorage';
+import { idleManagementService } from '@/lib/idleManagement';
 import ScreenCaptureSettingsComponent from './ScreenCaptureSettings';
 import ScreenCaptureViewerComponent from './ScreenCaptureViewer';
 import PrivacyNotificationComponent from './PrivacyNotification';
 import OfflineStatusComponent from './OfflineStatus';
+import IdleStatusComponent from './IdleStatus';
+import IdleWarningComponent, { useIdleWarning } from './IdleWarning';
 import { 
   Play, 
   Pause, 
@@ -33,8 +36,6 @@ import {
   Zap,
   CheckCircle,
   XCircle,
-  Minus,
-  Plus,
   BarChart3,
   Calendar,
   Target,
@@ -53,6 +54,9 @@ export default function TimeTrackerDashboard() {
   const [showScreenCaptures, setShowScreenCaptures] = useState(false);
   const [showPrivacyNotification, setShowPrivacyNotification] = useState(false);
   const [currentDate] = useState(() => new Date());
+  
+  // Idle warning hook
+  const idleWarning = useIdleWarning();
 
   const loadActiveSessions = useCallback(async () => {
     if (!user) return;
@@ -94,6 +98,9 @@ export default function TimeTrackerDashboard() {
         await syncService.initialize();
         await offlineStorageService.initialize();
         
+        // Initialize idle management
+        await idleManagementService.initialize(user.uid);
+        
         // Initialize screen capture service
         const initialized = await screenCaptureService.initialize();
         if (initialized) {
@@ -116,45 +123,7 @@ export default function TimeTrackerDashboard() {
 
   const currentStatus = getCurrentStatus();
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Only handle shortcuts when not typing in input fields
-      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
-        return;
-      }
-
-      // Ctrl/Cmd + Enter: Clock In/Out
-      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-        event.preventDefault();
-        if (!workSession) {
-          handleClockIn();
-        } else if (currentStatus !== 'on_break') {
-          handleClockOut();
-        }
-      }
-
-      // Ctrl/Cmd + B: Start/End Break
-      if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
-        event.preventDefault();
-        if (workSession && !breakSession) {
-          handleStartBreak();
-        } else if (workSession && breakSession) {
-          handleEndBreak();
-        }
-      }
-
-      // Escape: Clear notes
-      if (event.key === 'Escape') {
-        setNotes('');
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [workSession, breakSession, currentStatus, notes]);
-
-  const handleClockIn = async () => {
+  const handleClockIn = useCallback(async () => {
     if (!user) return;
     
     setLoading(true);
@@ -174,14 +143,19 @@ export default function TimeTrackerDashboard() {
       if (settings.enabled && result.workSessionId) {
         await screenCaptureService.startCapture(user.uid, result.workSessionId);
       }
+      
+      // Start idle management for work session
+      if (result.workSessionId) {
+        await TimeTrackingService.initializeIdleManagement(user.uid, result.workSessionId);
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to clock in');
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, notes, loadActiveSessions]);
 
-  const handleClockOut = async () => {
+  const handleClockOut = useCallback(async () => {
     if (!user) return;
     
     setLoading(true);
@@ -197,6 +171,9 @@ export default function TimeTrackerDashboard() {
       // Stop screen capture
       screenCaptureService.stopCapture();
       
+      // Stop idle management
+      await TimeTrackingService.stopIdleManagement();
+      
       await loadActiveSessions();
       notificationService.showClockOutSuccess();
     } catch (err: unknown) {
@@ -204,9 +181,9 @@ export default function TimeTrackerDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, notes, loadActiveSessions]);
 
-  const handleStartBreak = async () => {
+  const handleStartBreak = useCallback(async () => {
     if (!workSession) return;
     
     setLoading(true);
@@ -225,9 +202,9 @@ export default function TimeTrackerDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [workSession, notes, loadActiveSessions]);
 
-  const handleEndBreak = async () => {
+  const handleEndBreak = useCallback(async () => {
     if (!workSession) return;
     
     setLoading(true);
@@ -243,7 +220,7 @@ export default function TimeTrackerDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [workSession, notes, loadActiveSessions]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -285,6 +262,44 @@ export default function TimeTrackerDashboard() {
     // User declined, disable screen capture
     screenCaptureService.updateSettings({ enabled: false });
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle shortcuts when not typing in input fields
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Ctrl/Cmd + Enter: Clock In/Out
+      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+        event.preventDefault();
+        if (!workSession) {
+          handleClockIn();
+        } else if (currentStatus !== 'on_break') {
+          handleClockOut();
+        }
+      }
+
+      // Ctrl/Cmd + B: Start/End Break
+      if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
+        event.preventDefault();
+        if (workSession && !breakSession) {
+          handleStartBreak();
+        } else if (workSession && breakSession) {
+          handleEndBreak();
+        }
+      }
+
+      // Escape: Clear notes
+      if (event.key === 'Escape') {
+        setNotes('');
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [workSession, breakSession, currentStatus, notes, handleClockIn, handleClockOut, handleStartBreak, handleEndBreak]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -565,7 +580,7 @@ export default function TimeTrackerDashboard() {
 
         {/* Screen Capture & Additional Features */}
         {user && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
             {/* Screen Capture */}
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
               <div className="flex items-center justify-between mb-3">
@@ -617,8 +632,13 @@ export default function TimeTrackerDashboard() {
               )}
             </div>
 
+            {/* Idle Status */}
+            <div>
+              <IdleStatusComponent />
+            </div>
+
             {/* Offline Status */}
-            <div className="lg:col-span-1">
+            <div>
               <OfflineStatusComponent />
             </div>
 
@@ -628,7 +648,7 @@ export default function TimeTrackerDashboard() {
                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                   <TrendingUp className="h-4 w-4 text-emerald-600" />
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Today's Progress</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Today&apos;s Progress</h3>
               </div>
               
               <div className="space-y-2">
@@ -702,6 +722,15 @@ export default function TimeTrackerDashboard() {
           onDecline={handlePrivacyDecline}
         />
       )}
+
+      {/* Idle Warning Modal */}
+      <IdleWarningComponent
+        isVisible={idleWarning.isVisible}
+        onClose={idleWarning.hideWarning}
+        onGoIdle={idleWarning.handleGoIdle}
+        onKeepActive={idleWarning.handleKeepActive}
+        timeRemaining={idleWarning.timeRemaining}
+      />
     </div>
   );
 }

@@ -21,7 +21,9 @@ import {
   BreakSession, 
   DailySummary, 
   WeeklySummary,
-  AttendanceReport 
+  AttendanceReport,
+  IdleSettings,
+  IdleSession
 } from '@/types';
 
 // Employee Management
@@ -479,4 +481,163 @@ export const generateAttendanceReport = async (
 
   const docRef = await addDoc(collection(db, 'attendanceReports'), cleanReport);
   return { ...report, id: docRef.id };
+};
+
+// Idle Settings Management
+export const createIdleSettings = async (idleSettingsData: Omit<IdleSettings, 'id' | 'createdAt' | 'updatedAt'>) => {
+  if (isDemoMode()) {
+    // Demo mode - simulate creation
+    return `demo-idle-settings-${Date.now()}`;
+  }
+
+  // Filter out undefined values
+  const cleanData = Object.fromEntries(
+    Object.entries(idleSettingsData).filter(([, value]) => value !== undefined)
+  );
+
+  const docRef = await addDoc(collection(db, 'idleSettings'), {
+    ...cleanData,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+  return docRef.id;
+};
+
+export const updateIdleSettings = async (settingsId: string, updates: Partial<IdleSettings>) => {
+  if (isDemoMode()) {
+    // Demo mode - simulate update
+    console.log('Demo: Updated idle settings', settingsId, updates);
+    return;
+  }
+
+  // Filter out undefined values
+  const cleanUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([, value]) => value !== undefined)
+  );
+
+  const docRef = doc(db, 'idleSettings', settingsId);
+  await updateDoc(docRef, {
+    ...cleanUpdates,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const getIdleSettings = async (employeeId: string): Promise<IdleSettings | null> => {
+  if (isDemoMode()) {
+    // Demo mode - return default settings for demo user
+    if (employeeId === 'demo-employee-1') {
+      return {
+        id: 'demo-idle-settings-1',
+        employeeId: 'demo-employee-1',
+        enabled: true,
+        idleThresholdMinutes: 5,
+        pauseTimerOnIdle: true,
+        showIdleWarning: true,
+        warningTimeMinutes: 1,
+        autoResumeOnActivity: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    }
+    return null;
+  }
+
+  const q = query(
+    collection(db, 'idleSettings'),
+    where('employeeId', '==', employeeId),
+    limit(1)
+  );
+
+  const querySnapshot = await getDocs(q);
+  if (!querySnapshot.empty) {
+    const doc = querySnapshot.docs[0];
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data.createdAt?.toDate() || new Date(),
+      updatedAt: data.updatedAt?.toDate() || new Date(),
+    } as IdleSettings;
+  }
+  return null;
+};
+
+// Idle Session Management
+export const createIdleSession = async (idleSessionData: Omit<IdleSession, 'id'>) => {
+  if (isDemoMode()) {
+    // Demo mode - simulate creation
+    return `demo-idle-session-${Date.now()}`;
+  }
+
+  // Filter out undefined values
+  const cleanData = Object.fromEntries(
+    Object.entries(idleSessionData).filter(([, value]) => value !== undefined)
+  );
+
+  const docRef = await addDoc(collection(db, 'idleSessions'), cleanData);
+  return docRef.id;
+};
+
+export const updateIdleSession = async (sessionId: string, updates: Partial<IdleSession>) => {
+  if (isDemoMode()) {
+    // Demo mode - simulate update
+    console.log('Demo: Updated idle session', sessionId, updates);
+    return;
+  }
+
+  // Filter out undefined values
+  const cleanUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([, value]) => value !== undefined)
+  );
+
+  const docRef = doc(db, 'idleSessions', sessionId);
+  await updateDoc(docRef, cleanUpdates);
+};
+
+export const getActiveIdleSession = async (workSessionId: string): Promise<IdleSession | null> => {
+  if (isDemoMode()) {
+    // Demo mode - return null to simulate no active idle session
+    return null;
+  }
+
+  const q = query(
+    collection(db, 'idleSessions'),
+    where('workSessionId', '==', workSessionId),
+    where('status', '==', 'active'),
+    limit(1)
+  );
+
+  const querySnapshot = await getDocs(q);
+  if (!querySnapshot.empty) {
+    const doc = querySnapshot.docs[0];
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      startTime: data.startTime?.toDate() || new Date(),
+      endTime: data.endTime?.toDate(),
+    } as IdleSession;
+  }
+  return null;
+};
+
+export const getIdleSessions = async (workSessionId: string) => {
+  if (isDemoMode()) {
+    // Demo mode - return empty array
+    return [];
+  }
+
+  const q = query(
+    collection(db, 'idleSessions'),
+    where('workSessionId', '==', workSessionId),
+    orderBy('startTime', 'desc')
+  );
+
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    startTime: doc.data().startTime?.toDate() || new Date(),
+    endTime: doc.data().endTime?.toDate(),
+  })) as IdleSession[];
 };

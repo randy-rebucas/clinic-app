@@ -9,8 +9,7 @@ import {
   AlertCircle, 
   Clock,
   Database,
-  Upload,
-  Download
+  Upload
 } from 'lucide-react';
 import { networkDetectionService, NetworkState } from '@/lib/networkDetection';
 import { syncService, SyncProgress } from '@/lib/syncService';

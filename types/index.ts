@@ -91,3 +91,27 @@ export interface NotificationSettings {
   reminderTime: number; // minutes before end of workday
   breakReminderTime: number; // minutes for break reminders
 }
+
+export interface IdleSettings {
+  id: string;
+  employeeId: string;
+  enabled: boolean;
+  idleThresholdMinutes: number; // Minutes of inactivity before considered idle
+  pauseTimerOnIdle: boolean; // Whether to pause timer when idle
+  showIdleWarning: boolean; // Whether to show warning before going idle
+  warningTimeMinutes: number; // Minutes before idle to show warning
+  autoResumeOnActivity: boolean; // Whether to auto-resume timer when activity detected
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IdleSession {
+  id: string;
+  workSessionId: string;
+  startTime: Date;
+  endTime?: Date;
+  duration?: number; // in minutes
+  reason: 'inactivity' | 'manual' | 'system';
+  notes?: string;
+  status: 'active' | 'completed';
+}

@@ -3,16 +3,13 @@
  * Handles automatic synchronization of offline data when connection is restored
  */
 
-import { offlineStorageService, OfflineTimeEntry, OfflineWorkSession, OfflineBreakSession, OfflineScreenCapture } from './offlineStorage';
+import { offlineStorageService } from './offlineStorage';
 import { networkDetectionService, NetworkState } from './networkDetection';
 import { 
   createTimeEntry, 
   createWorkSession, 
-  updateWorkSession, 
-  createBreakSession, 
-  updateBreakSession 
+  createBreakSession
 } from './database';
-import { TimeEntry, WorkSession, BreakSession } from '@/types';
 
 export interface SyncProgress {
   totalItems: number;
@@ -126,7 +123,6 @@ export class SyncService {
     }
 
     this.isRunning = true;
-    const startTime = new Date();
     
     try {
       const pendingItems = offlineStorageService.getPendingSyncItems();
@@ -155,13 +151,14 @@ export class SyncService {
 
           offlineStorageService.markAsSyncing('timeEntry', timeEntry.id!);
           
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, isOffline, syncStatus, lastSyncAttempt, retryCount, ...cleanTimeEntry } = timeEntry;
-          const newId = await createTimeEntry(cleanTimeEntry);
+          await createTimeEntry(cleanTimeEntry);
           
           offlineStorageService.markAsSynced('timeEntry', timeEntry.id!);
           syncedItems++;
           
-          console.log(`Synced time entry: ${timeEntry.id} -> ${newId}`);
+          console.log(`Synced time entry: ${timeEntry.id}`);
         } catch (error) {
           const errorMsg = `Failed to sync time entry ${timeEntry.id}: ${error}`;
           console.error(errorMsg);
@@ -185,13 +182,14 @@ export class SyncService {
 
           offlineStorageService.markAsSyncing('workSession', workSession.id!);
           
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, isOffline, syncStatus, lastSyncAttempt, retryCount, ...cleanWorkSession } = workSession;
-          const newId = await createWorkSession(cleanWorkSession);
+          await createWorkSession(cleanWorkSession);
           
           offlineStorageService.markAsSynced('workSession', workSession.id!);
           syncedItems++;
           
-          console.log(`Synced work session: ${workSession.id} -> ${newId}`);
+          console.log(`Synced work session: ${workSession.id}`);
         } catch (error) {
           const errorMsg = `Failed to sync work session ${workSession.id}: ${error}`;
           console.error(errorMsg);
@@ -215,13 +213,14 @@ export class SyncService {
 
           offlineStorageService.markAsSyncing('breakSession', breakSession.id!);
           
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, isOffline, syncStatus, lastSyncAttempt, retryCount, ...cleanBreakSession } = breakSession;
-          const newId = await createBreakSession(cleanBreakSession);
+          await createBreakSession(cleanBreakSession);
           
           offlineStorageService.markAsSynced('breakSession', breakSession.id!);
           syncedItems++;
           
-          console.log(`Synced break session: ${breakSession.id} -> ${newId}`);
+          console.log(`Synced break session: ${breakSession.id}`);
         } catch (error) {
           const errorMsg = `Failed to sync break session ${breakSession.id}: ${error}`;
           console.error(errorMsg);

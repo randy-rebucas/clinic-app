@@ -98,7 +98,7 @@ export class NetworkDetectionService {
   async checkNetworkStatus(): Promise<boolean> {
     try {
       // Try to fetch a lightweight resource
-      const response = await fetch(this.heartbeatUrl, {
+      await fetch(this.heartbeatUrl, {
         method: 'HEAD',
         mode: 'no-cors',
         cache: 'no-cache',
@@ -109,7 +109,7 @@ export class NetworkDetectionService {
         this.handleOnline();
       }
       return true;
-    } catch (error) {
+    } catch {
       // If we get an error, we're likely offline
       if (this.isOnline) {
         this.handleOffline();
@@ -159,14 +159,14 @@ export class NetworkDetectionService {
     try {
       // Check for connection API support
       if ('connection' in navigator) {
-        const connection = (navigator as any).connection;
-        this.connectionType = connection.effectiveType || connection.type || 'unknown';
+        const connection = (navigator as Navigator & { connection?: { effectiveType?: string; type?: string } }).connection;
+        this.connectionType = connection?.effectiveType || connection?.type || 'unknown';
       } else if ('mozConnection' in navigator) {
-        const connection = (navigator as any).mozConnection;
-        this.connectionType = connection.type || 'unknown';
+        const connection = (navigator as Navigator & { mozConnection?: { type?: string } }).mozConnection;
+        this.connectionType = connection?.type || 'unknown';
       } else if ('webkitConnection' in navigator) {
-        const connection = (navigator as any).webkitConnection;
-        this.connectionType = connection.type || 'unknown';
+        const connection = (navigator as Navigator & { webkitConnection?: { type?: string } }).webkitConnection;
+        this.connectionType = connection?.type || 'unknown';
       } else {
         this.connectionType = 'unknown';
       }

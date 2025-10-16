@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { getDailySummary, getTimeEntries } from '@/lib/database';
 import { DailySummary, TimeEntry } from '@/types';
 import { TimeFormat } from '@/lib/timeFormat';
-import { Calendar, Clock, TrendingUp, Coffee, Download, BarChart3, Target, Award, Activity } from 'lucide-react';
+import { Calendar, Clock, Coffee, Download, BarChart3, Target, Award, Activity } from 'lucide-react';
 
 interface DailySummaryProps {
   employeeId: string;
@@ -320,7 +320,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
                       </div>
                       {entry.notes && (
                         <div className="text-xs text-gray-700 dark:text-gray-300 mt-1 italic">
-                          "{entry.notes}"
+                          &ldquo;{entry.notes}&rdquo;
                         </div>
                       )}
                     </div>

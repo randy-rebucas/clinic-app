@@ -3,7 +3,7 @@
  * Handles local storage of time entries, work sessions, and screen captures when offline
  */
 
-import { TimeEntry, WorkSession, BreakSession, DailySummary } from '@/types';
+import { TimeEntry, WorkSession, BreakSession } from '@/types';
 import { ScreenCapture } from './screenCapture';
 
 export interface OfflineTimeEntry extends Omit<TimeEntry, 'id'> {
@@ -353,29 +353,29 @@ export class OfflineStorageService {
       if (stored) {
         const data = JSON.parse(stored);
         // Convert date strings back to Date objects
-        data.timeEntries = data.timeEntries.map((entry: any) => ({
+        data.timeEntries = data.timeEntries.map((entry: Record<string, unknown>) => ({
           ...entry,
-          timestamp: new Date(entry.timestamp),
-          lastSyncAttempt: entry.lastSyncAttempt ? new Date(entry.lastSyncAttempt) : undefined,
+          timestamp: new Date(entry.timestamp as string),
+          lastSyncAttempt: entry.lastSyncAttempt ? new Date(entry.lastSyncAttempt as string) : undefined,
         }));
-        data.workSessions = data.workSessions.map((session: any) => ({
+        data.workSessions = data.workSessions.map((session: Record<string, unknown>) => ({
           ...session,
-          clockInTime: new Date(session.clockInTime),
-          clockOutTime: session.clockOutTime ? new Date(session.clockOutTime) : undefined,
-          createdAt: new Date(session.createdAt),
-          updatedAt: new Date(session.updatedAt),
-          lastSyncAttempt: session.lastSyncAttempt ? new Date(session.lastSyncAttempt) : undefined,
+          clockInTime: new Date(session.clockInTime as string),
+          clockOutTime: session.clockOutTime ? new Date(session.clockOutTime as string) : undefined,
+          createdAt: new Date(session.createdAt as string),
+          updatedAt: new Date(session.updatedAt as string),
+          lastSyncAttempt: session.lastSyncAttempt ? new Date(session.lastSyncAttempt as string) : undefined,
         }));
-        data.breakSessions = data.breakSessions.map((breakSession: any) => ({
+        data.breakSessions = data.breakSessions.map((breakSession: Record<string, unknown>) => ({
           ...breakSession,
-          startTime: new Date(breakSession.startTime),
-          endTime: breakSession.endTime ? new Date(breakSession.endTime) : undefined,
-          lastSyncAttempt: breakSession.lastSyncAttempt ? new Date(breakSession.lastSyncAttempt) : undefined,
+          startTime: new Date(breakSession.startTime as string),
+          endTime: breakSession.endTime ? new Date(breakSession.endTime as string) : undefined,
+          lastSyncAttempt: breakSession.lastSyncAttempt ? new Date(breakSession.lastSyncAttempt as string) : undefined,
         }));
-        data.screenCaptures = data.screenCaptures.map((capture: any) => ({
+        data.screenCaptures = data.screenCaptures.map((capture: Record<string, unknown>) => ({
           ...capture,
-          timestamp: new Date(capture.timestamp),
-          lastSyncAttempt: capture.lastSyncAttempt ? new Date(capture.lastSyncAttempt) : undefined,
+          timestamp: new Date(capture.timestamp as string),
+          lastSyncAttempt: capture.lastSyncAttempt ? new Date(capture.lastSyncAttempt as string) : undefined,
         }));
         data.lastSyncTime = data.lastSyncTime ? new Date(data.lastSyncTime) : undefined;
         return data;

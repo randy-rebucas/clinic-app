@@ -16,6 +16,7 @@ import { isDemoMode } from './demoMode';
 import { TimeFormat } from './timeFormat';
 import { offlineStorageService } from './offlineStorage';
 import { networkDetectionService } from './networkDetection';
+import { idleManagementService } from './idleManagement';
 
 export interface ClockInData {
   employeeId: string;
@@ -99,6 +100,52 @@ export class TimeTrackingService {
     }
   }
 
+  // Get idle management state
+  static getIdleState() {
+    return idleManagementService.getCurrentState();
+  }
+
+  // Update idle settings
+  static async updateIdleSettings(updates: Partial<{
+    enabled: boolean;
+    idleThresholdMinutes: number;
+    pauseTimerOnIdle: boolean;
+    showIdleWarning: boolean;
+    warningTimeMinutes: number;
+    autoResumeOnActivity: boolean;
+  }>) {
+    return await idleManagementService.updateSettings(updates);
+  }
+
+  // Manually start idle
+  static async manualStartIdle(notes?: string) {
+    return await idleManagementService.manualStartIdle(notes);
+  }
+
+  // Manually end idle
+  static async manualEndIdle() {
+    return await idleManagementService.manualEndIdle();
+  }
+
+  // Initialize idle management for work session
+  static async initializeIdleManagement(employeeId: string, workSessionId: string): Promise<void> {
+    try {
+      await idleManagementService.initialize(employeeId, workSessionId);
+      await idleManagementService.startMonitoring(workSessionId);
+    } catch (error) {
+      console.error('Failed to initialize idle management:', error);
+    }
+  }
+
+  // Stop idle management
+  static async stopIdleManagement(): Promise<void> {
+    try {
+      idleManagementService.stopMonitoring();
+    } catch (error) {
+      console.error('Failed to stop idle management:', error);
+    }
+  }
+
   static async clockOut(data: ClockOutData): Promise<{ workSessionId: string; timeEntryId: string }> {
     const now = new Date();
     
@@ -145,6 +192,9 @@ export class TimeTrackingService {
 
       // Update daily summary
       await this.updateDailySummary(data.employeeId, now);
+
+      // Stop idle management
+      await this.stopIdleManagement();
 
       return { workSessionId: activeSession.id, timeEntryId };
     } else {
