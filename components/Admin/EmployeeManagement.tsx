@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getEmployee, updateEmployee, createEmployee } from '@/lib/database';
+import { updateEmployee, createEmployee } from '@/lib/database';
 import { Employee } from '@/types';
 import { Plus, Edit, Trash2, User, Mail, Building, Shield } from 'lucide-react';
 

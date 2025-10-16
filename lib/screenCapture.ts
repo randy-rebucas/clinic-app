@@ -84,7 +84,6 @@ export class ScreenCaptureService {
       // Request screen capture permission
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: {
-          mediaSource: 'screen',
           width: { ideal: 1920 },
           height: { ideal: 1080 },
         },
@@ -172,7 +171,6 @@ export class ScreenCaptureService {
       // Get screen stream
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: {
-          mediaSource: 'screen',
           width: { ideal: 1920 },
           height: { ideal: 1080 },
         },
@@ -307,7 +305,36 @@ export class ScreenCaptureService {
   private getStoredCaptures(): ScreenCapture[] {
     try {
       const stored = localStorage.getItem('screenCaptures');
-      return stored ? JSON.parse(stored) : [];
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      
+      // Initialize with demo captures if none exist
+      const demoCaptures: ScreenCapture[] = [
+        {
+          id: 'demo-capture-1',
+          employeeId: 'demo-employee-1',
+          workSessionId: 'demo-session-1',
+          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+          imageData: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+          thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+          fileSize: 1024,
+          isActive: true,
+        },
+        {
+          id: 'demo-capture-2',
+          employeeId: 'demo-employee-1',
+          workSessionId: 'demo-session-1',
+          timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+          imageData: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+          thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+          fileSize: 1024,
+          isActive: true,
+        },
+      ];
+      
+      localStorage.setItem('screenCaptures', JSON.stringify(demoCaptures));
+      return demoCaptures;
     } catch (error) {
       console.error('Failed to load stored captures:', error);
       return [];
@@ -338,7 +365,9 @@ export class ScreenCaptureService {
    * Update settings
    */
   updateSettings(newSettings: Partial<ScreenCaptureSettings>): void {
+    console.log('Updating settings:', newSettings);
     this.settings = { ...this.settings, ...newSettings };
+    console.log('New settings after update:', this.settings);
     this.saveSettings();
   }
 
@@ -346,6 +375,8 @@ export class ScreenCaptureService {
    * Get current settings
    */
   getSettings(): ScreenCaptureSettings {
+    // Always load settings from localStorage to ensure we have the latest
+    this.loadSettings();
     return { ...this.settings };
   }
 
@@ -355,8 +386,14 @@ export class ScreenCaptureService {
   private loadSettings(): void {
     try {
       const stored = localStorage.getItem('screenCaptureSettings');
+      console.log('Loading settings from localStorage:', stored);
       if (stored) {
-        this.settings = { ...this.settings, ...JSON.parse(stored) };
+        const parsedSettings = JSON.parse(stored);
+        console.log('Parsed settings from localStorage:', parsedSettings);
+        this.settings = { ...this.settings, ...parsedSettings };
+        console.log('Final settings after loading:', this.settings);
+      } else {
+        console.log('No stored settings found, using defaults');
       }
     } catch (error) {
       console.error('Failed to load screen capture settings:', error);
@@ -368,7 +405,9 @@ export class ScreenCaptureService {
    */
   private saveSettings(): void {
     try {
+      console.log('Saving settings to localStorage:', this.settings);
       localStorage.setItem('screenCaptureSettings', JSON.stringify(this.settings));
+      console.log('Settings saved successfully to localStorage');
     } catch (error) {
       console.error('Failed to save screen capture settings:', error);
     }

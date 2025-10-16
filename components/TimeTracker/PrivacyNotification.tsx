@@ -85,7 +85,7 @@ export default function PrivacyNotificationComponent({ onAccept, onDecline }: Pr
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-medium text-gray-900">What we don't capture:</h4>
+            <h4 className="font-medium text-gray-900">What we don&apos;t capture:</h4>
             <ul className="space-y-2 text-sm text-gray-700">
               <li className="flex items-start space-x-2">
                 <XCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />

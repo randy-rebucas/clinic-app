@@ -3,6 +3,7 @@ import {
   createWorkSession, 
   updateWorkSession, 
   getActiveWorkSession,
+  getWorkSession,
   createBreakSession,
   updateBreakSession,
   getActiveBreakSession,
@@ -10,8 +11,8 @@ import {
   updateDailySummary,
   getDailySummary
 } from './database';
-import { TimeEntry, WorkSession, BreakSession } from '@/types';
-import { isDemoMode, createDemoTimeEntry, createDemoWorkSession } from './demoMode';
+import { WorkSession, BreakSession } from '@/types';
+import { isDemoMode } from './demoMode';
 import { TimeFormat } from './timeFormat';
 
 export interface ClockInData {
@@ -127,9 +128,15 @@ export class TimeTrackingService {
       throw new Error('Employee is already on break');
     }
 
+    // Get the work session to get employee ID
+    const workSession = await getWorkSession(data.workSessionId);
+    if (!workSession) {
+      throw new Error('Work session not found');
+    }
+
     // Create time entry
     const timeEntryId = await createTimeEntry({
-      employeeId: '', // Will be filled from work session
+      employeeId: workSession.employeeId,
       type: 'break_start',
       timestamp: now,
       notes: data.notes,
@@ -158,9 +165,15 @@ export class TimeTrackingService {
     // Calculate break duration
     const duration = Math.floor((now.getTime() - activeBreak.startTime.getTime()) / (1000 * 60));
 
+    // Get the work session to get employee ID
+    const workSession = await getWorkSession(workSessionId);
+    if (!workSession) {
+      throw new Error('Work session not found');
+    }
+
     // Create time entry
     const timeEntryId = await createTimeEntry({
-      employeeId: '', // Will be filled from work session
+      employeeId: workSession.employeeId,
       type: 'break_end',
       timestamp: now,
       notes,
@@ -174,13 +187,10 @@ export class TimeTrackingService {
     });
 
     // Update work session with new break time
-    const workSession = await getActiveWorkSession(''); // We need to get the work session
-    if (workSession) {
-      const newTotalBreakTime = workSession.totalBreakTime + duration;
-      await updateWorkSession(workSessionId, {
-        totalBreakTime: newTotalBreakTime,
-      });
-    }
+    const newTotalBreakTime = workSession.totalBreakTime + duration;
+    await updateWorkSession(workSessionId, {
+      totalBreakTime: newTotalBreakTime,
+    });
 
     return { breakSessionId: activeBreak.id, timeEntryId };
   }
@@ -214,7 +224,7 @@ export class TimeTrackingService {
     
     if (existingSummary) {
       // Update existing summary
-      const workSessions = await this.getWorkSessionsForDate(employeeId, date);
+      const workSessions = await this.getWorkSessionsForDate();
       const totalWorkTime = workSessions.reduce((sum, session) => sum + session.totalWorkTime, 0);
       const totalBreakTime = workSessions.reduce((sum, session) => sum + session.totalBreakTime, 0);
       
@@ -226,7 +236,7 @@ export class TimeTrackingService {
       });
     } else {
       // Create new summary
-      const workSessions = await this.getWorkSessionsForDate(employeeId, date);
+      const workSessions = await this.getWorkSessionsForDate();
       const totalWorkTime = workSessions.reduce((sum, session) => sum + session.totalWorkTime, 0);
       const totalBreakTime = workSessions.reduce((sum, session) => sum + session.totalBreakTime, 0);
       
@@ -244,7 +254,7 @@ export class TimeTrackingService {
     }
   }
 
-  private static async getWorkSessionsForDate(employeeId: string, date: Date): Promise<WorkSession[]> {
+  private static async getWorkSessionsForDate(): Promise<WorkSession[]> {
     // This would need to be implemented in the database service
     // For now, returning empty array
     return [];

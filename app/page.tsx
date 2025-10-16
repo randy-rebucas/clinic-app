@@ -3,10 +3,11 @@
 import { useAuth } from '@/contexts/AuthContext';
 import LoginForm from '@/components/Auth/LoginForm';
 import TimeTrackerDashboard from '@/components/TimeTracker/TimeTrackerDashboard';
+import AdminDashboard from '@/components/Admin/AdminDashboard';
 import { Clock } from 'lucide-react';
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
 
   if (loading) {
     return (
@@ -24,6 +25,11 @@ export default function Home() {
 
   if (!user) {
     return <LoginForm />;
+  }
+
+  // Show admin dashboard for admin users, time tracker for regular employees
+  if (isAdmin) {
+    return <AdminDashboard />;
   }
 
   return <TimeTrackerDashboard />;

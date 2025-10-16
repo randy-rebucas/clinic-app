@@ -24,9 +24,9 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({
     totalEmployees: 0,
-    activeToday: 0,
-    onBreak: 0,
-    totalHoursToday: 0,
+    activeEmployees: 0,
+    totalWorkHours: 0,
+    averageWorkHours: 0,
   });
 
   useEffect(() => {
@@ -39,9 +39,9 @@ export default function AdminDashboard() {
     // For now, using mock data
     setStats({
       totalEmployees: 25,
-      activeToday: 18,
-      onBreak: 3,
-      totalHoursToday: 142.5,
+      activeEmployees: 18,
+      totalWorkHours: 142.5,
+      averageWorkHours: 8.0,
     });
   };
 
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
         <div className="text-center">
           <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-gray-600">You don't have permission to access the admin panel.</p>
+          <p className="text-gray-600">You don&apos;t have permission to access the admin panel.</p>
         </div>
       </div>
     );
@@ -133,7 +133,7 @@ export default function AdminDashboard() {
   );
 }
 
-function OverviewTab({ stats }: { stats: any }) {
+function OverviewTab({ stats }: { stats: { totalEmployees: number; activeEmployees: number; totalWorkHours: number; averageWorkHours: number } }) {
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
@@ -157,7 +157,7 @@ function OverviewTab({ stats }: { stats: any }) {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Active Today</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.activeToday}</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.activeEmployees}</p>
             </div>
           </div>
         </div>
@@ -168,8 +168,8 @@ function OverviewTab({ stats }: { stats: any }) {
               <Clock className="h-8 w-8 text-yellow-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">On Break</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.onBreak}</p>
+              <p className="text-sm font-medium text-gray-500">Average Hours</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.averageWorkHours}</p>
             </div>
           </div>
         </div>
@@ -181,7 +181,7 @@ function OverviewTab({ stats }: { stats: any }) {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-500">Total Hours Today</p>
-              <p className="text-2xl font-semibold text-gray-900">{stats.totalHoursToday}</p>
+              <p className="text-2xl font-semibold text-gray-900">{stats.totalWorkHours}</p>
             </div>
           </div>
         </div>

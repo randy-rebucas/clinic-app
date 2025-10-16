@@ -19,8 +19,8 @@ export default function LoginForm() {
 
     try {
       await signIn(email, password);
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to sign in');
     } finally {
       setLoading(false);
     }
@@ -125,7 +125,7 @@ export default function LoginForm() {
 
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account? Contact your administrator.
+            Don&apos;t have an account? Contact your administrator.
           </p>
           {process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "demo-api-key" && (
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">

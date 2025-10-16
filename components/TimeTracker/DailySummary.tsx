@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getDailySummary, getTimeEntries } from '@/lib/database';
 import { DailySummary, TimeEntry } from '@/types';
 import { TimeFormat } from '@/lib/timeFormat';
@@ -16,11 +16,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadDailyData();
-  }, [employeeId, date]);
-
-  const loadDailyData = async () => {
+  const loadDailyData = useCallback(async () => {
     try {
       const dateStr = date.toISOString().split('T')[0];
       const [dailySummary, entries] = await Promise.all([
@@ -31,11 +27,15 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
       setSummary(dailySummary);
       setTimeEntries(entries);
     } catch (error) {
-      console.error('Error loading daily data:', error);
+      console.error('Failed to load daily data:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [employeeId, date]);
+
+  useEffect(() => {
+    loadDailyData();
+  }, [loadDailyData]);
 
   const formatTime = (minutes: number): string => {
     return TimeFormat.formatDuration(minutes);

@@ -26,10 +26,10 @@ export const createDemoAdmin = () => ({
   updatedAt: new Date(),
 });
 
-export const createDemoTimeEntry = (type: string, notes?: string) => ({
+export const createDemoTimeEntry = (type: 'clock_in' | 'clock_out' | 'break_start' | 'break_end', notes?: string) => ({
   id: `demo-entry-${Date.now()}`,
   employeeId: 'demo-employee-1',
-  type: type as any,
+  type,
   timestamp: new Date(),
   notes,
   location: 'Office',
@@ -44,4 +44,12 @@ export const createDemoWorkSession = () => ({
   status: 'active' as const,
   createdAt: new Date(),
   updatedAt: new Date(),
+});
+
+export const createDemoBreakSession = () => ({
+  id: 'demo-break-1',
+  workSessionId: 'demo-session-1',
+  startTime: new Date(),
+  status: 'active' as const,
+  notes: 'Demo break session',
 });

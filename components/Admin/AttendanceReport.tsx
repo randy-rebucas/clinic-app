@@ -2,14 +2,26 @@
 
 import React, { useState } from 'react';
 import { generateAttendanceReport } from '@/lib/database';
-import { Download, Calendar, Filter, FileText } from 'lucide-react';
+import { Download, Calendar, FileText } from 'lucide-react';
 
 export default function AttendanceReport() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedEmployee, setSelectedEmployee] = useState('');
   const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState<{
+    id: string;
+    employeeId?: string;
+    startDate: string;
+    endDate: string;
+    totalWorkTime: number;
+    totalBreakTime: number;
+    workDays: number;
+    averageWorkTime: number;
+    overtime: number;
+    generatedAt: Date;
+    generatedBy: string;
+  } | null>(null);
 
   const handleGenerateReport = async () => {
     if (!startDate || !endDate) {
@@ -193,7 +205,7 @@ export default function AttendanceReport() {
             className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
           >
             <Calendar className="h-6 w-6 text-blue-600 mb-2" />
-            <div className="font-medium text-gray-900">Today's Report</div>
+            <div className="font-medium text-gray-900">Today&apos;s Report</div>
             <div className="text-sm text-gray-500">Generate report for today</div>
           </button>
           

@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { screenCaptureService, ScreenCapture } from '@/lib/screenCapture';
 import { TimeFormat } from '@/lib/timeFormat';
-import { Camera, Eye, Download, Trash2, Calendar, Clock, HardDrive } from 'lucide-react';
+import { Camera, Eye, Download, Trash2, XCircle } from 'lucide-react';
 
 interface ScreenCaptureViewerProps {
   employeeId: string;
@@ -140,11 +141,13 @@ export default function ScreenCaptureViewerComponent({
                 className="relative group cursor-pointer"
                 onClick={() => setSelectedCapture(capture)}
               >
-                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                  <img
+                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden relative">
+                  <Image
                     src={capture.thumbnail}
                     alt={`Screen capture at ${TimeFormat.formatDisplayTime(capture.timestamp)}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
                 
@@ -205,11 +208,13 @@ export default function ScreenCaptureViewerComponent({
             </div>
 
             <div className="p-6">
-              <div className="mb-4">
-                <img
+              <div className="mb-4 relative w-full h-[60vh]">
+                <Image
                   src={selectedCapture.imageData}
                   alt="Screen capture"
-                  className="max-w-full max-h-[60vh] object-contain mx-auto rounded-lg shadow-lg"
+                  fill
+                  className="object-contain rounded-lg shadow-lg"
+                  sizes="(max-width: 768px) 100vw, 80vw"
                 />
               </div>
 

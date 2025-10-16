@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { TimeTrackingService } from '@/lib/timeTracking';
 import { getActiveWorkSession, getActiveBreakSession } from '@/lib/database';
@@ -14,14 +14,10 @@ import ScreenCaptureSettingsComponent from './ScreenCaptureSettings';
 import ScreenCaptureViewerComponent from './ScreenCaptureViewer';
 import PrivacyNotificationComponent from './PrivacyNotification';
 import { 
-  Clock, 
   Play, 
   Pause, 
   Coffee, 
   LogOut, 
-  User, 
-  Calendar,
-  TrendingUp,
   AlertCircle,
   Camera,
   Settings,
@@ -29,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export default function TimeTrackerDashboard() {
-  const { user, employee, logout } = useAuth();
+  const { user } = useAuth();
   const [workSession, setWorkSession] = useState<WorkSession | null>(null);
   const [breakSession, setBreakSession] = useState<BreakSession | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,6 +36,25 @@ export default function TimeTrackerDashboard() {
   const [showScreenCaptures, setShowScreenCaptures] = useState(false);
   const [showPrivacyNotification, setShowPrivacyNotification] = useState(false);
   const [currentDate] = useState(() => new Date());
+
+  const loadActiveSessions = useCallback(async () => {
+    if (!user) return;
+    
+    try {
+      const activeWorkSession = await getActiveWorkSession(user.uid);
+      setWorkSession(activeWorkSession);
+      
+      // Load break session only if we have an active work session
+      if (activeWorkSession) {
+        const activeBreakSession = await getActiveBreakSession(activeWorkSession.id);
+        setBreakSession(activeBreakSession);
+      } else {
+        setBreakSession(null);
+      }
+    } catch (err) {
+      console.error('Error loading active sessions:', err);
+    }
+  }, [user]);
 
   // Update current time every second
   useEffect(() => {
@@ -69,23 +84,7 @@ export default function TimeTrackerDashboard() {
     };
 
     initializeServices();
-  }, [user]);
-
-  const loadActiveSessions = async () => {
-    if (!user) return;
-    
-    try {
-      const [activeWorkSession, activeBreakSession] = await Promise.all([
-        getActiveWorkSession(user.uid),
-        workSession ? getActiveBreakSession(workSession.id) : null
-      ]);
-      
-      setWorkSession(activeWorkSession);
-      setBreakSession(activeBreakSession);
-    } catch (err) {
-      console.error('Error loading active sessions:', err);
-    }
-  };
+  }, [user, loadActiveSessions]);
 
   const handleClockIn = async () => {
     if (!user) return;
@@ -107,8 +106,8 @@ export default function TimeTrackerDashboard() {
       if (settings.enabled && result.workSessionId) {
         await screenCaptureService.startCapture(user.uid, result.workSessionId);
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to clock in');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to clock in');
     } finally {
       setLoading(false);
     }
@@ -132,8 +131,8 @@ export default function TimeTrackerDashboard() {
       
       await loadActiveSessions();
       notificationService.showClockOutSuccess();
-    } catch (err: any) {
-      setError(err.message || 'Failed to clock out');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to clock out');
     } finally {
       setLoading(false);
     }
@@ -153,8 +152,8 @@ export default function TimeTrackerDashboard() {
       setNotes('');
       await loadActiveSessions();
       notificationService.showBreakStartSuccess();
-    } catch (err: any) {
-      setError(err.message || 'Failed to start break');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to start break');
     } finally {
       setLoading(false);
     }
@@ -171,8 +170,8 @@ export default function TimeTrackerDashboard() {
       setNotes('');
       await loadActiveSessions();
       notificationService.showBreakEndSuccess();
-    } catch (err: any) {
-      setError(err.message || 'Failed to end break');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to end break');
     } finally {
       setLoading(false);
     }

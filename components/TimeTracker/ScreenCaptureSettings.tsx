@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { screenCaptureService, ScreenCaptureSettings } from '@/lib/screenCapture';
-import { Camera, Settings, Shield, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
+import { Camera, Settings, Shield, AlertTriangle, CheckCircle, XCircle, Save, RotateCcw } from 'lucide-react';
 
 interface ScreenCaptureSettingsProps {
   onSettingsChange?: (settings: ScreenCaptureSettings) => void;
@@ -16,14 +16,25 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
     maxCapturesPerDay: 32,
     requireUserConsent: true,
   });
+  const [originalSettings, setOriginalSettings] = useState<ScreenCaptureSettings>({
+    enabled: false,
+    intervalMinutes: 15,
+    quality: 0.8,
+    maxCapturesPerDay: 32,
+    requireUserConsent: true,
+  });
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [permissionStatus, setPermissionStatus] = useState<'unknown' | 'granted' | 'denied'>('unknown');
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     // Load current settings
     const currentSettings = screenCaptureService.getSettings();
+    console.log('Loading settings on mount:', currentSettings);
     setSettings(currentSettings);
+    setOriginalSettings(currentSettings);
     
     // Check permission status
     checkPermissionStatus();
@@ -37,7 +48,7 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
       } else {
         setPermissionStatus('denied');
       }
-    } catch (error) {
+    } catch {
       setPermissionStatus('denied');
     }
   };
@@ -47,19 +58,54 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
     try {
       const granted = await screenCaptureService.requestPermission();
       setPermissionStatus(granted ? 'granted' : 'denied');
-    } catch (error) {
-      console.error('Permission request failed:', error);
+    } catch (err) {
+      console.error('Permission request failed:', err);
       setPermissionStatus('denied');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSettingChange = (key: keyof ScreenCaptureSettings, value: any) => {
+  const handleSettingChange = (key: keyof ScreenCaptureSettings, value: boolean | number) => {
     const newSettings = { ...settings, [key]: value };
     setSettings(newSettings);
-    screenCaptureService.updateSettings(newSettings);
-    onSettingsChange?.(newSettings);
+    setSaveStatus('idle'); // Reset save status when settings change
+  };
+
+  const handleSaveSettings = async () => {
+    setIsSaving(true);
+    setSaveStatus('saving');
+    
+    try {
+      // Save settings to the service
+      screenCaptureService.updateSettings(settings);
+      setOriginalSettings(settings);
+      setSaveStatus('saved');
+      onSettingsChange?.(settings);
+      
+      // Verify settings were saved by reloading them
+      const savedSettings = screenCaptureService.getSettings();
+      console.log('Settings saved successfully:', savedSettings);
+      
+      // Clear the saved status after 2 seconds
+      setTimeout(() => {
+        setSaveStatus('idle');
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      setSaveStatus('error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleResetSettings = () => {
+    setSettings(originalSettings);
+    setSaveStatus('idle');
+  };
+
+  const hasUnsavedChanges = () => {
+    return JSON.stringify(settings) !== JSON.stringify(originalSettings);
   };
 
   const getPermissionIcon = () => {
@@ -229,6 +275,55 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
           </div>
         </div>
       )}
+
+      {/* Action Buttons */}
+      <div className="mt-6 pt-6 border-t border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            {hasUnsavedChanges() && (
+              <span className="text-sm text-amber-600 flex items-center">
+                <AlertTriangle className="h-4 w-4 mr-1" />
+                You have unsaved changes
+              </span>
+            )}
+            {saveStatus === 'saved' && (
+              <span className="text-sm text-green-600 flex items-center">
+                <CheckCircle className="h-4 w-4 mr-1" />
+                Settings saved successfully
+              </span>
+            )}
+            {saveStatus === 'error' && (
+              <span className="text-sm text-red-600 flex items-center">
+                <XCircle className="h-4 w-4 mr-1" />
+                Failed to save settings
+              </span>
+            )}
+          </div>
+          
+          <div className="flex items-center space-x-3">
+            {hasUnsavedChanges() && (
+              <button
+                onClick={handleResetSettings}
+                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                <span>Reset</span>
+              </button>
+            )}
+            
+            <button
+              onClick={handleSaveSettings}
+              disabled={!hasUnsavedChanges() || isSaving}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Save className="h-4 w-4" />
+              <span>
+                {isSaving ? 'Saving...' : 'Save Settings'}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Privacy Notice */}
       <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">

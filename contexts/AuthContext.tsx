@@ -21,6 +21,9 @@ interface AuthContextType {
   signUp: (email: string, password: string, employeeData: Omit<Employee, 'id' | 'email' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   logout: () => Promise<void>;
   isAdmin: boolean;
+  isEmployee: boolean;
+  hasRole: (role: 'admin' | 'employee') => boolean;
+  getCurrentRole: () => 'admin' | 'employee' | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -127,6 +130,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Role checking utilities
+  const isAdmin = employee?.role === 'admin';
+  const isEmployee = employee?.role === 'employee';
+  
+  const hasRole = (role: 'admin' | 'employee'): boolean => {
+    return employee?.role === role;
+  };
+  
+  const getCurrentRole = (): 'admin' | 'employee' | null => {
+    return employee?.role || null;
+  };
+
   const value: AuthContextType = {
     user,
     employee,
@@ -134,7 +149,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signUp,
     logout,
-    isAdmin: employee?.role === 'admin',
+    isAdmin,
+    isEmployee,
+    hasRole,
+    getCurrentRole,
   };
 
   return (

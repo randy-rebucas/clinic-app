@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getTimeEntries } from '@/lib/database';
+// import { getTimeEntries } from '@/lib/database';
 import { TimeEntry } from '@/types';
 import { TimeFormat } from '@/lib/timeFormat';
-import { Clock, Search, Filter, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Clock, Search, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 
 export default function TimeEntryManagement() {
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
