@@ -11,11 +11,13 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle,
-  XCircle
+  XCircle,
+  Camera
 } from 'lucide-react';
 import AttendanceReport from './AttendanceReport';
 import EmployeeManagement from './EmployeeManagement';
 import TimeEntryManagement from './TimeEntryManagement';
+import ScreenCaptureManagement from './ScreenCaptureManagement';
 
 export default function AdminDashboard() {
   const { employee } = useAuth();
@@ -47,6 +49,7 @@ export default function AdminDashboard() {
     { id: 'overview', label: 'Overview', icon: TrendingUp },
     { id: 'employees', label: 'Employees', icon: Users },
     { id: 'attendance', label: 'Attendance', icon: Calendar },
+    { id: 'screen-captures', label: 'Screen Captures', icon: Camera },
     { id: 'reports', label: 'Reports', icon: Download },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
@@ -59,6 +62,8 @@ export default function AdminDashboard() {
         return <EmployeeManagement />;
       case 'attendance':
         return <TimeEntryManagement />;
+      case 'screen-captures':
+        return <ScreenCaptureManagement />;
       case 'reports':
         return <AttendanceReport />;
       case 'settings':

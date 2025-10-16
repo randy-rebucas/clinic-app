@@ -1,5 +1,6 @@
 import { messaging } from './firebase';
 import { getToken, onMessage } from 'firebase/messaging';
+import { TimeFormat } from './timeFormat';
 
 export interface NotificationSettings {
   clockInReminder: boolean;
@@ -211,7 +212,7 @@ export class NotificationService {
   showLateClockIn(expectedTime: Date): void {
     this.showNotification(
       'Late Clock In',
-      `You're clocking in late. Expected time was ${expectedTime.toLocaleTimeString()}.`,
+      `You're clocking in late. Expected time was ${TimeFormat.formatDisplayTime(expectedTime)}.`,
       { tag: 'late-clock-in' }
     );
   }
@@ -219,7 +220,7 @@ export class NotificationService {
   showEarlyClockOut(expectedTime: Date): void {
     this.showNotification(
       'Early Clock Out',
-      `You're clocking out early. Expected time was ${expectedTime.toLocaleTimeString()}.`,
+      `You're clocking out early. Expected time was ${TimeFormat.formatDisplayTime(expectedTime)}.`,
       { tag: 'early-clock-out' }
     );
   }

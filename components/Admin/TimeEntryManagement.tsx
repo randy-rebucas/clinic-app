@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { getTimeEntries } from '@/lib/database';
 import { TimeEntry } from '@/types';
+import { TimeFormat } from '@/lib/timeFormat';
 import { Clock, Search, Filter, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 
 export default function TimeEntryManagement() {
@@ -224,8 +225,8 @@ export default function TimeEntryManagement() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div>
-                    <div className="font-medium">{entry.timestamp.toLocaleDateString()}</div>
-                    <div className="text-gray-500">{entry.timestamp.toLocaleTimeString()}</div>
+                    <div className="font-medium">{TimeFormat.formatDate(entry.timestamp)}</div>
+                    <div className="text-gray-500">{TimeFormat.formatDisplayTime(entry.timestamp)}</div>
                   </div>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900">

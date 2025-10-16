@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { getDailySummary, getTimeEntries } from '@/lib/database';
 import { DailySummary, TimeEntry } from '@/types';
+import { TimeFormat } from '@/lib/timeFormat';
 import { Calendar, Clock, TrendingUp, Coffee, Download } from 'lucide-react';
 
 interface DailySummaryProps {
@@ -37,9 +38,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
   };
 
   const formatTime = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
+    return TimeFormat.formatDuration(minutes);
   };
 
   const getEntryIcon = (type: string) => {
@@ -78,9 +77,9 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
     const csvContent = [
       ['Date', 'Clock In', 'Clock Out', 'Total Work Time', 'Total Break Time', 'Overtime'],
       [
-        date.toLocaleDateString(),
-        summary.clockInTime?.toLocaleTimeString() || 'N/A',
-        summary.clockOutTime?.toLocaleTimeString() || 'N/A',
+        TimeFormat.formatDate(date),
+        summary.clockInTime ? TimeFormat.formatCSVTime(summary.clockInTime) : 'N/A',
+        summary.clockOutTime ? TimeFormat.formatCSVTime(summary.clockOutTime) : 'N/A',
         formatTime(summary.totalWorkTime),
         formatTime(summary.totalBreakTime),
         formatTime(summary.overtime || 0)
@@ -90,7 +89,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
       ['Type', 'Time', 'Notes'],
       ...timeEntries.map(entry => [
         getEntryLabel(entry.type),
-        entry.timestamp.toLocaleTimeString(),
+        TimeFormat.formatCSVTime(entry.timestamp),
         entry.notes || ''
       ])
     ].map(row => row.join(',')).join('\n');
@@ -128,7 +127,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium text-gray-900 flex items-center">
             <Calendar className="h-5 w-5 mr-2" />
-            Daily Summary - {date.toLocaleDateString()}
+            Daily Summary - {TimeFormat.formatDate(date)}
           </h3>
           <button
             onClick={exportToCSV}
@@ -163,14 +162,14 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
             
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {summary.clockInTime ? summary.clockInTime.toLocaleTimeString() : 'N/A'}
+                {summary.clockInTime ? TimeFormat.formatDisplayTime(summary.clockInTime) : 'N/A'}
               </div>
               <div className="text-sm text-gray-500">Clock In</div>
             </div>
             
             <div className="text-center">
               <div className="text-2xl font-bold text-gray-900">
-                {summary.clockOutTime ? summary.clockOutTime.toLocaleTimeString() : 'N/A'}
+                {summary.clockOutTime ? TimeFormat.formatDisplayTime(summary.clockOutTime) : 'N/A'}
               </div>
               <div className="text-sm text-gray-500">Clock Out</div>
             </div>
@@ -179,7 +178,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
           <div className="text-center py-8">
             <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No data for this date</h3>
-            <p className="text-gray-500">No time entries found for {date.toLocaleDateString()}</p>
+            <p className="text-gray-500">No time entries found for {TimeFormat.formatDate(date)}</p>
           </div>
         )}
 
@@ -209,7 +208,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
                       {getEntryLabel(entry.type)}
                     </div>
                     <div className="text-sm text-gray-500">
-                      {entry.timestamp.toLocaleTimeString()}
+                      {TimeFormat.formatDisplayTime(entry.timestamp)}
                     </div>
                   </div>
                 </div>

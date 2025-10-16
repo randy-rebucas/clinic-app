@@ -12,6 +12,7 @@ import {
 } from './database';
 import { TimeEntry, WorkSession, BreakSession } from '@/types';
 import { isDemoMode, createDemoTimeEntry, createDemoWorkSession } from './demoMode';
+import { TimeFormat } from './timeFormat';
 
 export interface ClockInData {
   employeeId: string;
@@ -38,7 +39,7 @@ export class TimeTrackingService {
       // Demo mode - simulate clock in
       const timeEntryId = `demo-entry-${Date.now()}`;
       const workSessionId = `demo-session-${Date.now()}`;
-      console.log('Demo: Clocked in at', now.toLocaleTimeString());
+      console.log('Demo: Clocked in at', TimeFormat.formatDisplayTime(now));
       return { workSessionId, timeEntryId };
     }
     
@@ -76,7 +77,7 @@ export class TimeTrackingService {
       // Demo mode - simulate clock out
       const timeEntryId = `demo-entry-${Date.now()}`;
       const workSessionId = `demo-session-${Date.now()}`;
-      console.log('Demo: Clocked out at', now.toLocaleTimeString());
+      console.log('Demo: Clocked out at', TimeFormat.formatDisplayTime(now));
       return { workSessionId, timeEntryId };
     }
     

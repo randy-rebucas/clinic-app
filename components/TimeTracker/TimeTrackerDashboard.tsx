@@ -8,6 +8,11 @@ import { WorkSession, BreakSession } from '@/types';
 import NavBar from '@/components/Navigation/NavBar';
 import DailySummaryComponent from './DailySummary';
 import { notificationService } from '@/lib/notifications';
+import { TimeFormat } from '@/lib/timeFormat';
+import { screenCaptureService } from '@/lib/screenCapture';
+import ScreenCaptureSettingsComponent from './ScreenCaptureSettings';
+import ScreenCaptureViewerComponent from './ScreenCaptureViewer';
+import PrivacyNotificationComponent from './PrivacyNotification';
 import { 
   Clock, 
   Play, 
@@ -17,7 +22,10 @@ import {
   User, 
   Calendar,
   TrendingUp,
-  AlertCircle
+  AlertCircle,
+  Camera,
+  Settings,
+  Eye
 } from 'lucide-react';
 
 export default function TimeTrackerDashboard() {
@@ -28,6 +36,10 @@ export default function TimeTrackerDashboard() {
   const [error, setError] = useState('');
   const [notes, setNotes] = useState('');
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showScreenCaptureSettings, setShowScreenCaptureSettings] = useState(false);
+  const [showScreenCaptures, setShowScreenCaptures] = useState(false);
+  const [showPrivacyNotification, setShowPrivacyNotification] = useState(false);
+  const [currentDate] = useState(() => new Date());
 
   // Update current time every second
   useEffect(() => {
@@ -39,11 +51,24 @@ export default function TimeTrackerDashboard() {
 
   // Load active sessions on component mount
   useEffect(() => {
-    if (user) {
-      loadActiveSessions();
-      // Request notification permission
-      notificationService.requestPermission();
-    }
+    const initializeServices = async () => {
+      if (user) {
+        loadActiveSessions();
+        // Request notification permission
+        notificationService.requestPermission();
+        // Initialize screen capture service
+        const initialized = await screenCaptureService.initialize();
+        if (initialized) {
+          // Check if we need to show privacy notification
+          const hasDecided = localStorage.getItem('screenCapturePrivacyDecision');
+          if (!hasDecided) {
+            setShowPrivacyNotification(true);
+          }
+        }
+      }
+    };
+
+    initializeServices();
   }, [user]);
 
   const loadActiveSessions = async () => {
@@ -69,13 +94,19 @@ export default function TimeTrackerDashboard() {
     setError('');
     
     try {
-      await TimeTrackingService.clockIn({
+      const result = await TimeTrackingService.clockIn({
         employeeId: user.uid,
         notes: notes.trim() || undefined,
       });
       setNotes('');
       await loadActiveSessions();
       notificationService.showClockInSuccess();
+      
+      // Start screen capture if enabled
+      const settings = screenCaptureService.getSettings();
+      if (settings.enabled && result.workSessionId) {
+        await screenCaptureService.startCapture(user.uid, result.workSessionId);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to clock in');
     } finally {
@@ -95,6 +126,10 @@ export default function TimeTrackerDashboard() {
         notes: notes.trim() || undefined,
       });
       setNotes('');
+      
+      // Stop screen capture
+      screenCaptureService.stopCapture();
+      
       await loadActiveSessions();
       notificationService.showClockOutSuccess();
     } catch (err: any) {
@@ -174,12 +209,18 @@ export default function TimeTrackerDashboard() {
   };
 
   const formatDuration = (startTime: Date) => {
-    const now = currentTime;
-    const diffMs = now.getTime() - startTime.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const hours = Math.floor(diffMins / 60);
-    const minutes = diffMins % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    return TimeFormat.formatDurationBetweenHHMM(startTime, currentTime);
+  };
+
+  const handlePrivacyAccept = () => {
+    setShowPrivacyNotification(false);
+    // User accepted, screen capture can be enabled
+  };
+
+  const handlePrivacyDecline = () => {
+    setShowPrivacyNotification(false);
+    // User declined, disable screen capture
+    screenCaptureService.updateSettings({ enabled: false });
   };
 
   const currentStatus = getCurrentStatus();
@@ -200,14 +241,14 @@ export default function TimeTrackerDashboard() {
                 </span>
                 {workSession && (
                   <span className="text-sm text-gray-600">
-                    Since {workSession.clockInTime.toLocaleTimeString()}
+                    Since {TimeFormat.formatDisplayTime(workSession.clockInTime)}
                   </span>
                 )}
               </div>
             </div>
             <div className="text-right">
               <div className="text-2xl font-mono font-bold text-gray-900">
-                {currentTime.toLocaleTimeString()}
+                {TimeFormat.formatDisplayTime(currentTime)}
               </div>
               <div className="text-sm text-gray-500">
                 {currentTime.toLocaleDateString()}
@@ -321,6 +362,56 @@ export default function TimeTrackerDashboard() {
           </div>
         )}
 
+        {/* Screen Capture Controls */}
+        {user && (
+          <div className="mt-8 space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                  <Camera className="h-5 w-5 mr-2" />
+                  Screen Capture
+                </h3>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setShowScreenCaptures(!showScreenCaptures)}
+                    className="flex items-center space-x-2 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  >
+                    <Eye className="h-4 w-4" />
+                    <span>{showScreenCaptures ? 'Hide' : 'View'} Captures</span>
+                  </button>
+                  <button
+                    onClick={() => setShowScreenCaptureSettings(!showScreenCaptureSettings)}
+                    className="flex items-center space-x-2 px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span>Settings</span>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="text-sm text-gray-600">
+                {screenCaptureService.isActive() ? (
+                  <span className="text-green-600">Screen capture is active</span>
+                ) : (
+                  <span className="text-gray-500">Screen capture is inactive</span>
+                )}
+              </div>
+            </div>
+
+            {showScreenCaptureSettings && (
+              <ScreenCaptureSettingsComponent />
+            )}
+
+            {showScreenCaptures && (
+              <ScreenCaptureViewerComponent 
+                employeeId={user.uid} 
+                workSessionId={workSession?.id}
+                date={currentDate}
+              />
+            )}
+          </div>
+        )}
+
         {/* Daily Summary */}
         {user && (
           <div className="mt-8">
@@ -328,6 +419,14 @@ export default function TimeTrackerDashboard() {
           </div>
         )}
       </div>
+
+      {/* Privacy Notification Modal */}
+      {showPrivacyNotification && (
+        <PrivacyNotificationComponent
+          onAccept={handlePrivacyAccept}
+          onDecline={handlePrivacyDecline}
+        />
+      )}
     </div>
   );
 }
