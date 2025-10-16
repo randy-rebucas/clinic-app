@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "node scripts/generate-sw.js && next dev --turbopack",
+    "build": "node scripts/generate-sw.js && next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate-sw": "node scripts/generate-sw.js"
   },
   "dependencies": {
     "date-fns": "^4.1.0",

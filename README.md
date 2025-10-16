@@ -66,6 +66,8 @@ A comprehensive employee time tracking and attendance management system built wi
    NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
    NEXT_PUBLIC_FIREBASE_VAPID_KEY=your_vapid_key (optional, for notifications)
    ```
+   
+   **Important**: The service worker is automatically generated from these environment variables during build time to keep your Firebase configuration secure.
 
 5. **Run the development server**
    ```bash
