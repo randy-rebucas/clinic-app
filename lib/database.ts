@@ -25,6 +25,8 @@ import {
   IdleSettings,
   IdleSession
 } from '@/types';
+import { ApplicationActivity, ApplicationTrackingSettings } from './applicationTracking';
+import { WebsiteActivity, WebsiteTrackingSettings } from './websiteTracking';
 
 // Employee Management
 export const createEmployee = async (employeeData: Omit<Employee, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -640,4 +642,353 @@ export const getIdleSessions = async (workSessionId: string) => {
     startTime: doc.data().startTime?.toDate() || new Date(),
     endTime: doc.data().endTime?.toDate(),
   })) as IdleSession[];
+};
+
+// Application Activity Management
+export const createApplicationActivity = async (activityData: Omit<ApplicationActivity, 'id' | 'createdAt' | 'updatedAt'>) => {
+  if (isDemoMode()) {
+    // Demo mode - simulate creation
+    const id = `demo-app-activity-${Date.now()}`;
+    return { id, ...activityData, createdAt: new Date(), updatedAt: new Date() };
+  }
+
+  const docRef = await addDoc(collection(db, 'applicationActivities'), {
+    ...activityData,
+    startTime: Timestamp.fromDate(activityData.startTime),
+    endTime: activityData.endTime ? Timestamp.fromDate(activityData.endTime) : null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return { id: docRef.id, ...activityData, createdAt: new Date(), updatedAt: new Date() };
+};
+
+export const updateApplicationActivity = async (activityId: string, updates: Partial<ApplicationActivity>) => {
+  if (isDemoMode()) {
+    // Demo mode - simulate update
+    return { id: activityId, ...updates, updatedAt: new Date() };
+  }
+
+  const docRef = doc(db, 'applicationActivities', activityId);
+  const updateData: Record<string, unknown> = {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  };
+
+  if (updates.startTime) {
+    updateData.startTime = Timestamp.fromDate(updates.startTime);
+  }
+  if (updates.endTime) {
+    updateData.endTime = Timestamp.fromDate(updates.endTime);
+  }
+
+  await updateDoc(docRef, updateData);
+};
+
+export const getApplicationActivities = async (workSessionId: string): Promise<ApplicationActivity[]> => {
+  if (isDemoMode()) {
+    // Demo mode - return mock data
+    return [
+      {
+        id: 'demo-app-1',
+        employeeId: 'demo-employee',
+        workSessionId,
+        applicationName: 'VS Code',
+        windowTitle: 'project.js',
+        processName: 'code',
+        startTime: new Date(Date.now() - 3600000),
+        endTime: new Date(Date.now() - 1800000),
+        duration: 1800,
+        isActive: false,
+        category: 'development',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+  }
+
+  const q = query(
+    collection(db, 'applicationActivities'),
+    where('workSessionId', '==', workSessionId),
+    orderBy('startTime', 'asc')
+  );
+  const querySnapshot = await getDocs(q);
+  
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    startTime: doc.data().startTime?.toDate() || new Date(),
+    endTime: doc.data().endTime?.toDate(),
+    createdAt: doc.data().createdAt?.toDate() || new Date(),
+    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+  })) as ApplicationActivity[];
+};
+
+export const getActiveApplicationActivity = async (workSessionId: string): Promise<ApplicationActivity | null> => {
+  if (isDemoMode()) {
+    return null;
+  }
+
+  const q = query(
+    collection(db, 'applicationActivities'),
+    where('workSessionId', '==', workSessionId),
+    where('isActive', '==', true),
+    limit(1)
+  );
+  const querySnapshot = await getDocs(q);
+  
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  const doc = querySnapshot.docs[0];
+  return {
+    id: doc.id,
+    ...doc.data(),
+    startTime: doc.data().startTime?.toDate() || new Date(),
+    endTime: doc.data().endTime?.toDate(),
+    createdAt: doc.data().createdAt?.toDate() || new Date(),
+    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+  } as ApplicationActivity;
+};
+
+// Application Tracking Settings Management
+export const createApplicationTrackingSettings = async (settingsData: Omit<ApplicationTrackingSettings, 'id' | 'createdAt' | 'updatedAt'>) => {
+  if (isDemoMode()) {
+    const id = `demo-app-settings-${Date.now()}`;
+    return { id, ...settingsData, createdAt: new Date(), updatedAt: new Date() };
+  }
+
+  const docRef = await addDoc(collection(db, 'applicationTrackingSettings'), {
+    ...settingsData,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return { id: docRef.id, ...settingsData, createdAt: new Date(), updatedAt: new Date() };
+};
+
+export const updateApplicationTrackingSettings = async (settingsId: string, updates: Partial<ApplicationTrackingSettings>) => {
+  if (isDemoMode()) {
+    return { id: settingsId, ...updates, updatedAt: new Date() };
+  }
+
+  const docRef = doc(db, 'applicationTrackingSettings', settingsId);
+  await updateDoc(docRef, {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const getApplicationTrackingSettings = async (employeeId: string): Promise<ApplicationTrackingSettings | null> => {
+  if (isDemoMode()) {
+    return {
+      id: 'demo-app-settings',
+      employeeId,
+      enabled: true,
+      trackApplications: true,
+      trackWebsites: true,
+      trackWindowTitles: true,
+      samplingInterval: 5,
+      maxIdleTime: 30,
+      categoryRules: {},
+      privacyMode: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  const q = query(
+    collection(db, 'applicationTrackingSettings'),
+    where('employeeId', '==', employeeId),
+    limit(1)
+  );
+  const querySnapshot = await getDocs(q);
+  
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  const doc = querySnapshot.docs[0];
+  return {
+    id: doc.id,
+    ...doc.data(),
+    createdAt: doc.data().createdAt?.toDate() || new Date(),
+    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+  } as ApplicationTrackingSettings;
+};
+
+// Website Activity Management
+export const createWebsiteActivity = async (activityData: Omit<WebsiteActivity, 'id' | 'createdAt' | 'updatedAt'>) => {
+  if (isDemoMode()) {
+    const id = `demo-website-activity-${Date.now()}`;
+    return { id, ...activityData, createdAt: new Date(), updatedAt: new Date() };
+  }
+
+  const docRef = await addDoc(collection(db, 'websiteActivities'), {
+    ...activityData,
+    startTime: Timestamp.fromDate(activityData.startTime),
+    endTime: activityData.endTime ? Timestamp.fromDate(activityData.endTime) : null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return { id: docRef.id, ...activityData, createdAt: new Date(), updatedAt: new Date() };
+};
+
+export const updateWebsiteActivity = async (activityId: string, updates: Partial<WebsiteActivity>) => {
+  if (isDemoMode()) {
+    return { id: activityId, ...updates, updatedAt: new Date() };
+  }
+
+  const docRef = doc(db, 'websiteActivities', activityId);
+  const updateData: Record<string, unknown> = {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  };
+
+  if (updates.startTime) {
+    updateData.startTime = Timestamp.fromDate(updates.startTime);
+  }
+  if (updates.endTime) {
+    updateData.endTime = Timestamp.fromDate(updates.endTime);
+  }
+
+  await updateDoc(docRef, updateData);
+};
+
+export const getWebsiteActivities = async (workSessionId: string): Promise<WebsiteActivity[]> => {
+  if (isDemoMode()) {
+    return [
+      {
+        id: 'demo-website-1',
+        employeeId: 'demo-employee',
+        workSessionId,
+        domain: 'github.com',
+        url: 'https://github.com/user/repo',
+        pageTitle: 'Repository - GitHub',
+        startTime: new Date(Date.now() - 1800000),
+        endTime: new Date(Date.now() - 900000),
+        duration: 900,
+        isActive: false,
+        category: 'work',
+        productivity: 'productive',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+  }
+
+  const q = query(
+    collection(db, 'websiteActivities'),
+    where('workSessionId', '==', workSessionId),
+    orderBy('startTime', 'asc')
+  );
+  const querySnapshot = await getDocs(q);
+  
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    startTime: doc.data().startTime?.toDate() || new Date(),
+    endTime: doc.data().endTime?.toDate(),
+    createdAt: doc.data().createdAt?.toDate() || new Date(),
+    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+  })) as WebsiteActivity[];
+};
+
+export const getActiveWebsiteActivity = async (workSessionId: string): Promise<WebsiteActivity | null> => {
+  if (isDemoMode()) {
+    return null;
+  }
+
+  const q = query(
+    collection(db, 'websiteActivities'),
+    where('workSessionId', '==', workSessionId),
+    where('isActive', '==', true),
+    limit(1)
+  );
+  const querySnapshot = await getDocs(q);
+  
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  const doc = querySnapshot.docs[0];
+  return {
+    id: doc.id,
+    ...doc.data(),
+    startTime: doc.data().startTime?.toDate() || new Date(),
+    endTime: doc.data().endTime?.toDate(),
+    createdAt: doc.data().createdAt?.toDate() || new Date(),
+    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+  } as WebsiteActivity;
+};
+
+// Website Tracking Settings Management
+export const createWebsiteTrackingSettings = async (settingsData: Omit<WebsiteTrackingSettings, 'id' | 'createdAt' | 'updatedAt'>) => {
+  if (isDemoMode()) {
+    const id = `demo-website-settings-${Date.now()}`;
+    return { id, ...settingsData, createdAt: new Date(), updatedAt: new Date() };
+  }
+
+  const docRef = await addDoc(collection(db, 'websiteTrackingSettings'), {
+    ...settingsData,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
+
+  return { id: docRef.id, ...settingsData, createdAt: new Date(), updatedAt: new Date() };
+};
+
+export const updateWebsiteTrackingSettings = async (settingsId: string, updates: Partial<WebsiteTrackingSettings>) => {
+  if (isDemoMode()) {
+    return { id: settingsId, ...updates, updatedAt: new Date() };
+  }
+
+  const docRef = doc(db, 'websiteTrackingSettings', settingsId);
+  await updateDoc(docRef, {
+    ...updates,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const getWebsiteTrackingSettings = async (employeeId: string): Promise<WebsiteTrackingSettings | null> => {
+  if (isDemoMode()) {
+    return {
+      id: 'demo-website-settings',
+      employeeId,
+      enabled: true,
+      trackWebsites: true,
+      trackPageTitles: true,
+      trackFullUrls: false,
+      samplingInterval: 5,
+      maxIdleTime: 30,
+      categoryRules: {},
+      productivityRules: {},
+      privacyMode: false,
+      blocklist: [],
+      allowlist: [],
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  const q = query(
+    collection(db, 'websiteTrackingSettings'),
+    where('employeeId', '==', employeeId),
+    limit(1)
+  );
+  const querySnapshot = await getDocs(q);
+  
+  if (querySnapshot.empty) {
+    return null;
+  }
+
+  const doc = querySnapshot.docs[0];
+  return {
+    id: doc.id,
+    ...doc.data(),
+    createdAt: doc.data().createdAt?.toDate() || new Date(),
+    updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+  } as WebsiteTrackingSettings;
 };

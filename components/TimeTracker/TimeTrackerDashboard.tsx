@@ -14,12 +14,17 @@ import { networkDetectionService } from '@/lib/networkDetection';
 import { syncService } from '@/lib/syncService';
 import { offlineStorageService } from '@/lib/offlineStorage';
 import { idleManagementService } from '@/lib/idleManagement';
+import { applicationTrackingService } from '@/lib/applicationTracking';
+import { websiteTrackingService } from '@/lib/websiteTracking';
 import ScreenCaptureSettingsComponent from './ScreenCaptureSettings';
 import ScreenCaptureViewerComponent from './ScreenCaptureViewer';
 import PrivacyNotificationComponent from './PrivacyNotification';
 import OfflineStatusComponent from './OfflineStatus';
 import IdleStatusComponent from './IdleStatus';
 import IdleWarningComponent, { useIdleWarning } from './IdleWarning';
+import ApplicationUsage from './ApplicationUsage';
+import WebsiteUsage from './WebsiteUsage';
+import TrackingSettings from './TrackingSettings';
 import { 
   Play, 
   Pause, 
@@ -53,6 +58,7 @@ export default function TimeTrackerDashboard() {
   const [showScreenCaptureSettings, setShowScreenCaptureSettings] = useState(false);
   const [showScreenCaptures, setShowScreenCaptures] = useState(false);
   const [showPrivacyNotification, setShowPrivacyNotification] = useState(false);
+  const [showTrackingSettings, setShowTrackingSettings] = useState(false);
   const [currentDate] = useState(() => new Date());
   
   // Idle warning hook
@@ -101,6 +107,10 @@ export default function TimeTrackerDashboard() {
         // Initialize idle management
         await idleManagementService.initialize(user.uid);
         
+        // Initialize tracking services
+        await applicationTrackingService.initialize(user.uid);
+        await websiteTrackingService.initialize(user.uid);
+        
         // Initialize screen capture service
         const initialized = await screenCaptureService.initialize();
         if (initialized) {
@@ -147,6 +157,10 @@ export default function TimeTrackerDashboard() {
       // Start idle management for work session
       if (result.workSessionId) {
         await TimeTrackingService.initializeIdleManagement(user.uid, result.workSessionId);
+        
+        // Start application and website tracking
+        await applicationTrackingService.startTracking(result.workSessionId);
+        await websiteTrackingService.startTracking(result.workSessionId);
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to clock in');
@@ -173,6 +187,10 @@ export default function TimeTrackerDashboard() {
       
       // Stop idle management
       await TimeTrackingService.stopIdleManagement();
+      
+      // Stop application and website tracking
+      applicationTrackingService.stopTracking();
+      websiteTrackingService.stopTracking();
       
       await loadActiveSessions();
       notificationService.showClockOutSuccess();
@@ -578,6 +596,14 @@ export default function TimeTrackerDashboard() {
           </div>
         </div>
 
+        {/* Application and Website Usage */}
+        {user && workSession && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            <ApplicationUsage workSessionId={workSession.id} employeeId={user.uid} />
+            <WebsiteUsage workSessionId={workSession.id} employeeId={user.uid} />
+          </div>
+        )}
+
         {/* Screen Capture & Additional Features */}
         {user && (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
@@ -723,14 +749,23 @@ export default function TimeTrackerDashboard() {
         />
       )}
 
-      {/* Idle Warning Modal */}
-      <IdleWarningComponent
-        isVisible={idleWarning.isVisible}
-        onClose={idleWarning.hideWarning}
-        onGoIdle={idleWarning.handleGoIdle}
-        onKeepActive={idleWarning.handleKeepActive}
-        timeRemaining={idleWarning.timeRemaining}
-      />
-    </div>
-  );
-}
+        {/* Idle Warning Modal */}
+        <IdleWarningComponent
+          isVisible={idleWarning.isVisible}
+          onClose={idleWarning.hideWarning}
+          onGoIdle={idleWarning.handleGoIdle}
+          onKeepActive={idleWarning.handleKeepActive}
+          timeRemaining={idleWarning.timeRemaining}
+        />
+
+        {/* Tracking Settings Modal */}
+        {user && (
+          <TrackingSettings
+            employeeId={user.uid}
+            isOpen={showTrackingSettings}
+            onClose={() => setShowTrackingSettings(false)}
+          />
+        )}
+      </div>
+    );
+  }
