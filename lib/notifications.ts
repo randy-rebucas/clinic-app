@@ -28,6 +28,8 @@ export class NotificationService {
       
       if (this.permissionGranted && messaging) {
         try {
+          // Register service worker first
+          await this.registerServiceWorker();
           await this.getFCMToken();
           this.setupMessageListener();
         } catch (error) {
@@ -39,6 +41,29 @@ export class NotificationService {
     } catch (error) {
       console.error('Error requesting notification permission:', error);
       return false;
+    }
+  }
+
+  private async registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
+    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
+      console.warn('Service workers not supported');
+      return null;
+    }
+
+    try {
+      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
+        scope: '/',
+      });
+      
+      console.log('Service worker registered successfully:', registration);
+      
+      // Wait for the service worker to be ready
+      await navigator.serviceWorker.ready;
+      
+      return registration;
+    } catch (error) {
+      console.error('Service worker registration failed:', error);
+      throw error;
     }
   }
 

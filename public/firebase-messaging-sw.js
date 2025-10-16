@@ -3,13 +3,15 @@ importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js'
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js');
 
 // Initialize Firebase in the service worker
+// Note: These values should match your Firebase project configuration
+// You can get these from your Firebase project settings
 firebase.initializeApp({
-  apiKey: "your_api_key_here",
-  authDomain: "your_project_id.firebaseapp.com",
-  projectId: "your_project_id",
-  storageBucket: "your_project_id.appspot.com",
-  messagingSenderId: "your_sender_id",
-  appId: "your_app_id"
+  apiKey: "AIzaSyBEg5Am28BsJ95j5Mzoujk0Tw-l0Lth9uY",
+  authDomain: "lingkod-ph-snphs.firebaseapp.com",
+  projectId: "lingkod-ph-snphs",
+  storageBucket: "lingkod-ph-snphs.firebasestorage.app",
+  messagingSenderId: "34924082188",
+  appId: "1:34924082188:web:c6aa43d7ef5fbc019daa29"
 });
 
 // Retrieve an instance of Firebase Messaging so that it can handle background messages
