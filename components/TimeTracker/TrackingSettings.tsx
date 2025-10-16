@@ -68,8 +68,37 @@ export default function TrackingSettings({ employeeId, isOpen, onClose }: Tracki
         getApplicationTrackingSettings(employeeId),
         getWebsiteTrackingSettings(employeeId)
       ]);
-      setAppSettings(app);
-      setWebsiteSettings(website);
+      setAppSettings(app ? {
+        id: app._id.toString(),
+        employeeId: app.employeeId.toString(),
+        enabled: app.enabled,
+        trackApplications: app.trackApplications,
+        trackWebsites: app.trackWebsites,
+        trackWindowTitles: app.trackWindowTitles,
+        samplingInterval: app.samplingInterval,
+        maxIdleTime: app.maxIdleTime,
+        categoryRules: app.categoryRules,
+        privacyMode: app.privacyMode,
+        createdAt: app.createdAt,
+        updatedAt: app.updatedAt
+      } : null);
+      setWebsiteSettings(website ? {
+        id: website._id.toString(),
+        employeeId: website.employeeId.toString(),
+        enabled: website.enabled,
+        trackWebsites: website.trackWebsites,
+        trackPageTitles: website.trackPageTitles,
+        trackFullUrls: website.trackFullUrls,
+        samplingInterval: website.samplingInterval,
+        maxIdleTime: website.maxIdleTime,
+        categoryRules: website.categoryRules,
+        productivityRules: website.productivityRules,
+        privacyMode: website.privacyMode,
+        blocklist: website.blocklist,
+        allowlist: website.allowlist,
+        createdAt: website.createdAt,
+        updatedAt: website.updatedAt
+      } : null);
     } catch (error) {
       console.error('Error loading tracking settings:', error);
     } finally {
@@ -88,12 +117,33 @@ export default function TrackingSettings({ employeeId, isOpen, onClose }: Tracki
       setSaving(true);
       
       if (appSettings) {
-        await updateApplicationTrackingSettings(appSettings.id, appSettings);
+        await updateApplicationTrackingSettings(appSettings.id, {
+          enabled: appSettings.enabled,
+          trackApplications: appSettings.trackApplications,
+          trackWebsites: appSettings.trackWebsites,
+          trackWindowTitles: appSettings.trackWindowTitles,
+          samplingInterval: appSettings.samplingInterval,
+          maxIdleTime: appSettings.maxIdleTime,
+          categoryRules: appSettings.categoryRules,
+          privacyMode: appSettings.privacyMode
+        });
         await applicationTrackingService.updateSettings(appSettings);
       }
       
       if (websiteSettings) {
-        await updateWebsiteTrackingSettings(websiteSettings.id, websiteSettings);
+        await updateWebsiteTrackingSettings(websiteSettings.id, {
+          enabled: websiteSettings.enabled,
+          trackWebsites: websiteSettings.trackWebsites,
+          trackPageTitles: websiteSettings.trackPageTitles,
+          trackFullUrls: websiteSettings.trackFullUrls,
+          samplingInterval: websiteSettings.samplingInterval,
+          maxIdleTime: websiteSettings.maxIdleTime,
+          categoryRules: websiteSettings.categoryRules,
+          productivityRules: websiteSettings.productivityRules,
+          privacyMode: websiteSettings.privacyMode,
+          blocklist: websiteSettings.blocklist,
+          allowlist: websiteSettings.allowlist
+        });
         await websiteTrackingService.updateSettings(websiteSettings);
       }
       

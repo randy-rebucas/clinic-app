@@ -13,6 +13,7 @@ import {
   ApplicationTrackingSettings, IApplicationTrackingSettings,
   WebsiteActivity, IWebsiteActivity,
   WebsiteTrackingSettings, IWebsiteTrackingSettings,
+  ScreenCapture, IScreenCapture,
   ScreenCaptureSettings, IScreenCaptureSettings,
   AttendanceRecord, IAttendanceRecord,
   PunchRecord, IPunchRecord,
@@ -80,7 +81,7 @@ export const getTimeEntries = async (employeeId: string, startDate?: Date, endDa
     return [];
   }
   
-  const query: { employeeId: Types.ObjectId; timestamp?: { $gte?: Date; $lte?: Date } } = { employeeId: new Types.ObjectId(employeeId) };
+  let query: any = { employeeId: new Types.ObjectId(employeeId) };
   
   if (startDate || endDate) {
     query.timestamp = {};
@@ -243,7 +244,7 @@ export const generateAttendanceReport = async (
 ): Promise<IAttendanceReport> => {
   await connectDB();
   
-  const query: { date: { $gte: Date; $lte: Date }; employeeId?: Types.ObjectId } = {
+  let query: any = {
     date: {
       $gte: new Date(startDate),
       $lte: new Date(endDate)

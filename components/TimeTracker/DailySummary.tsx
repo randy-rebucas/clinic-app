@@ -24,8 +24,25 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
         getTimeEntries(employeeId, date, date)
       ]);
       
-      setSummary(dailySummary);
-      setTimeEntries(entries);
+      setSummary(dailySummary ? {
+        id: dailySummary._id.toString(),
+        employeeId: dailySummary.employeeId.toString(),
+        date: dailySummary.date,
+        totalWorkTime: dailySummary.totalWorkTime,
+        totalBreakTime: dailySummary.totalBreakTime,
+        clockInTime: dailySummary.clockInTime,
+        clockOutTime: dailySummary.clockOutTime,
+        workSessions: dailySummary.workSessions.map(session => session.toString()),
+        status: dailySummary.status,
+        overtime: dailySummary.overtime
+      } : null);
+      setTimeEntries(entries.map(entry => ({
+        id: entry._id.toString(),
+        employeeId: entry.employeeId.toString(),
+        type: entry.type,
+        timestamp: entry.timestamp,
+        notes: entry.notes
+      })));
     } catch (error) {
       console.error('Failed to load daily data:', error);
     } finally {

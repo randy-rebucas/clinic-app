@@ -54,22 +54,34 @@ export default function ApplicationUsage({ workSessionId }: ApplicationUsageProp
     } | null;
   } | null>(null);
 
-  useEffect(() => {
-    loadActivities();
-    loadTrackingStatus();
-  }, [workSessionId, loadActivities]);
-
   const loadActivities = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getApplicationActivities(workSessionId);
-      setActivities(data);
+      setActivities(data.map(activity => ({
+        id: activity._id.toString(),
+        employeeId: activity.employeeId.toString(),
+        workSessionId: activity.workSessionId.toString(),
+        applicationName: activity.applicationName,
+        windowTitle: activity.windowTitle,
+        processName: activity.processName,
+        startTime: activity.startTime,
+        endTime: activity.endTime,
+        duration: activity.duration,
+        isActive: activity.isActive,
+        category: activity.category
+      })));
     } catch (error) {
       console.error('Error loading application activities:', error);
     } finally {
       setLoading(false);
     }
   }, [workSessionId]);
+
+  useEffect(() => {
+    loadActivities();
+    loadTrackingStatus();
+  }, [workSessionId, loadActivities]);
 
   const loadTrackingStatus = () => {
     const status = applicationTrackingService.getTrackingStatus();

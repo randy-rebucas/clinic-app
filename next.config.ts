@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/firebase-messaging-sw.js',
+        source: '/sw.js',
         headers: [
           {
             key: 'Cache-Control',

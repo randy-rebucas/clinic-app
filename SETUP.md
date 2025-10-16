@@ -1,55 +1,20 @@
 # 🚀 Quick Setup Guide
 
-## Demo Mode (Current Setup)
+## 🗄️ MongoDB Setup
 
-The application is currently running in **Demo Mode** with the following credentials:
+To use with real MongoDB backend:
 
-### Login Credentials
-- **Employee Account**: `demo@localpro.com` / `demo123`
-- **Admin Account**: `admin@localpro.com` / `admin123`
+### 1. Create MongoDB Database
+1. Go to [MongoDB Atlas](https://www.mongodb.com/atlas) or set up local MongoDB
+2. Create a new database
+3. Create a user with read/write permissions
+4. Get your connection string
 
-### What Works in Demo Mode
-✅ **Time Tracking**: Clock in/out, break tracking  
-✅ **Real-time Status**: Working/break/offline status  
-✅ **Daily Summary**: Time calculations and summaries  
-✅ **Admin Panel**: Employee management and reports  
-✅ **Notifications**: Browser notifications  
-✅ **UI/UX**: Full interface and navigation  
-
-### What's Simulated
-🔄 **Database**: All data is simulated (not persisted)  
-🔄 **Authentication**: Local demo authentication  
-🔄 **Firebase**: Using demo configuration  
-
----
-
-## 🔥 Production Setup (Firebase)
-
-To use with real Firebase backend:
-
-### 1. Create Firebase Project
-1. Go to [Firebase Console](https://console.firebase.google.com)
-2. Create a new project
-3. Enable Authentication (Email/Password)
-4. Enable Firestore Database
-5. Enable Cloud Messaging (optional)
-
-### 2. Get Firebase Config
-1. Go to Project Settings > General
-2. Scroll down to "Your apps"
-3. Add a web app and copy the config
-
-### 3. Update Environment Variables
-Replace `.env.local` with your real Firebase config:
+### 2. Update Environment Variables
+Replace `.env.local` with your real MongoDB config:
 
 ```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_real_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-NEXT_PUBLIC_FIREBASE_VAPID_KEY=your_vapid_key
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/localpro-time-tracker?retryWrites=true&w=majority
 ```
 
 ### 4. Restart Application
@@ -112,15 +77,15 @@ npm run lint     # Run ESLint
 
 ### Other Options
 - **Netlify**: Static site deployment
-- **Firebase Hosting**: Direct Firebase integration
+- **MongoDB Atlas**: Cloud database hosting
 - **Docker**: Containerized deployment
 
 ---
 
 ## 📞 Support
 
-- **Demo Issues**: Check browser console for errors
-- **Firebase Setup**: Follow Firebase documentation
+- **Issues**: Check browser console for errors
+- **MongoDB Setup**: Follow MongoDB documentation
 - **Feature Requests**: Create GitHub issue
 - **Bug Reports**: Include console logs and steps to reproduce
 
@@ -131,7 +96,7 @@ npm run lint     # Run ESLint
 The application is now running at `http://localhost:3000`
 
 **Next Steps:**
-1. Try the demo login credentials
-2. Test the time tracking features
-3. Explore the admin panel
-4. Set up Firebase for production use
+1. Set up MongoDB database
+2. Create employee accounts
+3. Test the time tracking features
+4. Explore the admin panel

@@ -56,7 +56,18 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
       }
       
       const history = await getAttendanceRecords(employeeId, startDate, endDate);
-      setAttendanceHistory(history);
+      setAttendanceHistory(history.map(record => ({
+        id: record._id.toString(),
+        employeeId: record.employeeId.toString(),
+        date: record.date,
+        punchInTime: record.punchInTime,
+        punchOutTime: record.punchOutTime,
+        totalWorkingHours: record.totalWorkingHours,
+        totalBreakTime: record.totalBreakTime,
+        status: record.status,
+        createdAt: record.createdAt,
+        updatedAt: record.updatedAt
+      })));
 
       // Load attendance summary
       const summary = await attendanceTrackingService.getAttendanceSummary(employeeId, startDate, endDate);
@@ -64,7 +75,23 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
 
       // Load attendance settings
       const settings = await getAttendanceSettings(employeeId);
-      setAttendanceSettings(settings);
+      setAttendanceSettings(settings ? {
+        id: settings._id.toString(),
+        employeeId: settings.employeeId.toString(),
+        workStartTime: settings.workStartTime,
+        workEndTime: settings.workEndTime,
+        breakDuration: settings.breakDuration,
+        lateThreshold: settings.lateThreshold,
+        earlyLeaveThreshold: settings.earlyLeaveThreshold,
+        overtimeThreshold: settings.overtimeThreshold,
+        workingDays: settings.workingDays,
+        timezone: settings.timezone,
+        requireLocation: settings.requireLocation,
+        allowRemoteWork: settings.allowRemoteWork,
+        autoPunchOut: settings.autoPunchOut,
+        createdAt: settings.createdAt,
+        updatedAt: settings.updatedAt
+      } : null);
 
     } catch (error) {
       console.error('Error loading attendance data:', error);
@@ -264,7 +291,7 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
           <div className="text-center">
             <div className="text-2xl font-bold text-gray-900 dark:text-white">
               {currentAttendance?.totalWorkingHours ? 
-                TimeFormat.formatHours(currentAttendance.totalWorkingHours) : 
+                TimeFormat.formatDuration(currentAttendance.totalWorkingHours * 60) : 
                 '--:--'
               }
             </div>
@@ -334,7 +361,7 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">Overtime:</span>
                   <span className="ml-2 font-medium text-blue-600">
-                    {TimeFormat.formatHours(currentAttendance.overtimeHours)}
+                    {TimeFormat.formatDuration(currentAttendance.overtimeHours * 60)}
                   </span>
                 </div>
               )}
@@ -397,13 +424,13 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
               <div>
                 <span className="text-gray-500 dark:text-gray-400">Total Working Hours:</span>
                 <span className="ml-2 font-medium text-gray-900 dark:text-white">
-                  {TimeFormat.formatHours(attendanceSummary.totalWorkingHours)}
+                  {TimeFormat.formatDuration(attendanceSummary.totalWorkingHours * 60)}
                 </span>
               </div>
               <div>
                 <span className="text-gray-500 dark:text-gray-400">Average Daily:</span>
                 <span className="ml-2 font-medium text-gray-900 dark:text-white">
-                  {TimeFormat.formatHours(attendanceSummary.averageWorkingHours)}
+                  {TimeFormat.formatDuration(attendanceSummary.averageWorkingHours * 60)}
                 </span>
               </div>
               <div>
@@ -437,7 +464,7 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
               </div>
               <div className="text-right">
                 <div className="font-medium text-gray-900 dark:text-white">
-                  {TimeFormat.formatHours(record.totalWorkingHours)}
+                  {TimeFormat.formatDuration(record.totalWorkingHours * 60)}
                 </div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">
                   {record.status.replace('_', ' ')}

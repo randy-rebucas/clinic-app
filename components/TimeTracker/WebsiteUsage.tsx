@@ -63,7 +63,20 @@ export default function WebsiteUsage({ workSessionId }: WebsiteUsageProps) {
     try {
       setLoading(true);
       const data = await getWebsiteActivities(workSessionId);
-      setActivities(data);
+      setActivities(data.map(activity => ({
+        id: activity._id.toString(),
+        employeeId: activity.employeeId.toString(),
+        workSessionId: activity.workSessionId.toString(),
+        domain: activity.domain,
+        url: activity.url,
+        pageTitle: activity.pageTitle,
+        startTime: activity.startTime,
+        endTime: activity.endTime,
+        duration: activity.duration,
+        isActive: activity.isActive,
+        category: activity.category,
+        productivity: activity.productivity
+      })));
     } catch (error) {
       console.error('Error loading website activities:', error);
     } finally {

@@ -291,7 +291,20 @@ class AttendanceTrackingService {
 
       // Load from database
       const { getAttendanceRecord } = await import('./database');
-      return await getAttendanceRecord(employeeId, today);
+      const record = await getAttendanceRecord(employeeId, today);
+      if (!record) return null;
+      return {
+        id: record._id.toString(),
+        employeeId: record.employeeId.toString(),
+        date: record.date,
+        punchInTime: record.punchInTime,
+        punchOutTime: record.punchOutTime,
+        totalWorkingHours: record.totalWorkingHours,
+        totalBreakTime: record.totalBreakTime,
+        status: record.status,
+        createdAt: record.createdAt,
+        updatedAt: record.updatedAt
+      };
     } catch (error) {
       console.error('Failed to get today\'s attendance record:', error);
       return null;
@@ -305,18 +318,29 @@ class AttendanceTrackingService {
     try {
       const { getAttendanceRecords } = await import('./database');
       const records = await getAttendanceRecords(employeeId, startDate, endDate);
+      const transformedRecords = records.map(record => ({
+        id: record._id.toString(),
+        employeeId: record.employeeId.toString(),
+        date: record.date,
+        punchInTime: record.punchInTime,
+        punchOutTime: record.punchOutTime,
+        totalWorkingHours: record.totalWorkingHours,
+        totalBreakTime: record.totalBreakTime,
+        status: record.status,
+        createdAt: record.createdAt,
+        updatedAt: record.updatedAt
+      }));
       
       const workingDays = this.calculateWorkingDays(startDate, endDate, employeeId);
-      const presentDays = records.filter(r => r.status === 'present' || r.status === 'late').length;
-      const absentDays = records.filter(r => r.status === 'absent').length;
-      const lateDays = records.filter(r => r.status === 'late').length;
-      const halfDays = records.filter(r => r.status === 'half_day').length;
+      const presentDays = transformedRecords.filter(r => r.status === 'present' || r.status === 'late').length;
+      const absentDays = transformedRecords.filter(r => r.status === 'absent').length;
+      const lateDays = transformedRecords.filter(r => r.status === 'late').length;
+      const halfDays = transformedRecords.filter(r => r.status === 'half_day').length;
       
-      const totalWorkingHours = records.reduce((sum, r) => sum + r.totalWorkingHours, 0);
-      const totalOvertimeHours = records.reduce((sum, r) => sum + (r.overtimeHours || 0), 0);
-      const averageWorkingHours = records.length > 0 ? totalWorkingHours / records.length : 0;
+      const totalWorkingHours = transformedRecords.reduce((sum, r) => sum + r.totalWorkingHours, 0);
+      const averageWorkingHours = transformedRecords.length > 0 ? totalWorkingHours / transformedRecords.length : 0;
       
-      const punctualityScore = this.calculatePunctualityScore(records);
+      const punctualityScore = this.calculatePunctualityScore(transformedRecords);
       const attendanceRate = workingDays > 0 ? (presentDays / workingDays) * 100 : 0;
 
       return {
@@ -328,7 +352,6 @@ class AttendanceTrackingService {
         lateDays,
         halfDays,
         totalWorkingHours,
-        totalOvertimeHours,
         averageWorkingHours,
         punctualityScore,
         attendanceRate,

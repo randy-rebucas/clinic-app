@@ -70,13 +70,29 @@ export default function TimeTrackerDashboard() {
     if (!user) return;
     
     try {
-      const activeWorkSession = await getActiveWorkSession(user.uid);
-      setWorkSession(activeWorkSession);
+      const activeWorkSession = await getActiveWorkSession(user.id);
+      setWorkSession(activeWorkSession ? {
+        id: activeWorkSession._id.toString(),
+        employeeId: activeWorkSession.employeeId.toString(),
+        clockInTime: activeWorkSession.clockInTime,
+        totalBreakTime: activeWorkSession.totalBreakTime,
+        totalWorkTime: activeWorkSession.totalWorkTime,
+        status: activeWorkSession.status,
+        createdAt: activeWorkSession.createdAt,
+        updatedAt: activeWorkSession.updatedAt
+      } : null);
       
       // Load break session only if we have an active work session
       if (activeWorkSession) {
-        const activeBreakSession = await getActiveBreakSession(activeWorkSession.id);
-        setBreakSession(activeBreakSession);
+        const activeBreakSession = await getActiveBreakSession(activeWorkSession._id.toString());
+        setBreakSession(activeBreakSession ? {
+          id: activeBreakSession._id.toString(),
+          workSessionId: activeBreakSession.workSessionId.toString(),
+          startTime: activeBreakSession.startTime,
+          endTime: activeBreakSession.endTime,
+          duration: activeBreakSession.duration,
+          status: activeBreakSession.status
+        } : null);
       } else {
         setBreakSession(null);
       }
@@ -107,12 +123,12 @@ export default function TimeTrackerDashboard() {
         await offlineStorageService.initialize();
         
         // Initialize idle management
-        await idleManagementService.initialize(user.uid);
+        await idleManagementService.initialize(user.id);
         
         // Initialize tracking services
-            await applicationTrackingService.initialize(user.uid);
-            await websiteTrackingService.initialize(user.uid);
-            await attendanceTrackingService.initialize(user.uid);
+            await applicationTrackingService.initialize(user.id);
+            await websiteTrackingService.initialize(user.id);
+            await attendanceTrackingService.initialize(user.id);
         
         // Initialize screen capture service
         const initialized = await screenCaptureService.initialize();
@@ -144,7 +160,7 @@ export default function TimeTrackerDashboard() {
     
     try {
       const result = await TimeTrackingService.clockIn({
-        employeeId: user.uid,
+        employeeId: user.id,
         notes: notes.trim() || undefined,
       });
       setNotes('');
@@ -154,12 +170,12 @@ export default function TimeTrackerDashboard() {
       // Start screen capture if enabled
       const settings = screenCaptureService.getSettings();
       if (settings.enabled && result.workSessionId) {
-        await screenCaptureService.startCapture(user.uid, result.workSessionId);
+        await screenCaptureService.startCapture(user.id, result.workSessionId);
       }
       
       // Start idle management for work session
       if (result.workSessionId) {
-        await TimeTrackingService.initializeIdleManagement(user.uid, result.workSessionId);
+        await TimeTrackingService.initializeIdleManagement(user.id, result.workSessionId);
         
         // Start application and website tracking
         await applicationTrackingService.startTracking(result.workSessionId);
@@ -180,7 +196,7 @@ export default function TimeTrackerDashboard() {
     
     try {
       await TimeTrackingService.clockOut({
-        employeeId: user.uid,
+        employeeId: user.id,
         notes: notes.trim() || undefined,
       });
       setNotes('');
@@ -602,15 +618,15 @@ export default function TimeTrackerDashboard() {
         {/* Application and Website Usage */}
           {user && workSession && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-              <ApplicationUsage workSessionId={workSession.id} employeeId={user.uid} />
-              <WebsiteUsage workSessionId={workSession.id} employeeId={user.uid} />
+              <ApplicationUsage workSessionId={workSession.id} employeeId={user.id} />
+              <WebsiteUsage workSessionId={workSession.id} employeeId={user.id} />
             </div>
           )}
 
           {/* Attendance Dashboard */}
           {user && (
             <div className="mb-6">
-              <AttendanceDashboard employeeId={user.uid} />
+              <AttendanceDashboard employeeId={user.id} />
             </div>
           )}
 
@@ -660,7 +676,7 @@ export default function TimeTrackerDashboard() {
             {showScreenCaptures && (
                 <div className="mt-6">
               <ScreenCaptureViewerComponent 
-                employeeId={user.uid} 
+                employeeId={user.id} 
                 workSessionId={workSession?.id}
                 date={currentDate}
               />
@@ -746,7 +762,7 @@ export default function TimeTrackerDashboard() {
               </div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">Daily Summary</h2>
             </div>
-            <DailySummaryComponent employeeId={user.uid} />
+            <DailySummaryComponent employeeId={user.id} />
           </div>
         )}
       </div>
@@ -771,7 +787,7 @@ export default function TimeTrackerDashboard() {
         {/* Tracking Settings Modal */}
         {user && (
           <TrackingSettings
-            employeeId={user.uid}
+            employeeId={user.id}
             isOpen={showTrackingSettings}
             onClose={() => setShowTrackingSettings(false)}
           />

@@ -12,8 +12,6 @@ import {
   getDailySummary
 } from './database';
 import { WorkSession, BreakSession } from '@/types';
-import { isDemoMode } from './demoMode';
-import { TimeFormat } from './timeFormat';
 import { offlineStorageService } from './offlineStorage';
 import { networkDetectionService } from './networkDetection';
 import { idleManagementService } from './idleManagement';
@@ -38,14 +36,6 @@ export class TimeTrackingService {
   // Clock In/Out Operations
   static async clockIn(data: ClockInData): Promise<{ workSessionId: string; timeEntryId: string }> {
     const now = new Date();
-    
-    if (isDemoMode()) {
-      // Demo mode - simulate clock in
-      const timeEntryId = `demo-entry-${Date.now()}`;
-      const workSessionId = `demo-session-${Date.now()}`;
-      console.log('Demo: Clocked in at', TimeFormat.formatDisplayTime(now));
-      return { workSessionId, timeEntryId };
-    }
     
     // Check if employee already has an active work session
     const activeSession = await getActiveWorkSession(data.employeeId);
@@ -148,14 +138,6 @@ export class TimeTrackingService {
 
   static async clockOut(data: ClockOutData): Promise<{ workSessionId: string; timeEntryId: string }> {
     const now = new Date();
-    
-    if (isDemoMode()) {
-      // Demo mode - simulate clock out
-      const timeEntryId = `demo-entry-${Date.now()}`;
-      const workSessionId = `demo-session-${Date.now()}`;
-      console.log('Demo: Clocked out at', TimeFormat.formatDisplayTime(now));
-      return { workSessionId, timeEntryId };
-    }
     
     // Get active work session
     const activeSession = await getActiveWorkSession(data.employeeId);

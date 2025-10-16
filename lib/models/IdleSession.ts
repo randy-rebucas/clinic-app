@@ -1,0 +1,52 @@
+import mongoose, { Document, Schema } from 'mongoose';
+
+export interface IIdleSession extends Document {
+  workSessionId: mongoose.Types.ObjectId;
+  startTime: Date;
+  endTime?: Date;
+  duration?: number; // in minutes
+  reason: 'inactivity' | 'manual' | 'system';
+  notes?: string;
+  status: 'active' | 'completed';
+}
+
+const IdleSessionSchema = new Schema<IIdleSession>({
+  workSessionId: {
+    type: Schema.Types.ObjectId,
+    ref: 'WorkSession',
+    required: true,
+  },
+  startTime: {
+    type: Date,
+    required: true,
+  },
+  endTime: {
+    type: Date,
+  },
+  duration: {
+    type: Number,
+    min: 0,
+  },
+  reason: {
+    type: String,
+    enum: ['inactivity', 'manual', 'system'],
+    required: true,
+  },
+  notes: {
+    type: String,
+    trim: true,
+  },
+  status: {
+    type: String,
+    enum: ['active', 'completed'],
+    default: 'active',
+  },
+}, {
+  timestamps: false,
+});
+
+// Indexes
+IdleSessionSchema.index({ workSessionId: 1, status: 1 });
+IdleSessionSchema.index({ startTime: -1 });
+
+export const IdleSession = mongoose.models && mongoose.models.IdleSession || mongoose.model<IIdleSession>('IdleSession', IdleSessionSchema);

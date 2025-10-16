@@ -74,9 +74,22 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
         allEmployees.map(async (employee) => {
           try {
             const [currentAttendance, summary, settings] = await Promise.all([
-              getAttendanceRecords(employee.id, new Date(), new Date()).then(records => records[0] || null),
-              getAttendanceRecords(employee.id, startDate, endDate).then(async (records) => {
-                if (records.length === 0) return null;
+              getAttendanceRecords(employee._id.toString(), new Date(), new Date()).then(records => {
+                const record = records[0];
+                if (!record) return undefined;
+                return {
+                  id: record._id.toString(),
+                  employeeId: record.employeeId.toString(),
+                  date: record.date,
+                  punchInTime: record.punchInTime,
+                  punchOutTime: record.punchOutTime,
+                  totalWorkingHours: record.totalWorkingHours,
+                  totalBreakTime: record.totalBreakTime,
+                  status: record.status
+                } as AttendanceRecord;
+              }),
+              getAttendanceRecords(employee._id.toString(), startDate, endDate).then(async (records) => {
+                if (records.length === 0) return undefined;
                 
                 const totalWorkingDays = records.length;
                 const presentDays = records.filter(r => r.status === 'present' || r.status === 'late').length;
@@ -107,22 +120,49 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
                   attendanceRate,
                 } as AttendanceSummary;
               }),
-              getAttendanceSettings(employee.id)
+              getAttendanceSettings(employee._id.toString()).then(settings => {
+                if (!settings) return undefined;
+                return {
+                  id: settings._id.toString(),
+                  employeeId: settings.employeeId.toString(),
+                  workStartTime: settings.workStartTime,
+                  workEndTime: settings.workEndTime,
+                  breakDuration: settings.breakDuration,
+                  lateThreshold: settings.lateThreshold,
+                  earlyLeaveThreshold: settings.earlyLeaveThreshold,
+                  overtimeThreshold: settings.overtimeThreshold,
+                  workingDays: settings.workingDays,
+                  timezone: settings.timezone,
+                  requireLocation: settings.requireLocation,
+                  allowRemoteWork: settings.allowRemoteWork,
+                  autoPunchOut: settings.autoPunchOut
+                } as AttendanceSettings;
+              })
             ]);
 
             return {
-              employee,
+              employee: {
+                id: employee._id.toString(),
+                name: employee.name,
+                email: employee.email,
+                department: employee.department
+              },
               currentAttendance,
               summary,
               settings,
             };
           } catch (error) {
-            console.error(`Error loading data for employee ${employee.id}:`, error);
+            console.error(`Error loading data for employee ${employee._id.toString()}:`, error);
             return {
-              employee,
-              currentAttendance: null,
-              summary: null,
-              settings: null,
+              employee: {
+                id: employee._id.toString(),
+                name: employee.name,
+                email: employee.email,
+                department: employee.department
+              },
+              currentAttendance: undefined,
+              summary: undefined,
+              settings: undefined,
             };
           }
         })
@@ -205,7 +245,7 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
       'Current Status': emp.currentAttendance?.status || 'Not Available',
       'Punch In': emp.currentAttendance?.punchInTime ? formatTime(emp.currentAttendance.punchInTime) : 'N/A',
       'Punch Out': emp.currentAttendance?.punchOutTime ? formatTime(emp.currentAttendance.punchOutTime) : 'N/A',
-      'Working Hours': emp.currentAttendance?.totalWorkingHours ? TimeFormat.formatHours(emp.currentAttendance.totalWorkingHours) : 'N/A',
+      'Working Hours': emp.currentAttendance?.totalWorkingHours ? TimeFormat.formatDuration(emp.currentAttendance.totalWorkingHours * 60) : 'N/A',
       'Attendance Rate': emp.summary ? `${Math.round(emp.summary.attendanceRate)}%` : 'N/A',
       'Punctuality Score': emp.summary ? `${emp.summary.punctualityScore}%` : 'N/A',
     }));
@@ -449,7 +489,7 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
                           <span className="text-gray-500 dark:text-gray-400">Working Hours:</span>
                           <span className="ml-2">
                             {emp.currentAttendance?.totalWorkingHours ? 
-                              TimeFormat.formatHours(emp.currentAttendance.totalWorkingHours) : 
+                              TimeFormat.formatDuration(emp.currentAttendance.totalWorkingHours * 60) : 
                               'N/A'
                             }
                           </span>
@@ -482,7 +522,7 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
                           </div>
                           <div>
                             <span className="text-gray-500 dark:text-gray-400">Total Hours:</span>
-                            <span className="ml-2">{TimeFormat.formatHours(emp.summary.totalWorkingHours)}</span>
+                            <span className="ml-2">{TimeFormat.formatDuration(emp.summary.totalWorkingHours * 60)}</span>
                           </div>
                         </div>
                       </div>

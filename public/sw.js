@@ -1,9 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-const fs = require('fs');
-const path = require('path');
-
-// Generate basic service worker content for notifications
-const swContent = `// Basic service worker for time tracker notifications
+// Basic service worker for time tracker notifications
 console.log('Time Tracker Service Worker loaded');
 
 // Handle install event
@@ -53,10 +48,3 @@ self.addEventListener('notificationclick', function(event) {
     })
   );
 });
-`;
-
-// Write the generated service worker
-const outputPath = path.join(__dirname, '..', 'public', 'sw.js');
-fs.writeFileSync(outputPath, swContent);
-
-console.log('Service worker generated successfully');

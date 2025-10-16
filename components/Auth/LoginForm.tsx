@@ -127,16 +127,6 @@ export default function LoginForm() {
           <p className="text-sm text-gray-600">
             Don&apos;t have an account? Contact your administrator.
           </p>
-          {process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "demo-api-key" && (
-            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="text-sm font-medium text-blue-800 mb-2">Demo Mode</h4>
-              <p className="text-xs text-blue-700 mb-2">Use these credentials to test the application:</p>
-              <div className="text-xs text-blue-600 space-y-1">
-                <div><strong>Employee:</strong> demo@localpro.com / demo123</div>
-                <div><strong>Admin:</strong> admin@localpro.com / admin123</div>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

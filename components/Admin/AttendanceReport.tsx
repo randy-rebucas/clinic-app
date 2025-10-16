@@ -37,7 +37,19 @@ export default function AttendanceReport() {
         endDate,
         'admin' // This should be the actual admin user ID
       );
-      setReport(reportData);
+      setReport({
+        id: reportData._id.toString(),
+        employeeId: reportData.employeeId?.toString(),
+        startDate: reportData.startDate,
+        endDate: reportData.endDate,
+        totalWorkTime: reportData.totalWorkTime,
+        totalBreakTime: reportData.totalBreakTime,
+        workDays: reportData.workDays,
+        averageWorkTime: reportData.averageWorkTime,
+        overtime: reportData.overtime,
+        generatedAt: reportData.generatedAt,
+        generatedBy: reportData.generatedBy.toString()
+      });
     } catch (error) {
       console.error('Error generating report:', error);
       alert('Failed to generate report');

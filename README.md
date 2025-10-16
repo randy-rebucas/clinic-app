@@ -1,6 +1,6 @@
 # LocalPro Time Tracker
 
-A comprehensive employee time tracking and attendance management system built with Next.js and Firebase.
+A comprehensive employee time tracking and attendance management system built with Next.js and MongoDB.
 
 ## 🎯 Features
 
@@ -26,13 +26,13 @@ A comprehensive employee time tracking and attendance management system built wi
 - **Browser Notifications** - Real-time alerts for clock in/out reminders
 - **Break Reminders** - Configurable break interval notifications
 - **Overtime Alerts** - Notifications when approaching overtime thresholds
-- **Firebase Cloud Messaging** - Push notifications for mobile devices
+- **Browser Notifications** - Real-time notifications for time tracking events
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js 18+ 
-- Firebase project with Firestore and Authentication enabled
+- MongoDB database (local or cloud)
 - Modern web browser with notification support
 
 ### Installation
@@ -48,26 +48,19 @@ A comprehensive employee time tracking and attendance management system built wi
    npm install
    ```
 
-3. **Set up Firebase**
-   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com)
-   - Enable Authentication (Email/Password)
-   - Enable Firestore Database
-   - Enable Cloud Messaging (optional)
-   - Get your Firebase configuration
+3. **Set up MongoDB**
+   - Create a MongoDB database (local or cloud)
+   - For cloud: Use MongoDB Atlas or any MongoDB cloud provider
+   - For local: Install MongoDB locally
+   - Get your MongoDB connection string
 
 4. **Configure environment variables**
    Create a `.env.local` file in the root directory:
    ```env
-   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-   NEXT_PUBLIC_FIREBASE_VAPID_KEY=your_vapid_key (optional, for notifications)
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/localpro-time-tracker?retryWrites=true&w=majority
    ```
    
-   **Important**: The service worker is automatically generated from these environment variables during build time to keep your Firebase configuration secure.
+   **Important**: Replace the MongoDB URI with your actual database connection string.
 
 5. **Run the development server**
    ```bash
@@ -98,7 +91,8 @@ A comprehensive employee time tracking and attendance management system built wi
 ### Tech Stack
 - **Frontend**: Next.js 15, React 19, TypeScript
 - **Styling**: Tailwind CSS 4
-- **Backend**: Firebase (Firestore, Authentication, Cloud Messaging)
+- **Backend**: MongoDB with Mongoose ODM
+- **Authentication**: Local authentication system
 - **Icons**: Lucide React
 - **Charts**: Recharts (for future analytics)
 
@@ -152,7 +146,7 @@ CSV files are compatible with:
 
 ## 🔒 Security
 
-- **Authentication** - Firebase Authentication with email/password
+- **Authentication** - Local authentication with MongoDB
 - **Authorization** - Role-based access control (employee/admin)
 - **Data Validation** - Input sanitization and validation
 - **Audit Trail** - Complete history of all time entries and changes
@@ -166,7 +160,7 @@ CSV files are compatible with:
 
 ### Other Platforms
 - **Netlify** - Static site deployment
-- **Firebase Hosting** - Direct Firebase integration
+- **MongoDB Atlas** - Cloud database hosting
 - **Docker** - Containerized deployment
 
 ## 🤝 Contributing

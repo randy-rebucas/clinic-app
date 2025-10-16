@@ -1,5 +1,3 @@
-import { messaging } from './firebase';
-import { getToken, onMessage } from 'firebase/messaging';
 import { TimeFormat } from './timeFormat';
 
 export interface NotificationSettings {
@@ -27,15 +25,8 @@ export class NotificationService {
       const permission = await Notification.requestPermission();
       this.permissionGranted = permission === 'granted';
       
-      if (this.permissionGranted && messaging) {
-        try {
-          // Register service worker first
-          await this.registerServiceWorker();
-          await this.getFCMToken();
-          this.setupMessageListener();
-        } catch (error) {
-          console.warn('FCM setup failed, using browser notifications only:', error);
-        }
+      if (this.permissionGranted) {
+        console.log('Browser notification permission granted');
       }
       
       return this.permissionGranted;
@@ -45,59 +36,6 @@ export class NotificationService {
     }
   }
 
-  private async registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
-    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-      console.warn('Service workers not supported');
-      return null;
-    }
-
-    try {
-      const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-        scope: '/',
-      });
-      
-      console.log('Service worker registered successfully:', registration);
-      
-      // Wait for the service worker to be ready
-      await navigator.serviceWorker.ready;
-      
-      return registration;
-    } catch (error) {
-      console.error('Service worker registration failed:', error);
-      throw error;
-    }
-  }
-
-  private async getFCMToken(): Promise<string | null> {
-    if (!messaging) return null;
-
-    try {
-      const token = await getToken(messaging, {
-        vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-      });
-      console.log('FCM Token:', token);
-      return token;
-    } catch (error) {
-      console.error('Error getting FCM token:', error);
-      return null;
-    }
-  }
-
-  private setupMessageListener(): void {
-    if (!messaging) return;
-
-    onMessage(messaging, (payload) => {
-      console.log('Message received:', payload);
-      
-      // Handle foreground messages
-      if (payload.notification) {
-        this.showNotification(
-          payload.notification.title || 'Time Tracker',
-          payload.notification.body || 'You have a new notification'
-        );
-      }
-    });
-  }
 
   showNotification(title: string, body: string, options?: NotificationOptions): void {
     if (!this.permissionGranted) {

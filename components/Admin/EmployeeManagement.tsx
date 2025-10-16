@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { updateEmployee, createEmployee } from '@/lib/database';
 import { Employee } from '@/types';
+import { IEmployee } from '@/lib/models/Employee';
 import { Plus, Edit, Trash2, User, Mail, Building, Shield } from 'lucide-react';
 
 export default function EmployeeManagement() {
@@ -57,7 +58,13 @@ export default function EmployeeManagement() {
 
   const handleAddEmployee = async (employeeData: Omit<Employee, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      const newEmployeeId = await createEmployee(employeeData);
+      const newEmployeeId = await createEmployee({
+        name: employeeData.name,
+        email: employeeData.email,
+        role: employeeData.role,
+        department: employeeData.department,
+        position: employeeData.position
+      } as Omit<IEmployee, '_id' | 'createdAt' | 'updatedAt'>);
       const newEmployee: Employee = {
         ...employeeData,
         id: newEmployeeId,

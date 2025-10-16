@@ -11,8 +11,9 @@
   },
   "dependencies": {
     "date-fns": "^4.1.0",
-    "firebase": "^12.4.0",
     "lucide-react": "^0.545.0",
+    "mongodb": "^4.17.2",
+    "mongoose": "^7.6.3",
     "next": "15.5.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",

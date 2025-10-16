@@ -117,7 +117,7 @@ export default function RoleDebugger({ showDetails = true, className = '' }: Rol
             <div className="border-t border-gray-200 pt-2 mt-2">
               <div className="text-gray-600 mb-1">User Details:</div>
               <div className="text-xs text-gray-500 space-y-1">
-                <div>UID: {user.uid}</div>
+                <div>ID: {user.id}</div>
                 <div>Email: {user.email}</div>
               </div>
             </div>

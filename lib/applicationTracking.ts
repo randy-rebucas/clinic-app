@@ -3,6 +3,9 @@
  * Monitors active applications and tracks time spent on each
  */
 
+import { Types } from 'mongoose';
+import { IApplicationActivity } from './models/ApplicationActivity';
+
 export interface ApplicationActivity {
   id: string;
   employeeId: string;
@@ -203,7 +206,7 @@ class ApplicationTrackingService {
       processName: this.settings.privacyMode ? category : appInfo.processName,
       startTime: new Date(),
       isActive: true,
-      category,
+      category: category as 'productivity' | 'communication' | 'development' | 'design' | 'browsing' | 'entertainment' | 'other',
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -295,7 +298,18 @@ class ApplicationTrackingService {
   private async storeActivity(activity: ApplicationActivity): Promise<void> {
     try {
       const { createApplicationActivity } = await import('./database');
-      await createApplicationActivity(activity);
+      await createApplicationActivity({
+        employeeId: activity.employeeId as unknown as Types.ObjectId,
+        workSessionId: activity.workSessionId as unknown as Types.ObjectId,
+        applicationName: activity.applicationName,
+        windowTitle: activity.windowTitle,
+        processName: activity.processName,
+        startTime: activity.startTime,
+        endTime: activity.endTime,
+        duration: activity.duration,
+        isActive: activity.isActive,
+        category: activity.category
+      } as Omit<IApplicationActivity, '_id' | 'createdAt' | 'updatedAt'>);
     } catch (error) {
       console.error('Error storing application activity:', error);
     }
@@ -307,7 +321,11 @@ class ApplicationTrackingService {
   private async updateActivity(activity: ApplicationActivity): Promise<void> {
     try {
       const { updateApplicationActivity } = await import('./database');
-      await updateApplicationActivity(activity.id, activity);
+      await updateApplicationActivity(activity.id, {
+        endTime: activity.endTime,
+        duration: activity.duration,
+        isActive: activity.isActive
+      });
     } catch (error) {
       console.error('Error updating application activity:', error);
     }
