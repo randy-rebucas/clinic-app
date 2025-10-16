@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { getDailySummary, getTimeEntries } from '@/lib/database';
 import { DailySummary, TimeEntry } from '@/types';
 import { TimeFormat } from '@/lib/timeFormat';
-import { Calendar, Clock, TrendingUp, Coffee, Download } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, Coffee, Download, BarChart3, Target, Award, Activity } from 'lucide-react';
 
 interface DailySummaryProps {
   employeeId: string;
@@ -121,105 +121,223 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
   }
 
   return (
-    <div className="space-y-6">
-      {/* Summary Card */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-gray-900 flex items-center">
-            <Calendar className="h-5 w-5 mr-2" />
-            Daily Summary - {TimeFormat.formatDate(date)}
-          </h3>
-          <button
-            onClick={exportToCSV}
-            className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800"
-          >
-            <Download className="h-4 w-4" />
-            <span>Export CSV</span>
-          </button>
+    <div className="space-y-3">
+      {summary ? (
+        <>
+          {/* Main Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+            {/* Work Time */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                  <Clock className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">Work Time</div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">
+                    {formatTime(summary.totalWorkTime)}
+                  </div>
+                </div>
+              </div>
+              <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-1.5">
+                <div 
+                  className="bg-blue-600 dark:bg-blue-400 h-1.5 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min((summary.totalWorkTime / 480) * 100, 100)}%` }}
+                ></div>
+              </div>
+              <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                {Math.round((summary.totalWorkTime / 480) * 100)}% of 8h goal
+              </div>
+            </div>
+
+            {/* Break Time */}
+            <div className="bg-gradient-to-br from-yellow-50 to-amber-100 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-1.5 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
+                  <Coffee className="h-3 w-3 text-yellow-600 dark:text-yellow-400" />
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-yellow-600 dark:text-yellow-400 font-medium">Break Time</div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">
+                    {formatTime(summary.totalBreakTime)}
+                  </div>
+                </div>
+              </div>
+              <div className="w-full bg-yellow-200 dark:bg-yellow-800 rounded-full h-1.5">
+                <div 
+                  className="bg-yellow-600 dark:bg-yellow-400 h-1.5 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min((summary.totalBreakTime / 60) * 100, 100)}%` }}
+                ></div>
+              </div>
+              <div className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                {Math.round((summary.totalBreakTime / 60) * 100)}% of 1h typical
+              </div>
+            </div>
+
+            {/* Clock In */}
+            <div className="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                  <Activity className="h-3 w-3 text-green-600 dark:text-green-400" />
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-green-600 dark:text-green-400 font-medium">Clock In</div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">
+                    {summary.clockInTime ? TimeFormat.formatDisplayTime(summary.clockInTime) : 'N/A'}
+                  </div>
+                </div>
+              </div>
+              <div className="text-xs text-green-600 dark:text-green-400">
+                {summary.clockInTime ? 'Started work' : 'Not clocked in'}
+              </div>
+            </div>
+
+            {/* Clock Out */}
+            <div className="bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                  <Target className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-purple-600 dark:text-purple-400 font-medium">Clock Out</div>
+                  <div className="text-sm font-bold text-gray-900 dark:text-white">
+                    {summary.clockOutTime ? TimeFormat.formatDisplayTime(summary.clockOutTime) : 'N/A'}
+                  </div>
+                </div>
+              </div>
+              <div className="text-xs text-purple-600 dark:text-purple-400">
+                {summary.clockOutTime ? 'Ended work' : 'Still working'}
+              </div>
+            </div>
+          </div>
+
+          {/* Overtime Alert */}
+          {summary.overtime && summary.overtime > 0 && (
+            <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                  <Award className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-orange-800 dark:text-orange-300">Overtime Detected</h4>
+                  <p className="text-xs text-orange-700 dark:text-orange-400">
+                    {formatTime(summary.overtime)} beyond 8-hour goal
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
+                    {formatTime(summary.overtime)}
+                  </div>
+                  <div className="text-xs text-orange-600 dark:text-orange-400">Overtime</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Productivity Insights */}
+          <div className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/50 dark:to-gray-800/50 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-1.5 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                <BarChart3 className="h-3 w-3 text-slate-600 dark:text-slate-400" />
+              </div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">Productivity Insights</h4>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  {Math.round((summary.totalWorkTime / Math.max(summary.totalWorkTime + summary.totalBreakTime, 1)) * 100)}%
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Productivity Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  {summary.totalWorkTime > 0 ? Math.round(summary.totalWorkTime / 60) : 0}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Hours Worked</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  {summary.totalBreakTime > 0 ? Math.round(summary.totalBreakTime / 15) : 0}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">Break Sessions</div>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-6">
+          <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg w-fit mx-auto mb-3">
+            <Calendar className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">No data for this date</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">No time entries found for {TimeFormat.formatDate(date)}</p>
+          <div className="text-xs text-gray-400 dark:text-gray-500">
+            Clock in to start tracking your time
+          </div>
         </div>
-
-        {summary ? (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {formatTime(summary.totalWorkTime)}
-              </div>
-              <div className="text-sm text-gray-500 flex items-center justify-center">
-                <Clock className="h-4 w-4 mr-1" />
-                Work Time
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {formatTime(summary.totalBreakTime)}
-              </div>
-              <div className="text-sm text-gray-500 flex items-center justify-center">
-                <Coffee className="h-4 w-4 mr-1" />
-                Break Time
-              </div>
-            </div>
-            
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {summary.clockInTime ? TimeFormat.formatDisplayTime(summary.clockInTime) : 'N/A'}
-              </div>
-              <div className="text-sm text-gray-500">Clock In</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
-                {summary.clockOutTime ? TimeFormat.formatDisplayTime(summary.clockOutTime) : 'N/A'}
-              </div>
-              <div className="text-sm text-gray-500">Clock Out</div>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No data for this date</h3>
-            <p className="text-gray-500">No time entries found for {TimeFormat.formatDate(date)}</p>
-          </div>
-        )}
-
-        {summary && summary.overtime && summary.overtime > 0 && (
-          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div className="flex items-center">
-              <TrendingUp className="h-5 w-5 text-yellow-600 mr-2" />
-              <span className="text-sm font-medium text-yellow-800">
-                Overtime: {formatTime(summary.overtime)}
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Time Entries */}
       {timeEntries.length > 0 && (
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Time Entries</h3>
-          <div className="space-y-3">
-            {timeEntries.map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <span className="text-lg">{getEntryIcon(entry.type)}</span>
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {getEntryLabel(entry.type)}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                <BarChart3 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white">Time Entries</h3>
+            </div>
+            <button
+              onClick={exportToCSV}
+              className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+            >
+              <Download className="h-3 w-3" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+          
+          <div className="space-y-2">
+            {timeEntries.map((entry, index) => (
+              <div key={entry.id} className="group relative overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 rounded-lg p-3 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-600/50 dark:hover:to-gray-500/50 transition-all duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="flex-shrink-0">
+                      <div className="w-8 h-8 bg-white dark:bg-gray-800 rounded-lg flex items-center justify-center shadow-sm">
+                        <span className="text-sm">{getEntryIcon(entry.type)}</span>
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-500">
-                      {TimeFormat.formatDisplayTime(entry.timestamp)}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                          {getEntryLabel(entry.type)}
+                        </h4>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded-full">
+                          #{index + 1}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        {TimeFormat.formatDisplayTime(entry.timestamp)}
+                      </div>
+                      {entry.notes && (
+                        <div className="text-xs text-gray-700 dark:text-gray-300 mt-1 italic">
+                          "{entry.notes}"
+                        </div>
+                      )}
                     </div>
                   </div>
+                  <div className="text-right">
+                    {entry.location && (
+                      <div className="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 px-1.5 py-0.5 rounded">
+                        📍 {entry.location}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-right">
-                  {entry.notes && (
-                    <div className="text-sm text-gray-600">{entry.notes}</div>
-                  )}
-                  {entry.location && (
-                    <div className="text-xs text-gray-500">{entry.location}</div>
-                  )}
-                </div>
+                
+                {/* Connection line to next entry */}
+                {index < timeEntries.length - 1 && (
+                  <div className="absolute left-7 top-12 w-0.5 h-3 bg-gray-300 dark:bg-gray-600"></div>
+                )}
               </div>
             ))}
           </div>

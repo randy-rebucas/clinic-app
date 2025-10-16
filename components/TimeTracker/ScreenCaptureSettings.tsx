@@ -131,30 +131,30 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <Camera className="h-6 w-6 text-blue-600" />
-          <h3 className="text-lg font-medium text-gray-900">Screen Capture Settings</h3>
+    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-2">
+          <Camera className="h-4 w-4 text-blue-600" />
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Screen Capture Settings</h3>
         </div>
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800"
+          className="flex items-center space-x-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
         >
-          <Settings className="h-4 w-4" />
+          <Settings className="h-3 w-3" />
           <span>{showAdvanced ? 'Hide' : 'Show'} Advanced</span>
         </button>
       </div>
 
       {/* Permission Status */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="mb-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             {getPermissionIcon()}
             <div>
-              <div className="font-medium text-gray-900">{getPermissionText()}</div>
-              <div className="text-sm text-gray-500">
-                Required for automatic screen capture during work sessions
+              <div className="text-sm font-medium text-gray-900 dark:text-white">{getPermissionText()}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Required for automatic screen capture
               </div>
             </div>
           </div>
@@ -162,7 +162,7 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
             <button
               onClick={handleRequestPermission}
               disabled={isLoading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
               {isLoading ? 'Requesting...' : 'Request Permission'}
             </button>
@@ -171,12 +171,12 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
       </div>
 
       {/* Basic Settings */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {/* Enable Screen Capture */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="font-medium text-gray-900">Enable Screen Capture</div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm font-medium text-gray-900 dark:text-white">Enable Screen Capture</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
               Automatically capture screenshots during work sessions
             </div>
           </div>
@@ -187,19 +187,19 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
               onChange={(e) => handleSettingChange('enabled', e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <div className="w-9 h-5 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
           </label>
         </div>
 
         {/* Capture Interval */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
             Capture Interval
           </label>
           <select
             value={settings.intervalMinutes}
             onChange={(e) => handleSettingChange('intervalMinutes', parseInt(e.target.value))}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
           >
             <option value={5}>Every 5 minutes</option>
             <option value={10}>Every 10 minutes</option>
@@ -207,7 +207,7 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
             <option value={30}>Every 30 minutes</option>
             <option value={60}>Every hour</option>
           </select>
-          <div className="text-sm text-gray-500 mt-1">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             How often to capture screenshots during work sessions
           </div>
         </div>
@@ -215,8 +215,8 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
         {/* Require User Consent */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="font-medium text-gray-900">Require User Consent</div>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm font-medium text-gray-900 dark:text-white">Require User Consent</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">
               Ask for permission before starting screen capture
             </div>
           </div>
@@ -227,19 +227,19 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
               onChange={(e) => handleSettingChange('requireUserConsent', e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <div className="w-9 h-5 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
           </label>
         </div>
       </div>
 
       {/* Advanced Settings */}
       {showAdvanced && (
-        <div className="mt-6 pt-6 border-t border-gray-200 space-y-4">
-          <h4 className="font-medium text-gray-900">Advanced Settings</h4>
+        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-3">
+          <h4 className="text-sm font-medium text-gray-900 dark:text-white">Advanced Settings</h4>
           
           {/* Image Quality */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
               Image Quality: {Math.round(settings.quality * 100)}%
             </label>
             <input
@@ -249,16 +249,16 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
               step="0.1"
               value={settings.quality}
               onChange={(e) => handleSettingChange('quality', parseFloat(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
             />
-            <div className="text-sm text-gray-500 mt-1">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Higher quality = larger file sizes
             </div>
           </div>
 
           {/* Daily Capture Limit */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
               Daily Capture Limit
             </label>
             <input
@@ -267,9 +267,9 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
               max="100"
               value={settings.maxCapturesPerDay}
               onChange={(e) => handleSettingChange('maxCapturesPerDay', parseInt(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             />
-            <div className="text-sm text-gray-500 mt-1">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Maximum number of captures per day to prevent storage overflow
             </div>
           </div>
@@ -277,36 +277,36 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
       )}
 
       {/* Action Buttons */}
-      <div className="mt-6 pt-6 border-t border-gray-200">
+      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             {hasUnsavedChanges() && (
-              <span className="text-sm text-amber-600 flex items-center">
-                <AlertTriangle className="h-4 w-4 mr-1" />
-                You have unsaved changes
+              <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center">
+                <AlertTriangle className="h-3 w-3 mr-1" />
+                Unsaved changes
               </span>
             )}
             {saveStatus === 'saved' && (
-              <span className="text-sm text-green-600 flex items-center">
-                <CheckCircle className="h-4 w-4 mr-1" />
-                Settings saved successfully
+              <span className="text-xs text-green-600 dark:text-green-400 flex items-center">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Settings saved
               </span>
             )}
             {saveStatus === 'error' && (
-              <span className="text-sm text-red-600 flex items-center">
-                <XCircle className="h-4 w-4 mr-1" />
-                Failed to save settings
+              <span className="text-xs text-red-600 dark:text-red-400 flex items-center">
+                <XCircle className="h-3 w-3 mr-1" />
+                Save failed
               </span>
             )}
           </div>
           
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             {hasUnsavedChanges() && (
               <button
                 onClick={handleResetSettings}
-                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                className="flex items-center space-x-1 px-2 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-gray-500 transition-colors"
               >
-                <RotateCcw className="h-4 w-4" />
+                <RotateCcw className="h-3 w-3" />
                 <span>Reset</span>
               </button>
             )}
@@ -314,9 +314,9 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
             <button
               onClick={handleSaveSettings}
               disabled={!hasUnsavedChanges() || isSaving}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center space-x-1 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
-              <Save className="h-4 w-4" />
+              <Save className="h-3 w-3" />
               <span>
                 {isSaving ? 'Saving...' : 'Save Settings'}
               </span>
@@ -326,12 +326,12 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
       </div>
 
       {/* Privacy Notice */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-start space-x-3">
-          <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+      <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <div className="flex items-start space-x-2">
+          <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5" />
           <div>
-            <div className="font-medium text-blue-900">Privacy Notice</div>
-            <div className="text-sm text-blue-800 mt-1">
+            <div className="text-sm font-medium text-blue-900 dark:text-blue-300">Privacy Notice</div>
+            <div className="text-xs text-blue-800 dark:text-blue-400 mt-1">
               Screen captures are taken for productivity monitoring purposes only. 
               Images are stored locally and can be deleted at any time. 
               No personal data or sensitive information is intentionally captured.

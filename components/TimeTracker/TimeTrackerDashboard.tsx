@@ -21,7 +21,20 @@ import {
   AlertCircle,
   Camera,
   Settings,
-  Eye
+  Eye,
+  Clock,
+  Timer,
+  TrendingUp,
+  Activity,
+  Zap,
+  CheckCircle,
+  XCircle,
+  Minus,
+  Plus,
+  BarChart3,
+  Calendar,
+  Target,
+  Award
 } from 'lucide-react';
 
 export default function TimeTrackerDashboard() {
@@ -85,6 +98,51 @@ export default function TimeTrackerDashboard() {
 
     initializeServices();
   }, [user, loadActiveSessions]);
+
+  // Get current status
+  const getCurrentStatus = () => {
+    return TimeTrackingService.getCurrentStatus(workSession, breakSession);
+  };
+
+  const currentStatus = getCurrentStatus();
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle shortcuts when not typing in input fields
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+        return;
+      }
+
+      // Ctrl/Cmd + Enter: Clock In/Out
+      if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+        event.preventDefault();
+        if (!workSession) {
+          handleClockIn();
+        } else if (currentStatus !== 'on_break') {
+          handleClockOut();
+        }
+      }
+
+      // Ctrl/Cmd + B: Start/End Break
+      if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
+        event.preventDefault();
+        if (workSession && !breakSession) {
+          handleStartBreak();
+        } else if (workSession && breakSession) {
+          handleEndBreak();
+        }
+      }
+
+      // Escape: Clear notes
+      if (event.key === 'Escape') {
+        setNotes('');
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [workSession, breakSession, currentStatus, notes]);
 
   const handleClockIn = async () => {
     if (!user) return;
@@ -177,10 +235,6 @@ export default function TimeTrackerDashboard() {
     }
   };
 
-  const getCurrentStatus = () => {
-    return TimeTrackingService.getCurrentStatus(workSession, breakSession);
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'working':
@@ -222,198 +276,405 @@ export default function TimeTrackerDashboard() {
     screenCaptureService.updateSettings({ enabled: false });
   };
 
-  const currentStatus = getCurrentStatus();
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <NavBar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Status Card */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-medium text-gray-900">Current Status</h2>
-              <div className="mt-2 flex items-center space-x-3">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(currentStatus)}`}>
-                  {getStatusText(currentStatus)}
-                </span>
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
+        {/* Hero Section - Current Status & Time */}
+        <div className="mb-4">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3 sm:p-4">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
+              {/* Status Display */}
+              <div className="flex-1 w-full">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`p-2 rounded-xl ${getStatusColor(currentStatus).replace('text-', 'bg-').replace('border-', 'bg-').replace('100', '500')} bg-opacity-10`}>
+                    {currentStatus === 'working' && <Activity className="h-5 w-5 text-green-600" />}
+                    {currentStatus === 'on_break' && <Coffee className="h-5 w-5 text-yellow-600" />}
+                    {currentStatus === 'offline' && <XCircle className="h-5 w-5 text-gray-600" />}
+                  </div>
+                  <div className="flex-1">
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                      {getStatusText(currentStatus)}
+                    </h1>
+                    {workSession && (
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        Since {TimeFormat.formatDisplayTime(workSession.clockInTime)}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Live Timer */}
                 {workSession && (
-                  <span className="text-sm text-gray-600">
-                    Since {TimeFormat.formatDisplayTime(workSession.clockInTime)}
-                  </span>
+                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-3 text-white">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs opacity-90">Current Session</p>
+                        <p className="text-lg font-mono font-bold">
+                          {formatDuration(workSession.clockInTime)}
+                        </p>
+                      </div>
+                      <Timer className="h-5 w-5 opacity-80" />
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-mono font-bold text-gray-900">
-                {TimeFormat.formatDisplayTime(currentTime)}
-              </div>
-              <div className="text-sm text-gray-500">
-                {currentTime.toLocaleDateString()}
+
+              {/* Current Time */}
+              <div className="text-center lg:text-right w-full lg:w-auto">
+                <div className="bg-gray-900 text-white rounded-xl p-3">
+                  <div className="text-xl font-mono font-bold">
+                    {TimeFormat.formatDisplayTime(currentTime)}
+                  </div>
+                  <div className="text-xs text-gray-300 mt-1">
+                    {currentTime.toLocaleDateString('en-US', { 
+                      weekday: 'short', 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Action Card */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-6">Time Tracking</h2>
+        {/* Main Action Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          {/* Primary Actions */}
+          <div className="lg:col-span-2">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3 sm:p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-1.5 bg-blue-100 rounded-lg">
+                  <Zap className="h-4 w-4 text-blue-600" />
+                </div>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">Quick Actions</h2>
+              </div>
           
-          {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
-              <AlertCircle className="h-4 w-4 mr-2" />
-              {error}
-            </div>
-          )}
+              {error && (
+                <div className="mb-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-3 py-2 rounded-lg text-sm flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
+                  {error}
+                </div>
+              )}
 
-          {/* Notes Input */}
-          <div className="mb-6">
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
-              Notes (Optional)
-            </label>
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Add notes about your work or break..."
-            />
+              {/* Primary Action Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                {!workSession ? (
+                  <button
+                    onClick={handleClockIn}
+                    disabled={loading}
+                    className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="p-1 bg-white/20 rounded-lg">
+                        <Play className="h-4 w-4" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold">Clock In</div>
+                        <div className="text-xs opacity-90">Start workday</div>
+                      </div>
+                    </div>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleClockOut}
+                    disabled={loading || currentStatus === 'on_break'}
+                    className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-rose-600 text-white px-3 py-3 rounded-xl hover:from-red-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="p-1 bg-white/20 rounded-lg">
+                        <LogOut className="h-4 w-4" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold">Clock Out</div>
+                        <div className="text-xs opacity-90">End workday</div>
+                      </div>
+                    </div>
+                  </button>
+                )}
+
+                {workSession && !breakSession ? (
+                  <button
+                    onClick={handleStartBreak}
+                    disabled={loading}
+                    className="group relative overflow-hidden bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-3 rounded-xl hover:from-yellow-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="p-1 bg-white/20 rounded-lg">
+                        <Coffee className="h-4 w-4" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold">Start Break</div>
+                        <div className="text-xs opacity-90">Take a break</div>
+                      </div>
+                    </div>
+                  </button>
+                ) : workSession && breakSession ? (
+                  <button
+                    onClick={handleEndBreak}
+                    disabled={loading}
+                    className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-3 rounded-xl hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="p-1 bg-white/20 rounded-lg">
+                        <Pause className="h-4 w-4" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold">End Break</div>
+                        <div className="text-xs opacity-90">Back to work</div>
+                      </div>
+                    </div>
+                  </button>
+                ) : (
+                  <button
+                    disabled
+                    className="bg-gray-100 text-gray-400 px-3 py-3 rounded-xl cursor-not-allowed"
+                  >
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="p-1 bg-gray-200 rounded-lg">
+                        <Coffee className="h-4 w-4" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold">Start Break</div>
+                        <div className="text-xs">Clock in first</div>
+                      </div>
+                    </div>
+                  </button>
+                )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {!workSession ? (
-              <button
-                onClick={handleClockIn}
-                disabled={loading}
-                className="flex items-center justify-center space-x-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <Play className="h-5 w-5" />
-                <span>Clock In</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleClockOut}
-                disabled={loading || currentStatus === 'on_break'}
-                className="flex items-center justify-center space-x-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <LogOut className="h-5 w-5" />
-                <span>Clock Out</span>
-              </button>
-            )}
+              {/* Notes Input */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Notes (Optional)
+                  </label>
+                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                    <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Esc</kbd>
+                    <span>to clear</span>
+                  </div>
+                </div>
+                <textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none text-sm"
+                  placeholder="What are you working on?"
+                />
+              </div>
 
-            {workSession && !breakSession ? (
-              <button
-                onClick={handleStartBreak}
-                disabled={loading}
-                className="flex items-center justify-center space-x-2 bg-yellow-600 text-white px-6 py-3 rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <Coffee className="h-5 w-5" />
-                <span>Start Break</span>
-              </button>
-            ) : workSession && breakSession ? (
-              <button
-                onClick={handleEndBreak}
-                disabled={loading}
-                className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <Pause className="h-5 w-5" />
-                <span>End Break</span>
-              </button>
-            ) : (
-              <button
-                disabled
-                className="flex items-center justify-center space-x-2 bg-gray-300 text-gray-500 px-6 py-3 rounded-lg cursor-not-allowed"
-              >
-                <Coffee className="h-5 w-5" />
-                <span>Start Break</span>
-              </button>
-            )}
+              {/* Keyboard Shortcuts Help */}
+              <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="h-3 w-3 text-gray-600 dark:text-gray-400" />
+                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Shortcuts</span>
+                </div>
+                <div className="flex gap-4 text-xs">
+                  <div className="flex items-center gap-1">
+                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-xs">Ctrl+Enter</kbd>
+                    <span className="text-gray-600 dark:text-gray-400">Clock In/Out</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-xs">Ctrl+B</kbd>
+                    <span className="text-gray-600 dark:text-gray-400">Break</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Session Stats */}
+          <div className="lg:col-span-1">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-1.5 bg-purple-100 rounded-lg">
+                  <BarChart3 className="h-4 w-4 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Session Stats</h3>
+              </div>
+              
+              {workSession ? (
+                <div className="space-y-2">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Total Time</span>
+                      <Clock className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      {formatDuration(workSession.clockInTime)}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Work Time</span>
+                      <Target className="h-3 w-3 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      {TimeTrackingService.formatTime(workSession.totalWorkTime)}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Break Time</span>
+                      <Coffee className="h-3 w-3 text-yellow-600 dark:text-yellow-400" />
+                    </div>
+                    <div className="text-lg font-bold text-gray-900 dark:text-white">
+                      {TimeTrackingService.formatTime(workSession.totalBreakTime)}
+                    </div>
+                  </div>
+                  
+                  {workSession.totalWorkTime > 480 && (
+                    <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Overtime</span>
+                        <Award className="h-3 w-3 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        {TimeTrackingService.formatTime(workSession.totalWorkTime - 480)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-4">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg w-fit mx-auto mb-2">
+                    <Clock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">No active session</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Clock in to start</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Session Info */}
-        {workSession && (
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Current Session</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">
-                  {formatDuration(workSession.clockInTime)}
-                </div>
-                <div className="text-sm text-gray-500">Total Time</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">
-                  {TimeTrackingService.formatTime(workSession.totalBreakTime)}
-                </div>
-                <div className="text-sm text-gray-500">Break Time</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900">
-                  {TimeTrackingService.formatTime(workSession.totalWorkTime)}
-                </div>
-                <div className="text-sm text-gray-500">Work Time</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Screen Capture Controls */}
+        {/* Screen Capture & Additional Features */}
         {user && (
-          <div className="mt-8 space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium text-gray-900 flex items-center">
-                  <Camera className="h-5 w-5 mr-2" />
-                  Screen Capture
-                </h3>
-                <div className="flex space-x-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            {/* Screen Capture */}
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-indigo-100 rounded-lg">
+                    <Camera className="h-4 w-4 text-indigo-600" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Screen Capture</h3>
+                </div>
+                <div className="flex space-x-1">
                   <button
                     onClick={() => setShowScreenCaptures(!showScreenCaptures)}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                    className="flex items-center space-x-1 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500 transition-colors"
                   >
-                    <Eye className="h-4 w-4" />
-                    <span>{showScreenCaptures ? 'Hide' : 'View'} Captures</span>
+                    <Eye className="h-3 w-3" />
+                    <span>{showScreenCaptures ? 'Hide' : 'View'}</span>
                   </button>
                   <button
                     onClick={() => setShowScreenCaptureSettings(!showScreenCaptureSettings)}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="flex items-center space-x-1 px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/30 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                   >
-                    <Settings className="h-4 w-4" />
+                    <Settings className="h-3 w-3" />
                     <span>Settings</span>
                   </button>
                 </div>
               </div>
               
-              <div className="text-sm text-gray-600">
-                {screenCaptureService.isActive() ? (
-                  <span className="text-green-600">Screen capture is active</span>
-                ) : (
-                  <span className="text-gray-500">Screen capture is inactive</span>
-                )}
+              <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                <div className={`w-2 h-2 rounded-full ${screenCaptureService.isActive() ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                  {screenCaptureService.isActive() ? 'Active' : 'Inactive'}
+                </span>
               </div>
-            </div>
 
             {showScreenCaptureSettings && (
+                <div className="mt-6">
               <ScreenCaptureSettingsComponent />
+                </div>
             )}
 
             {showScreenCaptures && (
+                <div className="mt-6">
               <ScreenCaptureViewerComponent 
                 employeeId={user.uid} 
                 workSessionId={workSession?.id}
                 date={currentDate}
               />
-            )}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Stats */}
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="p-1.5 bg-emerald-100 rounded-lg">
+                  <TrendingUp className="h-4 w-4 text-emerald-600" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Today's Progress</h3>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                      <Target className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Daily Goal</p>
+                      <p className="text-sm font-bold text-gray-900 dark:text-white">8 hours</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                      {workSession ? Math.round((workSession.totalWorkTime / 480) * 100) : 0}%
+                    </div>
+                    <div className="w-12 h-1.5 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-blue-600 dark:bg-blue-400 rounded-full transition-all duration-500"
+                        style={{ width: `${workSession ? Math.min((workSession.totalWorkTime / 480) * 100, 100) : 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+                    <div className="flex items-center gap-1 mb-1">
+                      <CheckCircle className="h-3 w-3 text-green-600 dark:text-green-400" />
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Productivity</span>
+                    </div>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">
+                      {workSession ? Math.round((workSession.totalWorkTime / Math.max(workSession.totalWorkTime + workSession.totalBreakTime, 1)) * 100) : 0}%
+                    </p>
+                  </div>
+                  
+                  <div className="p-2 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Calendar className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+                      <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Sessions</span>
+                    </div>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white">
+                      {workSession ? '1' : '0'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Daily Summary */}
         {user && (
-          <div className="mt-8">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="p-1.5 bg-cyan-100 rounded-lg">
+                <Calendar className="h-4 w-4 text-cyan-600" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Daily Summary</h2>
+            </div>
             <DailySummaryComponent employeeId={user.uid} />
           </div>
         )}
