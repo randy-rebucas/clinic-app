@@ -5,6 +5,7 @@
 
 import { offlineStorageService } from './offlineStorage';
 import { networkDetectionService, NetworkState } from './networkDetection';
+import { ITimeEntry, IWorkSession, IBreakSession } from './models';
 import { 
   createTimeEntry, 
   createWorkSession, 
@@ -153,7 +154,7 @@ export class SyncService {
           
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, isOffline, syncStatus, lastSyncAttempt, retryCount, ...cleanTimeEntry } = timeEntry;
-          await createTimeEntry(cleanTimeEntry);
+          await createTimeEntry(cleanTimeEntry as unknown as Omit<ITimeEntry, '_id'>);
           
           offlineStorageService.markAsSynced('timeEntry', timeEntry.id!);
           syncedItems++;
@@ -184,7 +185,7 @@ export class SyncService {
           
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, isOffline, syncStatus, lastSyncAttempt, retryCount, ...cleanWorkSession } = workSession;
-          await createWorkSession(cleanWorkSession);
+          await createWorkSession(cleanWorkSession as unknown as Omit<IWorkSession, '_id' | 'createdAt' | 'updatedAt'>);
           
           offlineStorageService.markAsSynced('workSession', workSession.id!);
           syncedItems++;
@@ -215,7 +216,7 @@ export class SyncService {
           
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { id, isOffline, syncStatus, lastSyncAttempt, retryCount, ...cleanBreakSession } = breakSession;
-          await createBreakSession(cleanBreakSession);
+          await createBreakSession(cleanBreakSession as unknown as Omit<IBreakSession, '_id'>);
           
           offlineStorageService.markAsSynced('breakSession', breakSession.id!);
           syncedItems++;

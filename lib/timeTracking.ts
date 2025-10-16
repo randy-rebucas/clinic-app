@@ -1,3 +1,4 @@
+import { ITimeEntry, IWorkSession, IBreakSession, IDailySummary } from './models';
 import { 
   createTimeEntry, 
   createWorkSession, 
@@ -47,21 +48,22 @@ export class TimeTrackingService {
     
     if (isOnline) {
       // Online: Create in database
+      const { Types } = await import('mongoose');
       const timeEntryId = await createTimeEntry({
-        employeeId: data.employeeId,
+        employeeId: new Types.ObjectId(data.employeeId),
         type: 'clock_in',
         timestamp: now,
         notes: data.notes,
         location: data.location,
-      });
+      } as unknown as Omit<ITimeEntry, '_id'>);
 
       const workSessionId = await createWorkSession({
-        employeeId: data.employeeId,
+        employeeId: new Types.ObjectId(data.employeeId),
         clockInTime: now,
         totalBreakTime: 0,
         totalWorkTime: 0,
         status: 'active',
-      });
+      } as unknown as Omit<IWorkSession, '_id' | 'createdAt' | 'updatedAt'>);
 
       return { workSessionId, timeEntryId };
     } else {
@@ -155,12 +157,13 @@ export class TimeTrackingService {
     
     if (isOnline) {
       // Online: Update in database
+      const { Types } = await import('mongoose');
       const timeEntryId = await createTimeEntry({
-        employeeId: data.employeeId,
+        employeeId: new Types.ObjectId(data.employeeId),
         type: 'clock_out',
         timestamp: now,
         notes: data.notes,
-      });
+      } as unknown as Omit<ITimeEntry, '_id'>);
 
       // Calculate total work time
       const totalWorkTime = this.calculateWorkTime(activeSession.clockInTime, now, activeSession.totalBreakTime);
@@ -225,19 +228,20 @@ export class TimeTrackingService {
     
     if (isOnline) {
       // Online: Create in database
+      const { Types } = await import('mongoose');
       const timeEntryId = await createTimeEntry({
-        employeeId: workSession.employeeId,
+        employeeId: new Types.ObjectId(workSession.employeeId),
         type: 'break_start',
         timestamp: now,
         notes: data.notes,
-      });
+      } as unknown as Omit<ITimeEntry, '_id'>);
 
       const breakSessionId = await createBreakSession({
-        workSessionId: data.workSessionId,
+        workSessionId: new Types.ObjectId(data.workSessionId),
         startTime: now,
         status: 'active',
         notes: data.notes,
-      });
+      } as unknown as Omit<IBreakSession, '_id'>);
 
       return { breakSessionId, timeEntryId };
     } else {
@@ -245,7 +249,7 @@ export class TimeTrackingService {
       console.log('Offline: Storing break start data locally');
       
       const timeEntryId = await offlineStorageService.storeTimeEntry({
-        employeeId: workSession.employeeId,
+        employeeId: workSession.employeeId.toString(),
         type: 'break_start',
         timestamp: now,
         notes: data.notes,
@@ -284,12 +288,13 @@ export class TimeTrackingService {
     
     if (isOnline) {
       // Online: Update in database
+      const { Types } = await import('mongoose');
       const timeEntryId = await createTimeEntry({
-        employeeId: workSession.employeeId,
+        employeeId: new Types.ObjectId(workSession.employeeId),
         type: 'break_end',
         timestamp: now,
         notes,
-      });
+      } as unknown as Omit<ITimeEntry, '_id'>);
 
       // Update break session
       await updateBreakSession(activeBreak.id, {
@@ -310,7 +315,7 @@ export class TimeTrackingService {
       console.log('Offline: Storing break end data locally');
       
       const timeEntryId = await offlineStorageService.storeTimeEntry({
-        employeeId: workSession.employeeId,
+        employeeId: workSession.employeeId.toString(),
         type: 'break_end',
         timestamp: now,
         notes,
@@ -379,8 +384,9 @@ export class TimeTrackingService {
       const totalWorkTime = workSessions.reduce((sum, session) => sum + session.totalWorkTime, 0);
       const totalBreakTime = workSessions.reduce((sum, session) => sum + session.totalBreakTime, 0);
       
+      const { Types } = await import('mongoose');
       await createDailySummary({
-        employeeId,
+        employeeId: new Types.ObjectId(employeeId),
         date: dateStr,
         totalWorkTime,
         totalBreakTime,
@@ -389,7 +395,7 @@ export class TimeTrackingService {
         workSessions: workSessions.map(session => session.id),
         status: 'complete',
         overtime: Math.max(0, totalWorkTime - (8 * 60)),
-      });
+      } as unknown as Omit<IDailySummary, '_id' | 'createdAt' | 'updatedAt'>);
     }
   }
 

@@ -4,13 +4,15 @@
  */
 
 import { inactivityDetectionService, IdleState, IdleSettings } from './inactivityDetection';
+import { IIdleSettings, IIdleSession } from './models';
 import { 
   createIdleSession, 
   updateIdleSession, 
   getActiveIdleSession,
   getIdleSettings,
   createIdleSettings,
-  updateIdleSettings
+  updateIdleSettings,
+  getIdleSessions
 } from './database';
 import { networkDetectionService } from './networkDetection';
 import { IdleSession } from '@/types';
@@ -31,6 +33,7 @@ export class IdleManagementService {
   private currentWorkSessionId?: string;
   private currentIdleSession?: IdleSession;
   private settings: IdleSettings | null = null;
+  private settingsId?: string;
   private stateCallbacks: IdleManagementCallback[] = [];
   private isInitialized = false;
 
@@ -101,12 +104,23 @@ export class IdleManagementService {
    */
   private async loadIdleSettings(employeeId: string): Promise<void> {
     try {
-      this.settings = await getIdleSettings(employeeId);
+      const dbSettings = await getIdleSettings(employeeId);
+      if (dbSettings) {
+        this.settingsId = dbSettings._id.toString();
+        this.settings = {
+          enabled: dbSettings.enabled,
+          idleThresholdMinutes: dbSettings.idleThresholdMinutes,
+          pauseTimerOnIdle: dbSettings.pauseTimerOnIdle,
+          showIdleWarning: dbSettings.showIdleWarning,
+          warningTimeMinutes: dbSettings.warningTimeMinutes,
+          autoResumeOnActivity: dbSettings.autoResumeOnActivity,
+        };
+      }
       
       // Create default settings if none exist
       if (!this.settings) {
-        const defaultSettings: Omit<IdleSettings, 'id' | 'createdAt' | 'updatedAt'> = {
-          employeeId,
+        const defaultSettings = {
+          employeeId: new (await import('mongoose')).Types.ObjectId(employeeId),
           enabled: true,
           idleThresholdMinutes: 5,
           pauseTimerOnIdle: true,
@@ -115,12 +129,14 @@ export class IdleManagementService {
           autoResumeOnActivity: true,
         };
 
-        const settingsId = await createIdleSettings(defaultSettings);
+        this.settingsId = await createIdleSettings(defaultSettings as Omit<IIdleSettings, '_id' | 'createdAt' | 'updatedAt'>);
         this.settings = {
-          id: settingsId,
-          ...defaultSettings,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          enabled: defaultSettings.enabled,
+          idleThresholdMinutes: defaultSettings.idleThresholdMinutes,
+          pauseTimerOnIdle: defaultSettings.pauseTimerOnIdle,
+          showIdleWarning: defaultSettings.showIdleWarning,
+          warningTimeMinutes: defaultSettings.warningTimeMinutes,
+          autoResumeOnActivity: defaultSettings.autoResumeOnActivity,
         };
       }
     } catch (error) {
@@ -159,7 +175,20 @@ export class IdleManagementService {
    */
   private async loadActiveIdleSession(workSessionId: string): Promise<void> {
     try {
-      this.currentIdleSession = await getActiveIdleSession(workSessionId);
+      const dbSession = await getActiveIdleSession(workSessionId);
+      if (dbSession) {
+        this.currentIdleSession = {
+          id: dbSession._id.toString(),
+          workSessionId: dbSession.workSessionId.toString(),
+          startTime: dbSession.startTime,
+          endTime: dbSession.endTime,
+          duration: dbSession.duration,
+          reason: dbSession.reason,
+          status: dbSession.status,
+        };
+      } else {
+        this.currentIdleSession = undefined;
+      }
     } catch (error) {
       console.error('Failed to load active idle session:', error);
     }
@@ -204,25 +233,31 @@ export class IdleManagementService {
       const now = new Date();
       const isOnline = networkDetectionService.isCurrentlyOnline();
 
-      const idleSessionData: Omit<IdleSession, 'id'> = {
-        workSessionId: this.currentWorkSessionId,
-        startTime: now,
-        reason: 'inactivity',
-        status: 'active',
-      };
-
       if (isOnline) {
-        const sessionId = await createIdleSession(idleSessionData);
+        const { Types } = await import('mongoose');
+        const idleSessionData = {
+          workSessionId: new Types.ObjectId(this.currentWorkSessionId),
+          startTime: now,
+          reason: 'inactivity' as const,
+          status: 'active' as const,
+        };
+        const sessionId = await createIdleSession(idleSessionData as Omit<IIdleSession, '_id'>);
         this.currentIdleSession = {
           id: sessionId,
-          ...idleSessionData,
+          workSessionId: this.currentWorkSessionId,
+          startTime: now,
+          reason: 'inactivity',
+          status: 'active',
         };
       } else {
         // Store offline
         const sessionId = `offline-idle-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         this.currentIdleSession = {
           id: sessionId,
-          ...idleSessionData,
+          workSessionId: this.currentWorkSessionId,
+          startTime: now,
+          reason: 'inactivity',
+          status: 'active',
         };
         // TODO: Store in offline storage
       }
@@ -278,25 +313,33 @@ export class IdleManagementService {
       const now = new Date();
       const isOnline = networkDetectionService.isCurrentlyOnline();
 
-      const idleSessionData: Omit<IdleSession, 'id'> = {
-        workSessionId: this.currentWorkSessionId,
-        startTime: now,
-        reason: 'manual',
-        notes,
-        status: 'active',
-      };
-
       if (isOnline) {
-        const sessionId = await createIdleSession(idleSessionData);
+        const { Types } = await import('mongoose');
+        const idleSessionData = {
+          workSessionId: new Types.ObjectId(this.currentWorkSessionId),
+          startTime: now,
+          reason: 'manual' as const,
+          notes,
+          status: 'active' as const,
+        };
+        const sessionId = await createIdleSession(idleSessionData as Omit<IIdleSession, '_id'>);
         this.currentIdleSession = {
           id: sessionId,
-          ...idleSessionData,
+          workSessionId: this.currentWorkSessionId,
+          startTime: now,
+          reason: 'manual',
+          notes,
+          status: 'active',
         };
       } else {
         const sessionId = `offline-idle-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         this.currentIdleSession = {
           id: sessionId,
-          ...idleSessionData,
+          workSessionId: this.currentWorkSessionId,
+          startTime: now,
+          reason: 'manual',
+          notes,
+          status: 'active',
         };
       }
 
@@ -332,8 +375,8 @@ export class IdleManagementService {
     try {
       const isOnline = networkDetectionService.isCurrentlyOnline();
 
-      if (isOnline) {
-        await updateIdleSettings(this.settings.id, updates);
+      if (isOnline && this.settingsId) {
+        await updateIdleSettings(this.settingsId, updates);
       }
 
       // Update local settings

@@ -585,7 +585,17 @@ export const updateAttendanceRecord = async (recordId: string, updates: Partial<
     throw new Error('Invalid record ID');
   }
   
-  await AttendanceRecord.findByIdAndUpdate(recordId, updates, { new: true });
+  const updatedRecord = await AttendanceRecord.findByIdAndUpdate(recordId, updates, { new: true });
+  if (!updatedRecord) {
+    throw new Error('Attendance record not found');
+  }
+  
+  return {
+    id: updatedRecord._id.toString(),
+    ...updatedRecord.toObject(),
+    createdAt: updatedRecord.createdAt,
+    updatedAt: updatedRecord.updatedAt,
+  };
 };
 
 export const getAttendanceRecord = async (employeeId: string, date: Date): Promise<IAttendanceRecord | null> => {

@@ -3,6 +3,8 @@
  * Tracks daily attendance, working hours, and punch-in/punch-out records
  */
 
+import { IAttendanceRecord, IAttendanceSettings, IPunchRecord } from './models';
+
 export interface AttendanceRecord {
   id: string;
   employeeId: string;
@@ -340,6 +342,12 @@ class AttendanceTrackingService {
       const totalWorkingHours = transformedRecords.reduce((sum, r) => sum + r.totalWorkingHours, 0);
       const averageWorkingHours = transformedRecords.length > 0 ? totalWorkingHours / transformedRecords.length : 0;
       
+      // Calculate overtime hours
+      const attendanceSettings = await this.getAttendanceSettings(employeeId);
+      const expectedDailyHours = attendanceSettings ? this.calculateExpectedDailyHours(attendanceSettings) : 8; // Default to 8 hours
+      const expectedTotalHours = workingDays * expectedDailyHours;
+      const totalOvertimeHours = Math.max(0, totalWorkingHours - expectedTotalHours);
+      
       const punctualityScore = this.calculatePunctualityScore(transformedRecords);
       const attendanceRate = workingDays > 0 ? (presentDays / workingDays) * 100 : 0;
 
@@ -352,6 +360,7 @@ class AttendanceTrackingService {
         lateDays,
         halfDays,
         totalWorkingHours,
+        totalOvertimeHours,
         averageWorkingHours,
         punctualityScore,
         attendanceRate,
@@ -368,7 +377,27 @@ class AttendanceTrackingService {
   private async getAttendanceSettings(employeeId: string): Promise<AttendanceSettings | null> {
     try {
       const { getAttendanceSettings } = await import('./database');
-      return await getAttendanceSettings(employeeId);
+      const settings = await getAttendanceSettings(employeeId);
+      if (!settings) return null;
+      
+      // Transform IAttendanceSettings to AttendanceSettings
+      return {
+        id: settings._id.toString(),
+        employeeId: settings.employeeId.toString(),
+        workStartTime: settings.workStartTime,
+        workEndTime: settings.workEndTime,
+        breakDuration: settings.breakDuration,
+        lateThreshold: settings.lateThreshold,
+        earlyLeaveThreshold: settings.earlyLeaveThreshold,
+        overtimeThreshold: settings.overtimeThreshold,
+        workingDays: settings.workingDays,
+        timezone: settings.timezone,
+        requireLocation: settings.requireLocation,
+        allowRemoteWork: settings.allowRemoteWork,
+        autoPunchOut: settings.autoPunchOut,
+        createdAt: settings.createdAt,
+        updatedAt: settings.updatedAt,
+      };
     } catch (error) {
       console.error('Failed to get attendance settings:', error);
       return null;
@@ -381,13 +410,32 @@ class AttendanceTrackingService {
   private async createAttendanceRecord(employeeId: string, date: Date): Promise<AttendanceRecord> {
     try {
       const { createAttendanceRecord } = await import('./database');
-      return await createAttendanceRecord({
-        employeeId,
+      const { Types } = await import('mongoose');
+      const record = await createAttendanceRecord({
+        employeeId: new Types.ObjectId(employeeId),
         date,
         totalWorkingHours: 0,
         totalBreakTime: 0,
-        status: 'absent',
-      });
+        status: 'absent' as const,
+      } as Omit<IAttendanceRecord, '_id' | 'createdAt' | 'updatedAt'>); // Type assertion to bypass the complex Mongoose Document interface
+      
+      // Transform database record to AttendanceRecord interface
+      return {
+        id: record.id,
+        employeeId: record.employeeId.toString(),
+        date: record.date,
+        punchInTime: record.punchInTime,
+        punchOutTime: record.punchOutTime,
+        totalWorkingHours: record.totalWorkingHours,
+        totalBreakTime: record.totalBreakTime,
+        status: record.status,
+        lateMinutes: record.lateMinutes,
+        earlyLeaveMinutes: record.earlyLeaveMinutes,
+        overtimeHours: record.overtimeHours,
+        notes: record.notes,
+        createdAt: record.createdAt,
+        updatedAt: record.updatedAt,
+      };
     } catch (error) {
       console.error('Failed to create attendance record:', error);
       throw error;
@@ -400,7 +448,43 @@ class AttendanceTrackingService {
   private async updateAttendanceRecord(recordId: string, updates: Partial<AttendanceRecord>): Promise<AttendanceRecord> {
     try {
       const { updateAttendanceRecord } = await import('./database');
-      return await updateAttendanceRecord(recordId, updates);
+      const { Types } = await import('mongoose');
+      
+      // Transform updates to match database interface
+      const dbUpdates: Partial<IAttendanceRecord> = {};
+      if (updates.employeeId) {
+        dbUpdates.employeeId = new Types.ObjectId(updates.employeeId);
+      }
+      if (updates.date) dbUpdates.date = updates.date;
+      if (updates.punchInTime) dbUpdates.punchInTime = updates.punchInTime;
+      if (updates.punchOutTime) dbUpdates.punchOutTime = updates.punchOutTime;
+      if (updates.totalWorkingHours !== undefined) dbUpdates.totalWorkingHours = updates.totalWorkingHours;
+      if (updates.totalBreakTime !== undefined) dbUpdates.totalBreakTime = updates.totalBreakTime;
+      if (updates.status) dbUpdates.status = updates.status;
+      if (updates.lateMinutes !== undefined) dbUpdates.lateMinutes = updates.lateMinutes;
+      if (updates.earlyLeaveMinutes !== undefined) dbUpdates.earlyLeaveMinutes = updates.earlyLeaveMinutes;
+      if (updates.overtimeHours !== undefined) dbUpdates.overtimeHours = updates.overtimeHours;
+      if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
+      
+      const record = await updateAttendanceRecord(recordId, dbUpdates);
+      
+      // Transform database record to AttendanceRecord interface
+      return {
+        id: record.id,
+        employeeId: record.employeeId.toString(),
+        date: record.date,
+        punchInTime: record.punchInTime,
+        punchOutTime: record.punchOutTime,
+        totalWorkingHours: record.totalWorkingHours,
+        totalBreakTime: record.totalBreakTime,
+        status: record.status,
+        lateMinutes: record.lateMinutes,
+        earlyLeaveMinutes: record.earlyLeaveMinutes,
+        overtimeHours: record.overtimeHours,
+        notes: record.notes,
+        createdAt: record.createdAt,
+        updatedAt: record.updatedAt,
+      };
     } catch (error) {
       console.error('Failed to update attendance record:', error);
       throw error;
@@ -413,7 +497,26 @@ class AttendanceTrackingService {
   private async createPunchRecord(data: Omit<PunchRecord, 'id' | 'createdAt'>): Promise<PunchRecord> {
     try {
       const { createPunchRecord } = await import('./database');
-      return await createPunchRecord(data);
+      const { Types } = await import('mongoose');
+      const record = await createPunchRecord({
+        ...data,
+        employeeId: new Types.ObjectId(data.employeeId),
+        attendanceRecordId: new Types.ObjectId(data.attendanceRecordId),
+      } as Omit<IPunchRecord, '_id' | 'createdAt'>); // Type assertion to bypass the complex Mongoose Document interface
+      
+      // Transform database record to PunchRecord interface
+      return {
+        id: record.id,
+        employeeId: record.employeeId.toString(),
+        attendanceRecordId: record.attendanceRecordId.toString(),
+        punchType: record.punchType,
+        punchTime: record.punchTime,
+        location: record.location,
+        deviceInfo: record.deviceInfo,
+        isManual: record.isManual,
+        notes: record.notes,
+        createdAt: record.createdAt,
+      };
     } catch (error) {
       console.error('Failed to create punch record:', error);
       throw error;
@@ -477,6 +580,27 @@ class AttendanceTrackingService {
   }
 
   /**
+   * Calculate expected daily working hours from attendance settings
+   */
+  private calculateExpectedDailyHours(settings: AttendanceSettings): number {
+    const startTime = this.parseTimeToMinutes(settings.workStartTime);
+    const endTime = this.parseTimeToMinutes(settings.workEndTime);
+    const breakDuration = settings.breakDuration || 0;
+    
+    // Calculate total working hours (end - start - break)
+    const totalMinutes = endTime - startTime - breakDuration;
+    return Math.max(0, totalMinutes / 60); // Convert to hours
+  }
+
+  /**
+   * Parse time string (HH:MM) to minutes since midnight
+   */
+  private parseTimeToMinutes(timeStr: string): number {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours * 60 + minutes;
+  }
+
+  /**
    * Calculate attendance status
    */
   private calculateAttendanceStatus(record: AttendanceRecord, isEarlyLeave: boolean, overtimeHours: number): AttendanceRecord['status'] {
@@ -533,7 +657,26 @@ class AttendanceTrackingService {
   async updateAttendanceSettings(employeeId: string, updates: Partial<AttendanceSettings>): Promise<void> {
     try {
       const { updateAttendanceSettings } = await import('./database');
-      await updateAttendanceSettings(employeeId, updates);
+      const { Types } = await import('mongoose');
+      
+      // Transform updates to match database interface
+      const dbUpdates: Partial<IAttendanceSettings> = {};
+      if (updates.employeeId) {
+        dbUpdates.employeeId = new Types.ObjectId(updates.employeeId);
+      }
+      if (updates.workStartTime) dbUpdates.workStartTime = updates.workStartTime;
+      if (updates.workEndTime) dbUpdates.workEndTime = updates.workEndTime;
+      if (updates.breakDuration !== undefined) dbUpdates.breakDuration = updates.breakDuration;
+      if (updates.lateThreshold !== undefined) dbUpdates.lateThreshold = updates.lateThreshold;
+      if (updates.earlyLeaveThreshold !== undefined) dbUpdates.earlyLeaveThreshold = updates.earlyLeaveThreshold;
+      if (updates.overtimeThreshold !== undefined) dbUpdates.overtimeThreshold = updates.overtimeThreshold;
+      if (updates.workingDays) dbUpdates.workingDays = updates.workingDays;
+      if (updates.timezone) dbUpdates.timezone = updates.timezone;
+      if (updates.requireLocation !== undefined) dbUpdates.requireLocation = updates.requireLocation;
+      if (updates.allowRemoteWork !== undefined) dbUpdates.allowRemoteWork = updates.allowRemoteWork;
+      if (updates.autoPunchOut !== undefined) dbUpdates.autoPunchOut = updates.autoPunchOut;
+      
+      await updateAttendanceSettings(employeeId, dbUpdates);
       
       // Update local cache
       const currentSettings = this.attendanceSettings.get(employeeId);

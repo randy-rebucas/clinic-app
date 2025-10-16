@@ -3,6 +3,8 @@
  * Monitors visited websites and tracks time spent on each
  */
 
+import { IWebsiteActivity } from './models';
+
 export interface WebsiteActivity {
   id: string;
   employeeId: string;
@@ -275,8 +277,8 @@ class WebsiteTrackingService {
       pageTitle: this.settings.privacyMode ? this.getCategoryDisplayName(category) : websiteInfo.pageTitle,
       startTime: new Date(),
       isActive: true,
-      category,
-      productivity,
+      category: category as 'work' | 'entertainment' | 'social' | 'news' | 'shopping' | 'education' | 'other',
+      productivity: productivity as 'productive' | 'neutral' | 'distracting',
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -428,7 +430,7 @@ class WebsiteTrackingService {
   private async storeActivity(activity: WebsiteActivity): Promise<void> {
     try {
       const { createWebsiteActivity } = await import('./database');
-      await createWebsiteActivity(activity);
+      await createWebsiteActivity(activity as unknown as Omit<IWebsiteActivity, '_id' | 'createdAt' | 'updatedAt'>);
     } catch (error) {
       console.error('Error storing website activity:', error);
     }
@@ -440,7 +442,7 @@ class WebsiteTrackingService {
   private async updateActivity(activity: WebsiteActivity): Promise<void> {
     try {
       const { updateWebsiteActivity } = await import('./database');
-      await updateWebsiteActivity(activity.id, activity);
+      await updateWebsiteActivity(activity.id, activity as unknown as Partial<IWebsiteActivity>);
     } catch (error) {
       console.error('Error updating website activity:', error);
     }
