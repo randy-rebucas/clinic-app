@@ -1,10 +1,16 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { screenCaptureService, ScreenCapture } from '@/lib/screenCapture';
 import { TimeFormat } from '@/lib/timeFormat';
 import { Camera, Eye, Download, Trash2, XCircle } from 'lucide-react';
+import VirtualScroll from '@/components/VirtualScroll/VirtualScroll';
+
+// Lazy load Next.js Image component for better performance
+const Image = dynamic(() => import('next/image'), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-lg w-full h-full"></div>
+});
 
 interface ScreenCaptureViewerProps {
   employeeId: string;
@@ -136,47 +142,94 @@ export default function ScreenCaptureViewerComponent({
         </div>
       </div>
 
-      {/* Captures Grid */}
+      {/* Captures Virtual Scroll */}
       {captures.length > 0 ? (
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-            {captures.map((capture) => (
-              <div
-                key={capture.id}
-                className="relative group cursor-pointer"
-                onClick={() => setSelectedCapture(capture)}
-              >
-                <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden relative">
-                  <Image
-                    src={capture.thumbnail}
-                    alt={`Screen capture at ${TimeFormat.formatDisplayTime(capture.timestamp)}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                </div>
-                
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 rounded-lg flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <Eye className="h-4 w-4 text-white" />
-                  </div>
-                </div>
-
-                {/* Status Indicator */}
-                <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${
-                  capture.isActive ? 'bg-green-500' : 'bg-gray-400'
-                }`} title={capture.isActive ? 'Active' : 'Inactive'} />
-
-                {/* Time */}
-                <div className="absolute bottom-1 left-1 right-1">
-                  <div className="bg-black bg-opacity-75 text-white text-xs px-1.5 py-0.5 rounded">
-                    {TimeFormat.formatDisplayTime(capture.timestamp)}
+          <VirtualScroll
+            items={captures}
+            itemHeight={120} // Height for each capture item
+            containerHeight={400} // Fixed height for the scroll container
+            renderItem={(capture: ScreenCapture) => (
+              <div className="p-1">
+                <div
+                  className="relative group cursor-pointer bg-white dark:bg-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                  onClick={() => setSelectedCapture(capture)}
+                >
+                  <div className="flex gap-3 p-2">
+                    {/* Thumbnail */}
+                    <div className="flex-shrink-0 w-20 h-16 bg-gray-100 dark:bg-gray-600 rounded-lg overflow-hidden relative">
+                      <Image
+                        src={capture.thumbnail}
+                        alt={`Screen capture at ${TimeFormat.formatDisplayTime(capture.timestamp)}`}
+                        fill
+                        className="object-cover"
+                        sizes="80px"
+                      />
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className={`w-2 h-2 rounded-full ${
+                              capture.isActive ? 'bg-green-500' : 'bg-gray-400'
+                            }`} />
+                            <span className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                              {TimeFormat.formatDateTime(capture.timestamp)}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {TimeFormat.formatDisplayTime(capture.timestamp)}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Size: {formatFileSize(capture.fileSize)}
+                          </div>
+                        </div>
+                        
+                        {/* Actions */}
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDownloadCapture(capture);
+                            }}
+                            className="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            title="Download"
+                          >
+                            <Download className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCapture(capture.id);
+                            }}
+                            className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCapture(capture);
+                            }}
+                            className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                            title="View"
+                          >
+                            <Eye className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+            emptyMessage="No screen captures found"
+            showScrollToTop={true}
+            showScrollToBottom={true}
+          />
         </div>
       ) : (
         <div className="card p-3">

@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { updateEmployee, createEmployee } from '@/lib/database';
 import { Employee } from '@/types';
-import { IEmployee } from '@/lib/models/Employee';
 import { Plus, Edit, Trash2, User, Mail, Building, Shield } from 'lucide-react';
+import VirtualScroll from '@/components/VirtualScroll/VirtualScroll';
 
 export default function EmployeeManagement() {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -142,71 +142,74 @@ export default function EmployeeManagement() {
         />
       )}
 
-      {/* Employees Table */}
-      <div className="card overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className="bg-gray-50 dark:bg-gray-800">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Employee
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Role
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Department
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Position
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
-            {employees.map((employee) => (
-              <tr key={employee.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
+      {/* Employees Virtual Scroll List */}
+      <div className="card">
+        <div className="px-6 py-3 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            Employees ({employees.length})
+          </h3>
+        </div>
+        <VirtualScroll
+          items={employees}
+          itemHeight={80} // Height for each employee item
+          containerHeight={500} // Fixed height for the scroll container
+          renderItem={(employee: Employee) => (
+            <div className="p-1">
+              <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4 flex-1 min-w-0">
+                    {/* Avatar */}
                     <div className="flex-shrink-0 h-10 w-10">
                       <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                         <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       </div>
                     </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">{employee.name}</div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
-                        <Mail className="h-3 w-3 mr-1" />
-                        {employee.email}
+                    
+                    {/* Employee Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {employee.name}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                            <Mail className="h-3 w-3 mr-1" />
+                            {employee.email}
+                          </p>
+                        </div>
+                        
+                        {/* Role Badge */}
+                        <div className="flex-shrink-0">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            employee.role === 'admin' 
+                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' 
+                              : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                          }`}>
+                            <Shield className="h-3 w-3 mr-1" />
+                            {employee.role}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Department and Position */}
+                      <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center">
+                          <Building className="h-3 w-3 mr-1" />
+                          {employee.department || 'N/A'}
+                        </div>
+                        <div>
+                          {employee.position || 'N/A'}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    employee.role === 'admin' 
-                      ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' 
-                      : 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
-                  }`}>
-                    <Shield className="h-3 w-3 mr-1" />
-                    {employee.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                  <div className="flex items-center">
-                    <Building className="h-4 w-4 mr-1 text-gray-400 dark:text-gray-500" />
-                    {employee.department || 'N/A'}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                  {employee.position || 'N/A'}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
+                  
+                  {/* Actions */}
+                  <div className="flex items-center space-x-2 flex-shrink-0">
                     <button
                       onClick={() => setEditingEmployee(employee)}
-                      className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                      className="p-2 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                      title="Edit employee"
                     >
                       <Edit className="h-4 w-4" />
                     </button>
@@ -216,16 +219,20 @@ export default function EmployeeManagement() {
                           // Handle delete
                         }
                       }}
-                      className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                      className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      title="Delete employee"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+            </div>
+          )}
+          emptyMessage="No employees found"
+          showScrollToTop={true}
+          showScrollToBottom={true}
+        />
       </div>
     </div>
   );

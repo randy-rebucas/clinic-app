@@ -15,8 +15,39 @@ import {
   LogOut
 } from 'lucide-react';
 import ThemeToggle from '@/components/Theme/ThemeToggle';
-import EmployeeManagement from './EmployeeManagement';
-import ScreenCaptureManagement from './ScreenCaptureManagement';
+import dynamic from 'next/dynamic';
+import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary';
+
+// Lazy load admin components that are only shown when their tabs are active
+const EmployeeManagement = dynamic(() => import('./EmployeeManagement'), {
+  loading: () => (
+    <div className="card p-6">
+      <div className="animate-pulse">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+        <div className="space-y-3">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+      </div>
+    </div>
+  )
+});
+
+const ScreenCaptureManagement = dynamic(() => import('./ScreenCaptureManagement'), {
+  loading: () => (
+    <div className="card p-6">
+      <div className="animate-pulse">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+});
 
 export default function AdminDashboard() {
   const { employee, logout } = useAuth();
@@ -82,9 +113,10 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Header */}
-      <header className="glass-effect shadow-sm border-b">
+    <ErrorBoundary level="page" showDetails={process.env.NODE_ENV === 'development'}>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        {/* Header */}
+        <header className="glass-effect shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-12">
             <div className="flex items-center">
@@ -132,9 +164,12 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tab Content */}
-        {renderTabContent()}
+        <ErrorBoundary level="section">
+          {renderTabContent()}
+        </ErrorBoundary>
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 }
 

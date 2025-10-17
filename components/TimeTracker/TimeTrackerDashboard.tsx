@@ -6,7 +6,22 @@ import { TimeTrackingService } from '@/lib/timeTracking';
 import { ClientTimeTrackingService } from '@/lib/clientTimeTracking';
 import { WorkSession, BreakSession } from '@/types';
 import NavBar from '@/components/Navigation/NavBar';
-import DailySummaryComponent from './DailySummary';
+
+// Lazy load DailySummary as it's at the bottom of the page
+const DailySummaryComponent = dynamic(() => import('./DailySummary'), {
+  loading: () => (
+    <div className="card p-3">
+      <div className="animate-pulse">
+        <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-3"></div>
+        <div className="space-y-2">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+      </div>
+    </div>
+  )
+});
 import { notificationService } from '@/lib/notifications';
 import { TimeFormat } from '@/lib/timeFormat';
 import { screenCaptureService } from '@/lib/screenCapture';
@@ -16,15 +31,90 @@ import { offlineStorageService } from '@/lib/offlineStorage';
 import { idleManagementService } from '@/lib/idleManagement';
 import { applicationTrackingService } from '@/lib/applicationTracking';
 import { websiteTrackingService } from '@/lib/websiteTracking';
-import ScreenCaptureSettingsComponent from './ScreenCaptureSettings';
-import ScreenCaptureViewerComponent from './ScreenCaptureViewer';
-import PrivacyNotificationComponent from './PrivacyNotification';
-import OfflineStatusComponent from './OfflineStatus';
-import IdleStatusComponent from './IdleStatus';
-import IdleWarningComponent, { useIdleWarning } from './IdleWarning';
-import ApplicationUsage from './ApplicationUsage';
-import WebsiteUsage from './WebsiteUsage';
-import TrackingSettings from './TrackingSettings';
+import dynamic from 'next/dynamic';
+import { useIdleWarning } from './IdleWarning';
+import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary';
+
+// Lazy load heavy components that are not immediately visible
+const ScreenCaptureSettingsComponent = dynamic(() => import('./ScreenCaptureSettings'), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-32 rounded-lg"></div>,
+  ssr: false // Uses navigator.mediaDevices API
+});
+
+const ScreenCaptureViewerComponent = dynamic(() => import('./ScreenCaptureViewer'), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-48 rounded-lg"></div>,
+  ssr: false // Uses DOM manipulation APIs
+});
+
+const PrivacyNotificationComponent = dynamic(() => import('./PrivacyNotification'), {
+  ssr: false // Uses localStorage API
+});
+
+const OfflineStatusComponent = dynamic(() => import('./OfflineStatus'), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-16 rounded-lg"></div>
+});
+
+const IdleStatusComponent = dynamic(() => import('./IdleStatus'), {
+  loading: () => <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-16 rounded-lg"></div>
+});
+
+const IdleWarningComponent = dynamic(() => import('./IdleWarning'), {
+  ssr: false // This component uses browser APIs
+});
+
+const ApplicationUsage = dynamic(() => import('./ApplicationUsage'), {
+  loading: () => (
+    <div className="card p-4">
+      <div className="animate-pulse">
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-3"></div>
+        <div className="space-y-2">
+          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+        </div>
+      </div>
+    </div>
+  )
+});
+
+const WebsiteUsage = dynamic(() => import('./WebsiteUsage'), {
+  loading: () => (
+    <div className="card p-4">
+      <div className="animate-pulse">
+        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-3"></div>
+        <div className="space-y-2">
+          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+        </div>
+      </div>
+    </div>
+  )
+});
+
+const TrackingSettings = dynamic(() => import('./TrackingSettings'), {
+  ssr: false // This component likely uses browser APIs
+});
+
+const Charts = dynamic(() => import('./Charts'), {
+  loading: () => (
+    <div className="card p-4">
+      <div className="animate-pulse">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+        <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      </div>
+    </div>
+  )
+});
+
+const AdvancedDateUtils = dynamic(() => import('./AdvancedDateUtils'), {
+  loading: () => (
+    <div className="card p-4">
+      <div className="animate-pulse">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4"></div>
+        <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      </div>
+    </div>
+  )
+});
 import {
   Play,
   Pause,
@@ -343,18 +433,6 @@ export default function TimeTrackerDashboard() {
     }
   }, [workSession, notes, loadActiveSessions]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'working':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'on_break':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'offline':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -423,10 +501,11 @@ export default function TimeTrackerDashboard() {
   }, [workSession, breakSession, currentStatus, notes, handleClockIn, handleClockOut, handleStartBreak, handleEndBreak]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <NavBar />
+    <ErrorBoundary level="page" showDetails={process.env.NODE_ENV === 'development'}>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <NavBar />
 
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
         {/* Hero Section - Current Status & Time */}
         <div className="mb-6">
           <div className="card p-4 sm:p-6">
@@ -703,11 +782,15 @@ export default function TimeTrackerDashboard() {
           </div>
         </div>
 
-        {/* Application and Website Usage */}
+        {/* Application and Website Usage - Only load when work session is active */}
         {user && workSession && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-            <ApplicationUsage workSessionId={workSession.id} employeeId={user.id} />
-            <WebsiteUsage workSessionId={workSession.id} employeeId={user.id} />
+            <ErrorBoundary level="component">
+              <ApplicationUsage workSessionId={workSession.id} employeeId={user.id} />
+            </ErrorBoundary>
+            <ErrorBoundary level="component">
+              <WebsiteUsage workSessionId={workSession.id} employeeId={user.id} />
+            </ErrorBoundary>
           </div>
         )}
 
@@ -751,29 +834,37 @@ export default function TimeTrackerDashboard() {
 
               {showScreenCaptureSettings && (
                 <div className="mt-6">
-                  <ScreenCaptureSettingsComponent />
+                  <ErrorBoundary level="component">
+                    <ScreenCaptureSettingsComponent />
+                  </ErrorBoundary>
                 </div>
               )}
 
               {showScreenCaptures && (
                 <div className="mt-6">
-                  <ScreenCaptureViewerComponent
-                    employeeId={user.id}
-                    workSessionId={workSession?.id}
-                    date={currentDate}
-                  />
+                  <ErrorBoundary level="component">
+                    <ScreenCaptureViewerComponent
+                      employeeId={user.id}
+                      workSessionId={workSession?.id}
+                      date={currentDate}
+                    />
+                  </ErrorBoundary>
                 </div>
               )}
             </div>
 
             {/* Idle Status */}
             <div>
-              <IdleStatusComponent />
+              <ErrorBoundary level="component">
+                <IdleStatusComponent />
+              </ErrorBoundary>
             </div>
 
             {/* Offline Status */}
             <div>
-              <OfflineStatusComponent />
+              <ErrorBoundary level="component">
+                <OfflineStatusComponent />
+              </ErrorBoundary>
             </div>
 
             {/* Quick Stats */}
@@ -835,6 +926,20 @@ export default function TimeTrackerDashboard() {
           </div>
         )}
 
+        {/* Charts - Only load when user wants to see analytics */}
+        {user && workSession && (
+          <ErrorBoundary level="section">
+            <Charts workSessionId={workSession.id} employeeId={user.id} />
+          </ErrorBoundary>
+        )}
+
+        {/* Advanced Date Utils - Demonstrates lazy loading of external libraries */}
+        {user && (
+          <ErrorBoundary level="section">
+            <AdvancedDateUtils date={currentDate} />
+          </ErrorBoundary>
+        )}
+
         {/* Daily Summary */}
         {user && (
           <div className="card p-3">
@@ -844,36 +949,45 @@ export default function TimeTrackerDashboard() {
               </div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">Daily Summary</h2>
             </div>
-            <DailySummaryComponent employeeId={user.id} />
+            <ErrorBoundary level="component">
+              <DailySummaryComponent employeeId={user.id} />
+            </ErrorBoundary>
           </div>
         )}
       </div>
 
       {/* Privacy Notification Modal */}
       {showPrivacyNotification && (
-        <PrivacyNotificationComponent
-          onAccept={handlePrivacyAccept}
-          onDecline={handlePrivacyDecline}
-        />
+        <ErrorBoundary level="component">
+          <PrivacyNotificationComponent
+            onAccept={handlePrivacyAccept}
+            onDecline={handlePrivacyDecline}
+          />
+        </ErrorBoundary>
       )}
 
       {/* Idle Warning Modal */}
-      <IdleWarningComponent
-        isVisible={idleWarning.isVisible}
-        onClose={idleWarning.hideWarning}
-        onGoIdle={idleWarning.handleGoIdle}
-        onKeepActive={idleWarning.handleKeepActive}
-        timeRemaining={idleWarning.timeRemaining}
-      />
+      <ErrorBoundary level="component">
+        <IdleWarningComponent
+          isVisible={idleWarning.isVisible}
+          onClose={idleWarning.hideWarning}
+          onGoIdle={idleWarning.handleGoIdle}
+          onKeepActive={idleWarning.handleKeepActive}
+          timeRemaining={idleWarning.timeRemaining}
+        />
+      </ErrorBoundary>
 
       {/* Tracking Settings Modal */}
       {user && (
-        <TrackingSettings
-          employeeId={user.id}
-          isOpen={showTrackingSettings}
-          onClose={() => setShowTrackingSettings(false)}
-        />
+        <ErrorBoundary level="component">
+          <TrackingSettings
+            employeeId={user.id}
+            isOpen={showTrackingSettings}
+            onClose={() => setShowTrackingSettings(false)}
+          />
+        </ErrorBoundary>
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }

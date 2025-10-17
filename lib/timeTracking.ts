@@ -14,7 +14,6 @@ import {
 } from './database';
 import { WorkSession, BreakSession } from '@/types';
 import { offlineStorageService } from './offlineStorage';
-import { networkDetectionService } from './networkDetection';
 import { idleManagementService } from './idleManagement';
 
 export interface ClockInData {

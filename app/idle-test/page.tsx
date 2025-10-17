@@ -61,7 +61,7 @@ export default function IdleTestPage() {
         addLog('Idle management destroyed');
       }
     };
-  }, [user]);
+  }, [user, isInitialized]);
 
   const handleStartMonitoring = async () => {
     try {

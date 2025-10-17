@@ -17,6 +17,7 @@ import {
 import { applicationTrackingService } from '@/lib/applicationTracking';
 // Removed direct database import - using API route instead
 import { TimeFormat } from '@/lib/timeFormat';
+import VirtualScroll from '@/components/VirtualScroll/VirtualScroll';
 
 interface ApplicationUsageProps {
   workSessionId: string;
@@ -70,18 +71,18 @@ export default function ApplicationUsage({ workSessionId, employeeId }: Applicat
       }
       const result = await response.json();
       const data = result.data;
-      setActivities(data.map(activity => ({
-        id: activity._id.toString(),
-        employeeId: activity.employeeId.toString(),
-        workSessionId: activity.workSessionId.toString(),
-        applicationName: activity.applicationName,
-        windowTitle: activity.windowTitle,
-        processName: activity.processName,
-        startTime: activity.startTime,
-        endTime: activity.endTime,
-        duration: activity.duration,
-        isActive: activity.isActive,
-        category: activity.category
+      setActivities(data.map((activity: Record<string, unknown>) => ({
+        id: activity._id ? String(activity._id) : '',
+        employeeId: activity.employeeId ? String(activity.employeeId) : '',
+        workSessionId: activity.workSessionId ? String(activity.workSessionId) : '',
+        applicationName: activity.applicationName as string,
+        windowTitle: activity.windowTitle as string,
+        processName: activity.processName as string,
+        startTime: activity.startTime as Date,
+        endTime: activity.endTime as Date | undefined,
+        duration: activity.duration as number | undefined,
+        isActive: activity.isActive as boolean | undefined,
+        category: activity.category as string | undefined
       })));
     } catch (error) {
       console.error('Error loading application activities:', error);
@@ -247,37 +248,47 @@ export default function ApplicationUsage({ workSessionId, employeeId }: Applicat
         </div>
       )}
 
-      {/* Recent Activities */}
+      {/* Recent Activities with Virtual Scroll */}
       {activities.length > 0 && (
         <div>
-          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Recent Activities</h4>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {activities.slice(0, 10).map((activity) => (
-              <div key={activity.id} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  {getCategoryIcon(activity.category)}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                      {activity.applicationName}
-                    </p>
-                    {activity.windowTitle && (
-                      <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                        {activity.windowTitle}
+          <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            All Activities ({activities.length})
+          </h4>
+          <VirtualScroll
+            items={activities}
+            itemHeight={60} // Height for each activity item
+            containerHeight={300} // Fixed height for the scroll container
+            renderItem={(activity: ApplicationActivityData) => (
+              <div className="p-1">
+                <div className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600/50 transition-colors">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    {getCategoryIcon(activity.category)}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {activity.applicationName}
                       </p>
-                    )}
+                      {activity.windowTitle && (
+                        <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                          {activity.windowTitle}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {formatDuration(activity.duration || 0)}
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {TimeFormat.formatDisplayTime(activity.startTime)}
+                    </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">
-                    {formatDuration(activity.duration || 0)}
-                  </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {TimeFormat.formatDisplayTime(activity.startTime)}
-                  </p>
-                </div>
               </div>
-            ))}
-          </div>
+            )}
+            emptyMessage="No application activities found"
+            showScrollToTop={true}
+            showScrollToBottom={true}
+          />
         </div>
       )}
 

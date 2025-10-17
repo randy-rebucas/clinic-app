@@ -15,7 +15,6 @@ import {
   getIdleSessions, 
   updateIdleSettings 
 } from './database';
-import { offlineStorageService } from './offlineStorage';
 
 export interface IdleManagementState {
   isIdle: boolean;
@@ -170,11 +169,10 @@ export class IdleManagementService {
           console.log('Idle settings creation response:', createData);
           this.settingsId = createData.data.id;
         } else {
-          let errorData;
           try {
-            errorData = await createResponse.json();
-          } catch (parseError) {
-            errorData = { error: 'Failed to parse error response', status: createResponse.status };
+            await createResponse.json();
+          } catch {
+            // Ignore parse error
           }
 
           
@@ -392,13 +390,13 @@ export class IdleManagementService {
       } else {
         // Update in offline storage
         try {
-          const updatedSession = {
-            ...this.currentIdleSession,
-            endTime: now,
-            duration,
-            status: 'completed' as const,
-          };
           // TODO: Add idle session update to offline service
+          // const updatedSession = {
+          //   ...this.currentIdleSession,
+          //   endTime: now,
+          //   duration,
+          //   status: 'completed' as const,
+          // };
           // await offlineStorageService.updateIdleSession(this.currentIdleSession.id, updatedSession);
         } catch (error) {
           console.error('Failed to update idle session offline:', error);
