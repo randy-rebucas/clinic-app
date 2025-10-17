@@ -134,7 +134,53 @@ export default function TimeTrackerDashboard() {
   useEffect(() => {
     const initializeServices = async () => {
       if (user && user.id) {
-        loadActiveSessions();
+        // Load active sessions directly here to avoid dependency loop
+        try {
+          // Fetch active work session from API
+          const workSessionResponse = await fetch(`/api/work-sessions/active?employeeId=${user.id}`);
+          if (!workSessionResponse.ok) {
+            throw new Error('Failed to fetch active work session');
+          }
+          const workSessionData = await workSessionResponse.json();
+          const activeWorkSession = workSessionData.data;
+          console.log('activeWorkSession', activeWorkSession);
+          setWorkSession(activeWorkSession ? {
+            id: activeWorkSession._id.toString(),
+            employeeId: activeWorkSession.employeeId.toString(),
+            clockInTime: activeWorkSession.clockInTime,
+            totalBreakTime: activeWorkSession.totalBreakTime,
+            totalWorkTime: activeWorkSession.totalWorkTime,
+            status: activeWorkSession.status,
+            createdAt: activeWorkSession.createdAt,
+            updatedAt: activeWorkSession.updatedAt
+          } : null);
+
+          // Load break session only if we have an active work session
+          if (activeWorkSession) {
+            const breakSessionResponse = await fetch(`/api/break-sessions/active?employeeId=${user.id}`);
+            if (breakSessionResponse.ok) {
+              const breakSessionData = await breakSessionResponse.json();
+              const activeBreakSession = breakSessionData.data;
+              console.log('activeBreakSession', activeBreakSession);
+              setBreakSession(activeBreakSession ? {
+                id: activeBreakSession._id.toString(),
+                workSessionId: activeBreakSession.workSessionId.toString(),
+                startTime: activeBreakSession.startTime,
+                endTime: activeBreakSession.endTime,
+                duration: activeBreakSession.duration,
+                status: activeBreakSession.status
+              } : null);
+            } else {
+              setBreakSession(null);
+            }
+          } else {
+            setWorkSession(null);
+            setBreakSession(null);
+          }
+        } catch (err) {
+          console.error('Error loading active sessions:', err);
+        }
+
         // Request notification permission
         notificationService.requestPermission();
 
@@ -166,7 +212,7 @@ export default function TimeTrackerDashboard() {
     };
 
     initializeServices();
-  }, [user, loadActiveSessions]);
+  }, [user]);
 
   // Get current status
   const getCurrentStatus = () => {
@@ -256,6 +302,15 @@ export default function TimeTrackerDashboard() {
     setError('');
 
     try {
+      // First refresh the break session state to ensure we have the latest data
+      await loadActiveSessions();
+      
+      // Check again if there's an active break session after refresh
+      if (breakSession) {
+        setError('You are already on a break. Please end the current break first.');
+        return;
+      }
+
       await ClientTimeTrackingService.startBreak({
         workSessionId: workSession.id,
         notes: notes.trim() || undefined,
@@ -268,7 +323,7 @@ export default function TimeTrackerDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [workSession, notes, loadActiveSessions]);
+  }, [workSession, breakSession, notes, loadActiveSessions]);
 
   const handleEndBreak = useCallback(async () => {
     if (!workSession) return;

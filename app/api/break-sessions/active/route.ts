@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getActiveBreakSession } from '@/lib/database';
+import { getActiveBreakSession, getActiveWorkSession } from '@/lib/database';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +13,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const activeBreakSession = await getActiveBreakSession(employeeId);
+    // First get the active work session for the employee
+    const activeWorkSession = await getActiveWorkSession(employeeId);
+    
+    if (!activeWorkSession) {
+      // No active work session means no active break session
+      return NextResponse.json({
+        success: true,
+        data: null
+      });
+    }
+
+    // Then get the active break session for that work session
+    const activeBreakSession = await getActiveBreakSession(activeWorkSession._id.toString());
     
     return NextResponse.json({
       success: true,
