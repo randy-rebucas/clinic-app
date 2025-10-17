@@ -67,19 +67,6 @@ export interface WeeklySummary {
   overtime: number; // in minutes
 }
 
-export interface AttendanceReport {
-  id: string;
-  employeeId?: string; // if null, report for all employees
-  startDate: string;
-  endDate: string;
-  totalWorkTime: number;
-  totalBreakTime: number;
-  workDays: number;
-  averageWorkTime: number;
-  overtime: number;
-  generatedAt: Date;
-  generatedBy: string; // admin user ID
-}
 
 export interface NotificationSettings {
   id: string;

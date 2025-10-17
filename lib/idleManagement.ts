@@ -99,9 +99,11 @@ export class IdleManagementService {
       // Fetch idle settings from API
       const response = await fetch(`/api/idle/settings?employeeId=${employeeId}`);
       if (!response.ok) {
+        console.log('Idle settings fetch failed:', response.status, response.statusText);
         return;
       }
       const data = await response.json();
+      console.log('Idle settings fetch response:', data);
       const dbSettings = data.data;
       if (dbSettings) {
         this.settingsId = dbSettings._id.toString();
@@ -118,7 +120,6 @@ export class IdleManagementService {
       // Create default settings if none exist
       if (!this.settings) {
         const defaultSettings = {
-          employeeId: new (await import('mongoose')).Types.ObjectId(employeeId),
           enabled: true,
           idleThresholdMinutes: 5,
           pauseTimerOnIdle: true,
@@ -141,9 +142,11 @@ export class IdleManagementService {
         
         if (createResponse.ok) {
           const createData = await createResponse.json();
+          console.log('Idle settings creation response:', createData);
           this.settingsId = createData.data.id;
         } else {
-          console.error('Failed to create idle settings');
+          const errorData = await createResponse.json();
+          console.error('Failed to create idle settings:', errorData);
           return;
         }
         this.settings = {
@@ -157,6 +160,15 @@ export class IdleManagementService {
       }
     } catch (error) {
       console.error('Failed to load idle settings:', error);
+      // Set default settings if loading fails
+      this.settings = {
+        enabled: true,
+        idleThresholdMinutes: 5,
+        pauseTimerOnIdle: true,
+        showIdleWarning: true,
+        warningTimeMinutes: 1,
+        autoResumeOnActivity: true,
+      };
     }
   }
 

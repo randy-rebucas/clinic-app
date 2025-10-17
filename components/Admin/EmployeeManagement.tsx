@@ -64,7 +64,7 @@ export default function EmployeeManagement() {
         role: employeeData.role,
         department: employeeData.department,
         position: employeeData.position
-      } as Omit<IEmployee, '_id' | 'createdAt' | 'updatedAt'>);
+      });
       const newEmployee: Employee = {
         ...employeeData,
         id: newEmployeeId,
@@ -107,13 +107,18 @@ export default function EmployeeManagement() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-base font-medium text-gray-900 dark:text-white">Employee Management</h3>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">Employee Management</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            Manage your team members and their roles
+          </p>
+        </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="btn-primary flex items-center space-x-2 px-3 py-2 text-sm"
+          className="btn-primary flex items-center space-x-2 px-4 py-2 text-sm transition-all duration-200 hover:scale-105"
         >
           <Plus className="h-4 w-4" />
           <span>Add Employee</span>
@@ -247,13 +252,23 @@ function EmployeeForm({ employee, onSubmit, onCancel }: EmployeeFormProps) {
   };
 
   return (
-    <div className="card p-4">
-      <h4 className="text-base font-medium text-gray-900 dark:text-white mb-3">
-        {employee ? 'Edit Employee' : 'Add New Employee'}
-      </h4>
+    <div className="card p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+          <User className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+        </div>
+        <div>
+          <h4 className="text-lg font-bold text-gray-900 dark:text-white">
+            {employee ? 'Edit Employee' : 'Add New Employee'}
+          </h4>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {employee ? 'Update employee information' : 'Create a new team member account'}
+          </p>
+        </div>
+      </div>
       
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Full Name
@@ -324,17 +339,17 @@ function EmployeeForm({ employee, onSubmit, onCancel }: EmployeeFormProps) {
           </div>
         </div>
         
-        <div className="flex justify-end space-x-3">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="btn-secondary px-6 py-2"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="btn-primary px-6 py-2"
           >
             {employee ? 'Update Employee' : 'Add Employee'}
           </button>

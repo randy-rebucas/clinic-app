@@ -11,16 +11,15 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-  Camera
+  Camera,
+  LogOut
 } from 'lucide-react';
 import ThemeToggle from '@/components/Theme/ThemeToggle';
-import AttendanceReport from './AttendanceReport';
 import EmployeeManagement from './EmployeeManagement';
 import ScreenCaptureManagement from './ScreenCaptureManagement';
-import AttendanceManagement from './AttendanceManagement';
 
 export default function AdminDashboard() {
-  const { employee } = useAuth();
+  const { employee, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({
     totalEmployees: 0,
@@ -48,7 +47,6 @@ export default function AdminDashboard() {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: TrendingUp },
     { id: 'employees', label: 'Employees', icon: Users },
-    { id: 'attendance', label: 'Attendance', icon: Clock },
     { id: 'screen-captures', label: 'Screen Captures', icon: Camera },
     { id: 'reports', label: 'Reports', icon: Download },
     { id: 'settings', label: 'Settings', icon: Settings },
@@ -60,12 +58,10 @@ export default function AdminDashboard() {
         return <OverviewTab stats={stats} />;
       case 'employees':
         return <EmployeeManagement />;
-      case 'attendance':
-        return <AttendanceManagement />;
       case 'screen-captures':
         return <ScreenCaptureManagement />;
       case 'reports':
-        return <AttendanceReport />;
+        return <div className="p-6 text-center text-gray-500">Reports functionality coming soon</div>;
       case 'settings':
         return <SettingsTab />;
       default:
@@ -98,6 +94,14 @@ export default function AdminDashboard() {
             <div className="flex items-center space-x-3">
               <ThemeToggle />
               <span className="text-sm text-gray-700 dark:text-gray-300">Welcome, {employee?.name}</span>
+              <button
+                onClick={logout}
+                className="flex items-center space-x-1 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                title="Logout"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
           </div>
         </div>
