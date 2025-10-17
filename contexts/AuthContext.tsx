@@ -41,7 +41,7 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
   return response.json();
 };
 
-const getEmployee = async (id: string): Promise<IEmployee | null> => {
+const getEmployee = async (id: string): Promise<Employee | null> => {
   try {
     return await apiCall(`/api/auth/employee?id=${encodeURIComponent(id)}`);
   } catch (error) {
@@ -50,7 +50,7 @@ const getEmployee = async (id: string): Promise<IEmployee | null> => {
   }
 };
 
-const getEmployeeByEmail = async (email: string): Promise<IEmployee | null> => {
+const getEmployeeByEmail = async (email: string): Promise<Employee | null> => {
   try {
     return await apiCall(`/api/auth/employee?email=${encodeURIComponent(email)}`);
   } catch (error) {
@@ -59,7 +59,7 @@ const getEmployeeByEmail = async (email: string): Promise<IEmployee | null> => {
   }
 };
 
-const loginEmployee = async (email: string, password: string): Promise<IEmployee | null> => {
+const loginEmployee = async (email: string, password: string): Promise<Employee | null> => {
   try {
     return await apiCall('/api/auth/login', {
       method: 'POST',
@@ -71,7 +71,7 @@ const loginEmployee = async (email: string, password: string): Promise<IEmployee
   }
 };
 
-const createEmployee = async (employeeData: Omit<IEmployee, '_id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+const createEmployee = async (employeeData: Omit<Employee, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
   const response = await apiCall('/api/auth/employee', {
     method: 'POST',
     body: JSON.stringify(employeeData),
@@ -105,7 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const response = await fetch(`/api/auth/employee?id=${userData.id}`);
           if (response.ok) {
             const data = await response.json();
-            setEmployee(data.employee);
+            setEmployee(data);
           }
         }
       } catch (error) {
@@ -126,11 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!employeeData) {
         throw new Error('Invalid email or password');
       }
-
-      const data = await response.json();
-      const employeeData = data.employee;
       
-      const userData = { id: employeeData._id.toString(), email: employeeData.email };
+      const userData = { id: employeeData.id, email: employeeData.email };
       setUser(userData);
       setEmployee(employeeData);
       
@@ -163,9 +160,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userData = { id: employeeId, email };
       setUser(userData);
       
-      // Create a mock IEmployee object for the state
-      const mockEmployee: IEmployee = {
-        _id: employeeId as any,
+      // Create a mock Employee object for the state
+      const mockEmployee: Employee = {
+        id: employeeId,
         name: employeeData.name,
         email,
         role: employeeData.role,
