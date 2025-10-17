@@ -87,14 +87,14 @@ export default function AttendanceReport() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Report Generation Form */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Generate Attendance Report</h3>
+      <div className="card p-4">
+        <h3 className="text-base font-medium text-gray-900 dark:text-white mb-3">Generate Attendance Report</h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
           <div>
-            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Start Date
             </label>
             <input
@@ -102,12 +102,12 @@ export default function AttendanceReport() {
               id="startDate"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input-field"
             />
           </div>
           
           <div>
-            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               End Date
             </label>
             <input
@@ -115,19 +115,19 @@ export default function AttendanceReport() {
               id="endDate"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input-field"
             />
           </div>
           
           <div>
-            <label htmlFor="employee" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="employee" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Employee (Optional)
             </label>
             <select
               id="employee"
               value={selectedEmployee}
               onChange={(e) => setSelectedEmployee(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input-field"
             >
               <option value="">All Employees</option>
               <option value="employee1">John Doe</option>
@@ -140,7 +140,7 @@ export default function AttendanceReport() {
         <button
           onClick={handleGenerateReport}
           disabled={loading}
-          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="btn-primary flex items-center space-x-2 px-3 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <FileText className="h-4 w-4" />
           <span>{loading ? 'Generating...' : 'Generate Report'}</span>
@@ -149,53 +149,53 @@ export default function AttendanceReport() {
 
       {/* Report Results */}
       {report && (
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-medium text-gray-900">Report Results</h3>
+        <div className="card p-4">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-base font-medium text-gray-900 dark:text-white">Report Results</h3>
             <button
               onClick={handleExportCSV}
-              className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+              className="btn-success flex items-center space-x-2 px-3 py-2 text-sm"
             >
               <Download className="h-4 w-4" />
               <span>Export CSV</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-xl font-bold text-gray-900 dark:text-white">
                 {(report.totalWorkTime / 60).toFixed(1)}
               </div>
-              <div className="text-sm text-gray-500">Total Work Hours</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Total Work Hours</div>
             </div>
             
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-xl font-bold text-gray-900 dark:text-white">
                 {(report.totalBreakTime / 60).toFixed(1)}
               </div>
-              <div className="text-sm text-gray-500">Total Break Hours</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Total Break Hours</div>
             </div>
             
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-xl font-bold text-gray-900 dark:text-white">
                 {report.workDays}
               </div>
-              <div className="text-sm text-gray-500">Work Days</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Work Days</div>
             </div>
             
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-xl font-bold text-gray-900 dark:text-white">
                 {(report.averageWorkTime / 60).toFixed(1)}
               </div>
-              <div className="text-sm text-gray-500">Avg Hours/Day</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Avg Hours/Day</div>
             </div>
           </div>
 
           {report.overtime > 0 && (
-            <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
               <div className="flex items-center">
-                <Calendar className="h-5 w-5 text-yellow-600 mr-2" />
-                <span className="text-sm font-medium text-yellow-800">
+                <Calendar className="h-4 w-4 text-yellow-600 dark:text-yellow-400 mr-2" />
+                <span className="text-sm font-medium text-yellow-800 dark:text-yellow-300">
                   Overtime: {(report.overtime / 60).toFixed(1)} hours
                 </span>
               </div>
@@ -205,20 +205,20 @@ export default function AttendanceReport() {
       )}
 
       {/* Quick Reports */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Reports</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="card p-4">
+        <h3 className="text-base font-medium text-gray-900 dark:text-white mb-3">Quick Reports</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           <button
             onClick={() => {
               const today = new Date().toISOString().split('T')[0];
               setStartDate(today);
               setEndDate(today);
             }}
-            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+            className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left transition-colors"
           >
-            <Calendar className="h-6 w-6 text-blue-600 mb-2" />
-            <div className="font-medium text-gray-900">Today&apos;s Report</div>
-            <div className="text-sm text-gray-500">Generate report for today</div>
+            <Calendar className="h-5 w-5 text-blue-600 dark:text-blue-400 mb-2" />
+            <div className="font-medium text-sm text-gray-900 dark:text-white">Today&apos;s Report</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Generate report for today</div>
           </button>
           
           <button
@@ -229,11 +229,11 @@ export default function AttendanceReport() {
               setStartDate(weekStart.toISOString().split('T')[0]);
               setEndDate(weekEnd.toISOString().split('T')[0]);
             }}
-            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+            className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left transition-colors"
           >
-            <Calendar className="h-6 w-6 text-green-600 mb-2" />
-            <div className="font-medium text-gray-900">This Week</div>
-            <div className="text-sm text-gray-500">Generate report for this week</div>
+            <Calendar className="h-5 w-5 text-green-600 dark:text-green-400 mb-2" />
+            <div className="font-medium text-sm text-gray-900 dark:text-white">This Week</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Generate report for this week</div>
           </button>
           
           <button
@@ -244,11 +244,11 @@ export default function AttendanceReport() {
               setStartDate(monthStart.toISOString().split('T')[0]);
               setEndDate(monthEnd.toISOString().split('T')[0]);
             }}
-            className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+            className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-left transition-colors"
           >
-            <Calendar className="h-6 w-6 text-purple-600 mb-2" />
-            <div className="font-medium text-gray-900">This Month</div>
-            <div className="text-sm text-gray-500">Generate report for this month</div>
+            <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400 mb-2" />
+            <div className="font-medium text-sm text-gray-900 dark:text-white">This Month</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Generate report for this month</div>
           </button>
         </div>
       </div>

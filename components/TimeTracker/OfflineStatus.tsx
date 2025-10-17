@@ -136,10 +136,10 @@ export default function OfflineStatus() {
   };
 
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+    <div className="card p-3">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-indigo-100 rounded-lg">
+          <div className="icon-container icon-container-info">
             {networkState.isOnline ? (
               <Wifi className="h-4 w-4 text-indigo-600" />
             ) : (
@@ -202,7 +202,7 @@ export default function OfflineStatus() {
         <div className={`flex items-center gap-2 ${getSyncStatusColor()}`}>
           {syncProgress.isRunning ? (
             <>
-              <RefreshCw className="h-4 w-4 animate-spin" />
+              <div className="spinner spinner-sm"></div>
               <span className="text-sm">Syncing...</span>
             </>
           ) : syncProgress.failedItems > 0 ? (

@@ -317,26 +317,24 @@ export default function AttendanceManagement({}: AttendanceManagementProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="space-y-3">
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-          </div>
+      <div className="loading-container">
+        <div className="loading-header"></div>
+        <div className="space-y-3">
+          <div className="loading-line"></div>
+          <div className="loading-line-short"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-gray-900">Attendance Management</h3>
+        <h3 className="text-base font-medium text-gray-900 dark:text-white">Attendance Management</h3>
         <button
           onClick={() => window.location.reload()}
-          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="btn-primary flex items-center space-x-2 px-3 py-2 text-sm"
         >
           <BarChart3 className="h-4 w-4" />
           <span>Refresh</span>
@@ -344,16 +342,16 @@ export default function AttendanceManagement({}: AttendanceManagementProps) {
       </div>
 
       {/* Controls */}
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col md:flex-row gap-3">
         <div className="flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search employees..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="input-field pl-10"
             />
           </div>
         </div>
@@ -362,7 +360,7 @@ export default function AttendanceManagement({}: AttendanceManagementProps) {
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value as 'week' | 'month' | 'quarter' | 'year')}
-            className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input-field"
           >
             <option value="week">This Week</option>
             <option value="month">This Month</option>
@@ -373,7 +371,7 @@ export default function AttendanceManagement({}: AttendanceManagementProps) {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as 'all' | 'present' | 'absent' | 'late' | 'half_day')}
-            className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="input-field"
           >
             <option value="all">All Status</option>
             <option value="present">Present</option>
@@ -384,7 +382,7 @@ export default function AttendanceManagement({}: AttendanceManagementProps) {
           
           <button
             onClick={exportAttendanceReport}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="btn-primary flex items-center gap-2 px-3 py-2 text-sm"
           >
             <Download className="h-4 w-4" />
             Export
@@ -393,97 +391,105 @@ export default function AttendanceManagement({}: AttendanceManagementProps) {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-green-50 p-4 rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="card p-3">
             <div className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
+              <div className="icon-container icon-container-success">
+                <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+              </div>
               <div>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-lg font-bold text-green-600 dark:text-green-400">
                   {filteredEmployees.filter(emp => emp.currentAttendance?.status === 'present').length}
                 </div>
-                <div className="text-sm text-green-700">Present Today</div>
+                <div className="text-xs text-green-700 dark:text-green-300">Present Today</div>
               </div>
             </div>
           </div>
           
-          <div className="bg-red-50 p-4 rounded-lg">
+          <div className="card p-3">
             <div className="flex items-center gap-2">
-              <XCircle className="h-5 w-5 text-red-600" />
+              <div className="icon-container icon-container-danger">
+                <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+              </div>
               <div>
-                <div className="text-2xl font-bold text-red-600">
+                <div className="text-lg font-bold text-red-600 dark:text-red-400">
                   {filteredEmployees.filter(emp => emp.currentAttendance?.status === 'absent').length}
                 </div>
-                <div className="text-sm text-red-700 text-red-400">Absent Today</div>
+                <div className="text-xs text-red-700 dark:text-red-300">Absent Today</div>
               </div>
             </div>
           </div>
           
-          <div className="bg-yellow-50 bg-yellow-900/20 p-4 rounded-lg">
+          <div className="card p-3">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-yellow-600" />
+              <div className="icon-container icon-container-warning">
+                <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              </div>
               <div>
-                <div className="text-2xl font-bold text-yellow-600">
+                <div className="text-lg font-bold text-yellow-600 dark:text-yellow-400">
                   {filteredEmployees.filter(emp => emp.currentAttendance?.status === 'late').length}
                 </div>
-                <div className="text-sm text-yellow-700 text-yellow-400">Late Today</div>
+                <div className="text-xs text-yellow-700 dark:text-yellow-300">Late Today</div>
               </div>
             </div>
           </div>
           
-          <div className="bg-blue-50 bg-blue-900/20 p-4 rounded-lg">
+          <div className="card p-3">
             <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
+              <div className="icon-container icon-container-primary">
+                <BarChart3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              </div>
               <div>
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
                   {filteredEmployees.length > 0 ? 
                     Math.round(filteredEmployees.reduce((sum, emp) => sum + (emp.summary?.attendanceRate || 0), 0) / filteredEmployees.length) : 0}%
                 </div>
-                <div className="text-sm text-blue-700 text-blue-400">Avg Attendance</div>
+                <div className="text-xs text-blue-700 dark:text-blue-300">Avg Attendance</div>
               </div>
             </div>
           </div>
         </div>
 
       {/* Attendance Table */}
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="card overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Employee
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Punch In/Out
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Working Hours
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Attendance Rate
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {filteredEmployees.map((emp) => (
-              <tr key={emp.employee.id} className="hover:bg-gray-50">
+              <tr key={emp.employee.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-blue-600 font-semibold">
+                      <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                        <span className="text-blue-600 dark:text-blue-400 font-semibold">
                           {emp.employee.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{emp.employee.name}</div>
-                      <div className="text-sm text-gray-500 flex items-center">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{emp.employee.name}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
                         <Mail className="h-3 w-3 mr-1" />
                         {emp.employee.email}
                       </div>
@@ -503,34 +509,34 @@ export default function AttendanceManagement({}: AttendanceManagementProps) {
                     </span>
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   <div>
                     <div>In: {formatTime(emp.currentAttendance?.punchInTime)}</div>
                     <div>Out: {formatTime(emp.currentAttendance?.punchOutTime)}</div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   {emp.currentAttendance?.totalWorkingHours?.toFixed(1) || '0.0'}h
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   {emp.summary ? (
                     <div>
                       <div>{emp.summary.attendanceRate.toFixed(0)}%</div>
-                      <div className="text-xs text-gray-500">Punctuality: {emp.summary.punctualityScore.toFixed(0)}%</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">Punctuality: {emp.summary.punctualityScore.toFixed(0)}%</div>
                     </div>
                   ) : (
-                    <span className="text-gray-500">No data</span>
+                    <span className="text-gray-500 dark:text-gray-400">No data</span>
                   )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div className="flex space-x-2">
                     <button
                       onClick={() => setShowDetails(showDetails === emp.employee.id ? null : emp.employee.id)}
-                      className="text-blue-600 hover:text-blue-900"
+                      className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       <Eye className="h-4 w-4" />
                     </button>
-                    <button className="text-blue-600 hover:text-blue-900">
+                    <button className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
                       <Edit className="h-4 w-4" />
                     </button>
                   </div>
@@ -542,22 +548,26 @@ export default function AttendanceManagement({}: AttendanceManagementProps) {
       </div>
 
       {filteredEmployees.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          No employees found matching your criteria.
+        <div className="card p-4">
+          <div className="empty-state py-8">
+            <Users className="empty-state-icon h-10 w-10" />
+            <div className="empty-state-title">No Employees Found</div>
+            <div className="empty-state-description">No employees found matching your criteria.</div>
+          </div>
         </div>
       )}
 
       {/* Details Modal */}
       {showDetails && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Employee Details</h3>
+          <div className="card p-4 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-base font-medium text-gray-900 dark:text-white">Employee Details</h3>
               <button
                 onClick={() => setShowDetails(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
-                <XCircle className="h-6 w-6" />
+                <XCircle className="h-5 w-5" />
               </button>
             </div>
             
@@ -566,44 +576,44 @@ export default function AttendanceManagement({}: AttendanceManagementProps) {
               if (!emp) return null;
               
               return (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Today&apos;s Details</h4>
+                    <h4 className="font-medium text-gray-900 dark:text-white mb-2">Today&apos;s Details</h4>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Punch In:</span>
-                        <span>{formatTime(emp.currentAttendance?.punchInTime)}</span>
+                        <span className="text-gray-500 dark:text-gray-400">Punch In:</span>
+                        <span className="text-gray-900 dark:text-gray-100">{formatTime(emp.currentAttendance?.punchInTime)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Punch Out:</span>
-                        <span>{formatTime(emp.currentAttendance?.punchOutTime)}</span>
+                        <span className="text-gray-500 dark:text-gray-400">Punch Out:</span>
+                        <span className="text-gray-900 dark:text-gray-100">{formatTime(emp.currentAttendance?.punchOutTime)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Working Hours:</span>
-                        <span>{emp.currentAttendance?.totalWorkingHours?.toFixed(1) || '0.0'}h</span>
+                        <span className="text-gray-500 dark:text-gray-400">Working Hours:</span>
+                        <span className="text-gray-900 dark:text-gray-100">{emp.currentAttendance?.totalWorkingHours?.toFixed(1) || '0.0'}h</span>
                       </div>
                     </div>
                   </div>
 
                   {emp.summary && (
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Period Summary</h4>
+                      <h4 className="font-medium text-gray-900 dark:text-white mb-2">Period Summary</h4>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Present Days:</span>
-                          <span>{emp.summary.presentDays}</span>
+                          <span className="text-gray-500 dark:text-gray-400">Present Days:</span>
+                          <span className="text-gray-900 dark:text-gray-100">{emp.summary.presentDays}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Absent Days:</span>
-                          <span>{emp.summary.absentDays}</span>
+                          <span className="text-gray-500 dark:text-gray-400">Absent Days:</span>
+                          <span className="text-gray-900 dark:text-gray-100">{emp.summary.absentDays}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Late Days:</span>
-                          <span>{emp.summary.lateDays}</span>
+                          <span className="text-gray-500 dark:text-gray-400">Late Days:</span>
+                          <span className="text-gray-900 dark:text-gray-100">{emp.summary.lateDays}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Total Hours:</span>
-                          <span>{emp.summary.totalWorkingHours.toFixed(1)}h</span>
+                          <span className="text-gray-500 dark:text-gray-400">Total Hours:</span>
+                          <span className="text-gray-900 dark:text-gray-100">{emp.summary.totalWorkingHours.toFixed(1)}h</span>
                         </div>
                       </div>
                     </div>

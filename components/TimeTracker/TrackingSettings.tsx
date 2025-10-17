@@ -340,7 +340,7 @@ export default function TrackingSettings({ employeeId, isOpen, onClose }: Tracki
                   max="60"
                   value={appSettings.samplingInterval}
                   onChange={(e) => updateAppSetting('samplingInterval', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="input-field"
                 />
               </div>
             </div>
@@ -476,7 +476,7 @@ export default function TrackingSettings({ employeeId, isOpen, onClose }: Tracki
                   max="60"
                   value={websiteSettings.samplingInterval}
                   onChange={(e) => updateWebsiteSetting('samplingInterval', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="input-field"
                 />
               </div>
             </div>

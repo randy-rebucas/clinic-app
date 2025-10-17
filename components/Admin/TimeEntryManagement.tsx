@@ -123,22 +123,22 @@ export default function TimeEntryManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-gray-900">Time Entry Management</h3>
+        <h3 className="text-base font-medium text-gray-900 dark:text-white">Time Entry Management</h3>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="card p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Search
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400" />
+                <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
               </div>
               <input
                 type="text"
@@ -146,13 +146,13 @@ export default function TimeEntryManagement() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search by employee or notes..."
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="input-field pl-10"
               />
             </div>
           </div>
           
           <div>
-            <label htmlFor="filterType" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="filterType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Entry Type
             </label>
             <select
@@ -170,7 +170,7 @@ export default function TimeEntryManagement() {
           </div>
           
           <div>
-            <label htmlFor="filterDate" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="filterDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Date
             </label>
             <input
@@ -185,26 +185,26 @@ export default function TimeEntryManagement() {
       </div>
 
       {/* Time Entries Table */}
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="card overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Type
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Employee
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Timestamp
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Notes
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Location
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Actions
               </th>
             </tr>

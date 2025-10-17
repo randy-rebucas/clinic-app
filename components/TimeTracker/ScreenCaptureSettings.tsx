@@ -242,7 +242,7 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
           <select
             value={settings.intervalMinutes}
             onChange={(e) => handleSettingChange('intervalMinutes', parseInt(e.target.value))}
-            className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            className="input-field text-sm"
           >
             <option value={5}>Every 5 minutes</option>
             <option value={10}>Every 10 minutes</option>
@@ -310,7 +310,7 @@ export default function ScreenCaptureSettingsComponent({ onSettingsChange }: Scr
               max="100"
               value={settings.maxCapturesPerDay}
               onChange={(e) => handleSettingChange('maxCapturesPerDay', parseInt(e.target.value))}
-              className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="input-field text-sm"
             />
             <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Maximum number of captures per day to prevent storage overflow

@@ -243,13 +243,12 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
 
   if (loading) {
     return (
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-6">
-        <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-          <div className="space-y-3">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-          </div>
+      <div className="loading-container">
+        <div className="loading-header"></div>
+        <div className="space-y-3">
+          <div className="loading-line"></div>
+          <div className="loading-line-short"></div>
+          <div className="loading-line-medium"></div>
         </div>
       </div>
     );
@@ -280,7 +279,7 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
       </div>
 
       {/* Current Status */}
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-6">
+      <div className="card p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Today&apos;s Attendance</h3>
           <div className="flex items-center gap-2">
@@ -325,7 +324,7 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
             >
               {punchingIn ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <div className="spinner spinner-sm"></div>
                   Punching In...
                 </>
               ) : (
@@ -343,7 +342,7 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
             >
               {punchingOut ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                  <div className="spinner spinner-sm"></div>
                   Punching Out...
                 </>
               ) : (
@@ -388,7 +387,7 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
 
       {/* Attendance Summary */}
       {attendanceSummary && (
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-6">
+        <div className="card p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Attendance Summary</h3>
             <div className="flex gap-2">
@@ -461,7 +460,7 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
       )}
 
       {/* Attendance History */}
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-6">
+      <div className="card p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Attendance</h3>
         
         <div className="space-y-3">
@@ -493,7 +492,7 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
 
       {/* Settings Panel */}
       {showSettings && attendanceSettings && (
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-6">
+        <div className="card p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Attendance Settings</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

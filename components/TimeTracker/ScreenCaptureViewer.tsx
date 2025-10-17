@@ -83,14 +83,12 @@ export default function ScreenCaptureViewerComponent({
 
   if (loading) {
     return (
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
-        <div className="animate-pulse">
-          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-3"></div>
-          <div className="space-y-2">
-            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded w-4/6"></div>
-          </div>
+      <div className="card p-3">
+        <div className="loading-header h-3 w-1/4"></div>
+        <div className="space-y-2">
+          <div className="loading-line h-2"></div>
+          <div className="loading-line-medium h-2"></div>
+          <div className="loading-line-short h-2"></div>
         </div>
       </div>
     );
@@ -174,13 +172,16 @@ export default function ScreenCaptureViewerComponent({
           </div>
         </div>
       ) : (
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
-          <div className="text-center py-6">
-            <Camera className="h-8 w-8 text-gray-400 dark:text-gray-500 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">No Screen Captures</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="card p-3">
+          <div className="empty-state py-6">
+            <Camera className="empty-state-icon h-8 w-8" />
+            <div className="empty-state-title">No Screen Captures</div>
+            <div className="empty-state-description">
               No screen captures found for {TimeFormat.formatDate(stableDate)}
-            </p>
+            </div>
+            <div className="empty-state-subtitle">
+              Screen captures will appear here when enabled
+            </div>
           </div>
         </div>
       )}

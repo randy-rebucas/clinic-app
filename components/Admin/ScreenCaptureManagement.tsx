@@ -105,17 +105,17 @@ export default function ScreenCaptureManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-gray-900 flex items-center">
-          <Camera className="h-5 w-5 mr-2" />
+        <h3 className="text-base font-medium text-gray-900 dark:text-white flex items-center">
+          <Camera className="h-4 w-4 mr-2" />
           Screen Capture Management
         </h3>
         {filteredCaptures.length > 0 && (
           <button
             onClick={handleDownloadAll}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="btn-primary flex items-center space-x-2 px-3 py-2 text-sm"
           >
             <Download className="h-4 w-4" />
             <span>Download All</span>
@@ -124,35 +124,35 @@ export default function ScreenCaptureManagement() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow-sm border p-4">
-          <div className="text-2xl font-bold text-gray-900">{stats.totalCaptures}</div>
-          <div className="text-sm text-gray-500">Total Captures</div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="card p-3">
+          <div className="text-lg font-bold text-gray-900 dark:text-white">{stats.totalCaptures}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">Total Captures</div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border p-4">
-          <div className="text-2xl font-bold text-green-600">{stats.activeCaptures}</div>
-          <div className="text-sm text-gray-500">Active Captures</div>
+        <div className="card p-3">
+          <div className="text-lg font-bold text-green-600 dark:text-green-400">{stats.activeCaptures}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">Active Captures</div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border p-4">
-          <div className="text-2xl font-bold text-gray-900">{formatFileSize(stats.totalSize)}</div>
-          <div className="text-sm text-gray-500">Total Size</div>
+        <div className="card p-3">
+          <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{formatFileSize(stats.totalSize)}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">Total Size</div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm border p-4">
-          <div className="text-2xl font-bold text-gray-900">{stats.uniqueEmployees}</div>
-          <div className="text-sm text-gray-500">Employees</div>
+        <div className="card p-3">
+          <div className="text-lg font-bold text-purple-600 dark:text-purple-400">{stats.uniqueEmployees}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400">Employees</div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="card p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Search
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400" />
+                <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
               </div>
               <input
                 type="text"
@@ -160,20 +160,20 @@ export default function ScreenCaptureManagement() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search by employee or session..."
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="input-field pl-10"
               />
             </div>
           </div>
           
           <div>
-            <label htmlFor="filterEmployee" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="filterEmployee" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Employee
             </label>
             <select
               id="filterEmployee"
               value={filterEmployee}
               onChange={(e) => setFilterEmployee(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input-field"
             >
               <option value="">All Employees</option>
               {employees.map(employeeId => (
@@ -183,7 +183,7 @@ export default function ScreenCaptureManagement() {
           </div>
           
           <div>
-            <label htmlFor="filterDate" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="filterDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Date
             </label>
             <input
@@ -191,7 +191,7 @@ export default function ScreenCaptureManagement() {
               id="filterDate"
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="input-field"
             />
           </div>
         </div>
@@ -199,8 +199,8 @@ export default function ScreenCaptureManagement() {
 
       {/* Captures Grid */}
       {filteredCaptures.length > 0 ? (
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="card p-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {filteredCaptures.map((capture) => (
               <div
                 key={capture.id}
@@ -239,11 +239,11 @@ export default function ScreenCaptureManagement() {
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border p-6">
-          <div className="text-center py-12">
-            <Camera className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Screen Captures Found</h3>
-            <p className="text-gray-500">No screen captures match your current filters.</p>
+        <div className="card p-4">
+          <div className="empty-state py-8">
+            <Camera className="empty-state-icon h-10 w-10" />
+            <div className="empty-state-title">No Screen Captures Found</div>
+            <div className="empty-state-description">No screen captures match your current filters.</div>
           </div>
         </div>
       )}
@@ -251,26 +251,26 @@ export default function ScreenCaptureManagement() {
       {/* Capture Detail Modal */}
       {selectedCapture && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-4xl max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-6 border-b">
-              <div className="flex items-center space-x-3">
-                <Camera className="h-5 w-5 text-blue-600" />
+          <div className="card max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center space-x-2">
+                <Camera className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <div>
-                  <h3 className="text-lg font-medium text-gray-900">Screen Capture Details</h3>
-                  <div className="text-sm text-gray-500">
+                  <h3 className="text-base font-medium text-gray-900 dark:text-white">Screen Capture Details</h3>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {TimeFormat.formatDateTime(selectedCapture.timestamp)}
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedCapture(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
-                <XCircle className="h-6 w-6" />
+                <XCircle className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="p-6">
+            <div className="p-4">
               <div className="mb-4 relative w-full h-[60vh]">
                 <Image
                   src={selectedCapture.imageData}
@@ -281,38 +281,38 @@ export default function ScreenCaptureManagement() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                 <div className="text-center">
-                  <div className="text-sm text-gray-500">Employee</div>
-                  <div className="font-medium">{selectedCapture.employeeId}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Employee</div>
+                  <div className="font-medium text-sm">{selectedCapture.employeeId}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-gray-500">Status</div>
-                  <div className={`font-medium ${selectedCapture.isActive ? 'text-green-600' : 'text-gray-600'}`}>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Status</div>
+                  <div className={`font-medium text-sm ${selectedCapture.isActive ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
                     {selectedCapture.isActive ? 'Active' : 'Inactive'}
                   </div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-gray-500">File Size</div>
-                  <div className="font-medium">{formatFileSize(selectedCapture.fileSize)}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">File Size</div>
+                  <div className="font-medium text-sm">{formatFileSize(selectedCapture.fileSize)}</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-sm text-gray-500">Session ID</div>
-                  <div className="font-medium text-xs">{selectedCapture.workSessionId}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">Session ID</div>
+                  <div className="font-medium text-sm">{selectedCapture.workSessionId}</div>
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-3">
+              <div className="flex justify-end space-x-2">
                 <button
                   onClick={() => handleDownloadCapture(selectedCapture)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  className="btn-primary flex items-center space-x-2 px-3 py-2 text-sm"
                 >
                   <Download className="h-4 w-4" />
                   <span>Download</span>
                 </button>
                 <button
                   onClick={() => handleDeleteCapture(selectedCapture.id)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  className="btn-danger flex items-center space-x-2 px-3 py-2 text-sm"
                 >
                   <Trash2 className="h-4 w-4" />
                   <span>Delete</span>

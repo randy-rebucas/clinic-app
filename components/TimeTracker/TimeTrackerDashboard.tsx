@@ -352,13 +352,13 @@ export default function TimeTrackerDashboard() {
   }, [workSession, breakSession, currentStatus, notes, handleClockIn, handleClockOut, handleStartBreak, handleEndBreak]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <NavBar />
 
       <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
         {/* Hero Section - Current Status & Time */}
         <div className="mb-4">
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3 sm:p-4">
+          <div className="card p-3 sm:p-4">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
               {/* Status Display */}
               <div className="flex-1 w-full">
@@ -419,9 +419,9 @@ export default function TimeTrackerDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           {/* Primary Actions */}
           <div className="lg:col-span-2">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3 sm:p-4">
+            <div className="card p-3 sm:p-4">
               <div className="flex items-center gap-2 mb-3">
-                <div className="p-1.5 bg-blue-100 rounded-lg">
+                <div className="icon-container icon-container-primary">
                   <Zap className="h-4 w-4 text-blue-600" />
                 </div>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">Quick Actions</h2>
@@ -440,7 +440,7 @@ export default function TimeTrackerDashboard() {
                   <button
                     onClick={handleClockIn}
                     disabled={loading}
-                    className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="btn-success px-3 py-3 rounded-xl"
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <div className="p-1 bg-white/20 rounded-lg">
@@ -456,7 +456,7 @@ export default function TimeTrackerDashboard() {
                   <button
                     onClick={handleClockOut}
                     disabled={loading || currentStatus === 'on_break'}
-                    className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-rose-600 text-white px-3 py-3 rounded-xl hover:from-red-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="btn-danger px-3 py-3 rounded-xl"
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <div className="p-1 bg-white/20 rounded-lg">
@@ -474,7 +474,7 @@ export default function TimeTrackerDashboard() {
                   <button
                     onClick={handleStartBreak}
                     disabled={loading}
-                    className="group relative overflow-hidden bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-3 rounded-xl hover:from-yellow-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="btn-warning px-3 py-3 rounded-xl"
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <div className="p-1 bg-white/20 rounded-lg">
@@ -490,7 +490,7 @@ export default function TimeTrackerDashboard() {
                   <button
                     onClick={handleEndBreak}
                     disabled={loading}
-                    className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-3 rounded-xl hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="btn-primary px-3 py-3 rounded-xl"
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <div className="p-1 bg-white/20 rounded-lg">
@@ -563,9 +563,9 @@ export default function TimeTrackerDashboard() {
 
           {/* Session Stats */}
           <div className="lg:col-span-1">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+            <div className="card p-3">
               <div className="flex items-center gap-2 mb-3">
-                <div className="p-1.5 bg-purple-100 rounded-lg">
+                <div className="icon-container icon-container-purple">
                   <BarChart3 className="h-4 w-4 text-purple-600" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Session Stats</h3>
@@ -616,12 +616,12 @@ export default function TimeTrackerDashboard() {
                   )}
                 </div>
               ) : (
-                <div className="text-center py-4">
+                <div className="empty-state py-4">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg w-fit mx-auto mb-2">
                     <Clock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No active session</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Clock in to start</p>
+                  <div className="empty-state-title text-sm">No Active Session</div>
+                  <div className="empty-state-subtitle">Clock in to start</div>
                 </div>
               )}
             </div>
@@ -647,7 +647,7 @@ export default function TimeTrackerDashboard() {
         {user && (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
             {/* Screen Capture */}
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+            <div className="card p-3">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 bg-indigo-100 rounded-lg">
@@ -708,7 +708,7 @@ export default function TimeTrackerDashboard() {
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+            <div className="card p-3">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                   <TrendingUp className="h-4 w-4 text-emerald-600" />
@@ -768,7 +768,7 @@ export default function TimeTrackerDashboard() {
 
         {/* Daily Summary */}
         {user && (
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+          <div className="card p-3">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 bg-cyan-100 rounded-lg">
                 <Calendar className="h-4 w-4 text-cyan-600" />
