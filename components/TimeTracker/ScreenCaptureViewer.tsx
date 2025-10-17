@@ -31,6 +31,13 @@ export default function ScreenCaptureViewerComponent({
 
   const loadCaptures = useCallback(() => {
     try {
+      // Check if employeeId is valid before making API calls
+      if (!employeeId || employeeId === 'undefined') {
+        console.warn('ScreenCaptureViewer: employeeId is undefined or invalid:', employeeId);
+        setLoading(false);
+        return;
+      }
+
       let loadedCaptures: ScreenCapture[];
       
       if (workSessionId) {

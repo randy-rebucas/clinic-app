@@ -263,11 +263,23 @@ export const getWeeklySummary = async (employeeId: string, weekStart: string): P
 
 // Idle Settings Management
 export const createIdleSettings = async (idleSettingsData: Omit<IIdleSettings, '_id' | 'createdAt' | 'updatedAt'>) => {
-  await connectDB();
-  
-  const idleSettings = new IdleSettings(idleSettingsData);
-  const savedIdleSettings = await idleSettings.save();
-  return savedIdleSettings._id.toString();
+  try {
+    await connectDB();
+    console.log('Creating idle settings with data:', idleSettingsData);
+    
+    // Validate employeeId is a valid ObjectId
+    if (!Types.ObjectId.isValid(idleSettingsData.employeeId)) {
+      throw new Error(`Invalid employeeId: ${idleSettingsData.employeeId}`);
+    }
+    
+    const idleSettings = new IdleSettings(idleSettingsData);
+    const savedIdleSettings = await idleSettings.save();
+    console.log('Idle settings saved successfully:', savedIdleSettings._id);
+    return savedIdleSettings._id.toString();
+  } catch (error) {
+    console.error('Error in createIdleSettings:', error);
+    throw error;
+  }
 };
 
 export const updateIdleSettings = async (settingsId: string, updates: Partial<IIdleSettings>) => {
@@ -328,15 +340,15 @@ export const getActiveIdleSession = async (workSessionId: string): Promise<IIdle
   return idleSession;
 };
 
-export const getIdleSessions = async (employeeId: string, startDate?: Date, endDate?: Date) => {
+export const getIdleSessions = async (workSessionId: string, startDate?: Date, endDate?: Date) => {
   await connectDB();
   
-  if (!Types.ObjectId.isValid(employeeId)) {
+  if (!Types.ObjectId.isValid(workSessionId)) {
     return [];
   }
   
   const query: Record<string, unknown> = {
-    employeeId: new Types.ObjectId(employeeId)
+    workSessionId: new Types.ObjectId(workSessionId)
   };
   
   if (startDate && endDate) {

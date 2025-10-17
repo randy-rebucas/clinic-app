@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { TimeTrackingService } from '@/lib/timeTracking';
+import { ClientTimeTrackingService } from '@/lib/clientTimeTracking';
 import { WorkSession, BreakSession } from '@/types';
 import NavBar from '@/components/Navigation/NavBar';
 import DailySummaryComponent from './DailySummary';
@@ -164,13 +165,16 @@ export default function TimeTrackerDashboard() {
   const currentStatus = getCurrentStatus();
 
   const handleClockIn = useCallback(async () => {
-    if (!user) return;
+    if (!user || !user.id) {
+      setError('User ID is missing. Please log in again.');
+      return;
+    }
     
     setLoading(true);
     setError('');
     
     try {
-      const result = await TimeTrackingService.clockIn({
+      const result = await ClientTimeTrackingService.clockIn({
         employeeId: user.id,
         notes: notes.trim() || undefined,
       });
@@ -200,13 +204,16 @@ export default function TimeTrackerDashboard() {
   }, [user, notes, loadActiveSessions]);
 
   const handleClockOut = useCallback(async () => {
-    if (!user) return;
+    if (!user || !user.id) {
+      setError('User ID is missing. Please log in again.');
+      return;
+    }
     
     setLoading(true);
     setError('');
     
     try {
-      await TimeTrackingService.clockOut({
+      await ClientTimeTrackingService.clockOut({
         employeeId: user.id,
         notes: notes.trim() || undefined,
       });
@@ -238,7 +245,7 @@ export default function TimeTrackerDashboard() {
     setError('');
     
     try {
-      await TimeTrackingService.startBreak({
+      await ClientTimeTrackingService.startBreak({
         workSessionId: workSession.id,
         notes: notes.trim() || undefined,
       });
@@ -259,7 +266,7 @@ export default function TimeTrackerDashboard() {
     setError('');
     
     try {
-      await TimeTrackingService.endBreak(workSession.id, notes.trim() || undefined);
+      await ClientTimeTrackingService.endBreak(workSession.id, notes.trim() || undefined);
       setNotes('');
       await loadActiveSessions();
       notificationService.showBreakEndSuccess();
@@ -631,17 +638,17 @@ export default function TimeTrackerDashboard() {
           </div>
         </div>
 
-        {/* Application and Website Usage */}
-          {user && workSession && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-              <ApplicationUsage workSessionId={workSession.id} employeeId={user.id} />
-              <WebsiteUsage workSessionId={workSession.id} employeeId={user.id} />
-            </div>
-          )}
+         {/* Application and Website Usage */}
+           {user && workSession && (
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+               <ApplicationUsage workSessionId={workSession.id} employeeId={user.id} />
+               <WebsiteUsage workSessionId={workSession.id} employeeId={user.id} />
+             </div>
+           )}
 
 
-        {/* Screen Capture & Additional Features */}
-        {user && (
+         {/* Screen Capture & Additional Features */}
+         {user && (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
             {/* Screen Capture */}
             <div className="card p-3">
@@ -763,8 +770,8 @@ export default function TimeTrackerDashboard() {
           </div>
         )}
 
-        {/* Daily Summary */}
-        {user && (
+         {/* Daily Summary */}
+         {user && (
           <div className="card p-3">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 bg-cyan-100 rounded-lg">
@@ -794,8 +801,8 @@ export default function TimeTrackerDashboard() {
           timeRemaining={idleWarning.timeRemaining}
         />
 
-        {/* Tracking Settings Modal */}
-        {user && (
+         {/* Tracking Settings Modal */}
+         {user && (
           <TrackingSettings
             employeeId={user.id}
             isOpen={showTrackingSettings}

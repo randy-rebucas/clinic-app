@@ -4,16 +4,16 @@ import { getActiveIdleSession } from '@/lib/database';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const employeeId = searchParams.get('employeeId');
+    const workSessionId = searchParams.get('workSessionId');
 
-    if (!employeeId) {
+    if (!workSessionId) {
       return NextResponse.json(
-        { error: 'Employee ID is required' },
+        { error: 'Work Session ID is required' },
         { status: 400 }
       );
     }
 
-    const activeIdleSession = await getActiveIdleSession(employeeId);
+    const activeIdleSession = await getActiveIdleSession(workSessionId);
     
     return NextResponse.json({
       success: true,

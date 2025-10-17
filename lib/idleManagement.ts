@@ -8,6 +8,14 @@ import { IIdleSession } from './models';
 // Database functions are now accessed via API routes
 import { networkDetectionService } from './networkDetection';
 import { IdleSession } from '@/types';
+import { 
+  createIdleSession, 
+  updateIdleSession, 
+  getActiveIdleSession, 
+  getIdleSessions, 
+  updateIdleSettings 
+} from './database';
+import { offlineStorageService } from './offlineStorage';
 
 export interface IdleManagementState {
   isIdle: boolean;
@@ -41,6 +49,7 @@ export class IdleManagementService {
    */
   async initialize(employeeId: string, workSessionId?: string): Promise<void> {
     try {
+      console.log('Initializing idle management for employee:', employeeId);
       this.currentEmployeeId = employeeId;
       this.currentWorkSessionId = workSessionId;
 
@@ -129,25 +138,49 @@ export class IdleManagementService {
         };
 
         // Create idle settings via API
+        console.log('Making API request to create idle settings for employee:', employeeId);
+        const requestBody = {
+          employeeId,
+          ...defaultSettings
+        };
+        console.log('Request body:', requestBody);
+        
+        // First, test if the API route is accessible with a simple GET request
+        try {
+          const testResponse = await fetch('/api/idle/settings?employeeId=test');
+          console.log('Test GET request status:', testResponse.status);
+        } catch (testError) {
+          console.error('Test GET request failed:', testError);
+        }
+        
         const createResponse = await fetch('/api/idle/settings', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            employeeId,
-            ...defaultSettings
-          }),
+          body: JSON.stringify(requestBody),
         });
+        
+        console.log('API response status:', createResponse.status);
+        console.log('API response ok:', createResponse.ok);
+        console.log('API response headers:', Object.fromEntries(createResponse.headers.entries()));
         
         if (createResponse.ok) {
           const createData = await createResponse.json();
           console.log('Idle settings creation response:', createData);
           this.settingsId = createData.data.id;
         } else {
-          const errorData = await createResponse.json();
-          console.error('Failed to create idle settings:', errorData);
-          return;
+          let errorData;
+          try {
+            errorData = await createResponse.json();
+          } catch (parseError) {
+            errorData = { error: 'Failed to parse error response', status: createResponse.status };
+          }
+
+          
+          // Fallback: Use default settings without database storage
+          console.log('Using fallback: storing idle settings in memory only');
+          this.settingsId = `fallback-${Date.now()}`;
         }
         this.settings = {
           enabled: defaultSettings.enabled,
@@ -203,22 +236,54 @@ export class IdleManagementService {
    */
   private async loadActiveIdleSession(workSessionId: string): Promise<void> {
     try {
-      const dbSession = await getActiveIdleSession(workSessionId);
-      if (dbSession) {
-        this.currentIdleSession = {
-          id: dbSession._id.toString(),
-          workSessionId: dbSession.workSessionId.toString(),
-          startTime: dbSession.startTime,
-          endTime: dbSession.endTime,
-          duration: dbSession.duration,
-          reason: dbSession.reason,
-          status: dbSession.status,
-        };
+      const isOnline = networkDetectionService.isCurrentlyOnline();
+      
+      if (isOnline) {
+        // Try to fetch from API first
+        try {
+          const response = await fetch(`/api/idle/sessions/active?workSessionId=${workSessionId}`);
+          if (response.ok) {
+            const data = await response.json();
+            const dbSession = data.data;
+            if (dbSession) {
+              this.currentIdleSession = {
+                id: dbSession._id.toString(),
+                workSessionId: dbSession.workSessionId.toString(),
+                startTime: new Date(dbSession.startTime),
+                endTime: dbSession.endTime ? new Date(dbSession.endTime) : undefined,
+                duration: dbSession.duration,
+                reason: dbSession.reason,
+                status: dbSession.status,
+              };
+              return;
+            }
+          }
+        } catch (apiError) {
+          console.log('API call failed, falling back to direct database call:', apiError);
+        }
+        
+        // Fallback to direct database call
+        const dbSession = await getActiveIdleSession(workSessionId);
+        if (dbSession) {
+          this.currentIdleSession = {
+            id: dbSession._id.toString(),
+            workSessionId: dbSession.workSessionId.toString(),
+            startTime: dbSession.startTime,
+            endTime: dbSession.endTime,
+            duration: dbSession.duration,
+            reason: dbSession.reason,
+            status: dbSession.status,
+          };
+        } else {
+          this.currentIdleSession = undefined;
+        }
       } else {
+        // Offline: check local storage or set undefined
         this.currentIdleSession = undefined;
       }
     } catch (error) {
       console.error('Failed to load active idle session:', error);
+      this.currentIdleSession = undefined;
     }
   }
 
@@ -289,7 +354,8 @@ export class IdleManagementService {
         };
         // Store in offline storage
         try {
-          await offlineStorageService.store('idleSession', this.currentIdleSession);
+          // TODO: Add idle session storage to offline service
+          // await offlineStorageService.storeIdleSession(this.currentIdleSession);
         } catch (error) {
           console.error('Failed to store idle session offline:', error);
         }
@@ -332,7 +398,8 @@ export class IdleManagementService {
             duration,
             status: 'completed' as const,
           };
-          await offlineStorageService.update('idleSession', this.currentIdleSession.id, updatedSession);
+          // TODO: Add idle session update to offline service
+          // await offlineStorageService.updateIdleSession(this.currentIdleSession.id, updatedSession);
         } catch (error) {
           console.error('Failed to update idle session offline:', error);
         }
@@ -420,7 +487,27 @@ export class IdleManagementService {
       const isOnline = networkDetectionService.isCurrentlyOnline();
 
       if (isOnline && this.settingsId) {
-        await updateIdleSettings(this.settingsId, updates);
+        // Try API first
+        try {
+          const response = await fetch('/api/idle/settings', {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              settingsId: this.settingsId,
+              ...updates
+            }),
+          });
+          
+          if (!response.ok) {
+            throw new Error(`API request failed: ${response.status}`);
+          }
+        } catch (apiError) {
+          console.log('API call failed, falling back to direct database call:', apiError);
+          // Fallback to direct database call
+          await updateIdleSettings(this.settingsId, updates);
+        }
       }
 
       // Update local settings
@@ -463,7 +550,51 @@ export class IdleManagementService {
     }
 
     try {
-      return await getIdleSessions(this.currentWorkSessionId);
+      const isOnline = networkDetectionService.isCurrentlyOnline();
+      
+      if (isOnline) {
+        // Try API first
+        try {
+          const response = await fetch(`/api/idle/sessions?workSessionId=${this.currentWorkSessionId}`);
+          if (response.ok) {
+            const data = await response.json();
+            return data.data.map((session: unknown) => {
+              const s = session as {
+                _id: { toString(): string };
+                workSessionId: { toString(): string };
+                startTime: string | Date;
+                endTime?: string | Date;
+                duration?: number;
+                reason?: string;
+                status?: string;
+              };
+              return {
+                id: s._id.toString(),
+                workSessionId: s.workSessionId.toString(),
+                startTime: new Date(s.startTime),
+                endTime: s.endTime ? new Date(s.endTime) : undefined,
+                duration: s.duration,
+                reason: s.reason,
+                status: s.status,
+              };
+            });
+          }
+        } catch (apiError) {
+          console.log('API call failed, falling back to direct database call:', apiError);
+        }
+      }
+      
+      // Fallback to direct database call
+      const sessions = await getIdleSessions(this.currentWorkSessionId);
+      return sessions.map(session => ({
+        id: session._id.toString(),
+        workSessionId: session.workSessionId.toString(),
+        startTime: session.startTime,
+        endTime: session.endTime,
+        duration: session.duration,
+        reason: session.reason,
+        status: session.status,
+      }));
     } catch (error) {
       console.error('Failed to get idle sessions:', error);
       return [];

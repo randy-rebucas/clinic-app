@@ -13,29 +13,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const workSession = await getActiveWorkSession(employeeId);
-
-    if (!workSession) {
-      return NextResponse.json({ workSession: null });
-    }
-
-    // Return work session data
-    const workSessionData = {
-      id: workSession._id.toString(),
-      employeeId: workSession.employeeId.toString(),
-      clockInTime: workSession.clockInTime,
-      totalBreakTime: workSession.totalBreakTime,
-      totalWorkTime: workSession.totalWorkTime,
-      status: workSession.status,
-      createdAt: workSession.createdAt,
-      updatedAt: workSession.updatedAt
-    };
-
-    return NextResponse.json({ workSession: workSessionData });
+    const activeSession = await getActiveWorkSession(employeeId);
+    
+    return NextResponse.json({
+      success: true,
+      data: activeSession
+    });
   } catch (error) {
-    console.error('Get active work session error:', error);
+    console.error('Error fetching active work session:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to fetch active work session' },
       { status: 500 }
     );
   }

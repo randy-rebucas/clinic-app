@@ -36,7 +36,7 @@ interface WebsiteActivity {
   productivity?: string;
 }
 
-export default function WebsiteUsage({ workSessionId }: WebsiteUsageProps) {
+export default function WebsiteUsage({ workSessionId, employeeId }: WebsiteUsageProps) {
   const [activities, setActivities] = useState<WebsiteActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
@@ -61,6 +61,13 @@ export default function WebsiteUsage({ workSessionId }: WebsiteUsageProps) {
 
   const loadActivities = useCallback(async () => {
     try {
+      // Check if employeeId is valid before making API calls
+      if (!employeeId || employeeId === 'undefined') {
+        console.warn('WebsiteUsage: employeeId is undefined or invalid:', employeeId);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       const data = await getWebsiteActivities(workSessionId);
       setActivities(data.map(activity => ({
@@ -82,7 +89,7 @@ export default function WebsiteUsage({ workSessionId }: WebsiteUsageProps) {
     } finally {
       setLoading(false);
     }
-  }, [workSessionId]);
+  }, [workSessionId, employeeId]);
 
   useEffect(() => {
     loadActivities();

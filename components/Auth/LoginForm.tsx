@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Clock, User, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+import ThemeToggle from '@/components/Theme/ThemeToggle';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -69,6 +70,11 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      {/* Theme Toggle - Top Right */}
+      <div className="absolute top-4 right-4">
+        <ThemeToggle />
+      </div>
+      
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
           <div className="mx-auto h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
@@ -90,7 +96,7 @@ export default function LoginForm() {
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <User className={`h-5 w-5 ${emailError ? 'text-red-400' : email && !emailError ? 'text-green-500' : 'text-gray-400'}`} />
+                  <User className={`h-4 w-4 ${emailError ? 'text-red-400' : email && !emailError ? 'text-green-500' : 'text-gray-400'}`} />
                 </div>
                 <input
                   id="email"
@@ -100,12 +106,12 @@ export default function LoginForm() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`input-field pl-10 pr-10 py-3 ${emailError ? 'input-field-error' : email && !emailError ? 'border-green-500 focus:border-green-500' : ''}`}
+                  className={`input-field-with-icon pr-10 ${emailError ? 'input-field-error' : email && !emailError ? 'border-green-500 focus:border-green-500' : ''}`}
                   placeholder="Enter your email"
                 />
                 {email && !emailError && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-green-500" />
                   </div>
                 )}
               </div>
@@ -123,7 +129,7 @@ export default function LoginForm() {
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className={`h-5 w-5 ${passwordError ? 'text-red-400' : password && !passwordError ? 'text-green-500' : 'text-gray-400'}`} />
+                  <Lock className={`h-4 w-4 ${passwordError ? 'text-red-400' : password && !passwordError ? 'text-green-500' : 'text-gray-400'}`} />
                 </div>
                 <input
                   id="password"
@@ -133,7 +139,7 @@ export default function LoginForm() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`input-field pl-10 pr-10 py-3 ${passwordError ? 'input-field-error' : password && !passwordError ? 'border-green-500 focus:border-green-500' : ''}`}
+                  className={`input-field-with-icon pr-10 ${passwordError ? 'input-field-error' : password && !passwordError ? 'border-green-500 focus:border-green-500' : ''}`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -142,9 +148,9 @@ export default function LoginForm() {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400" />
+                    <EyeOff className="h-4 w-4 text-gray-400" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400" />
+                    <Eye className="h-4 w-4 text-gray-400" />
                   )}
                 </button>
               </div>

@@ -38,13 +38,58 @@ export class TimeTrackingService {
   static async clockIn(data: ClockInData): Promise<{ workSessionId: string; timeEntryId: string }> {
     const now = new Date();
     
-    // Check if employee already has an active work session
+    // Check if we're in browser environment
+    if (typeof window !== 'undefined') {
+      // Client-side: Use API routes
+      try {
+        const response = await fetch('/api/time-tracking/clock-in', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to clock in');
+        }
+
+        const result = await response.json();
+        return result.data;
+      } catch (error) {
+        console.error('API clock in failed, falling back to offline storage:', error);
+        // Fallback to offline storage
+        const timeEntryId = await offlineStorageService.storeTimeEntry({
+          employeeId: data.employeeId,
+          type: 'clock_in',
+          timestamp: now,
+          notes: data.notes,
+          location: data.location,
+        });
+
+        const workSessionId = await offlineStorageService.storeWorkSession({
+          employeeId: data.employeeId,
+          clockInTime: now,
+          totalBreakTime: 0,
+          totalWorkTime: 0,
+          status: 'active',
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        return { workSessionId, timeEntryId };
+      }
+    }
+
+    // Server-side: Direct database operations
     const activeSession = await getActiveWorkSession(data.employeeId);
     if (activeSession) {
       throw new Error('Employee already has an active work session');
     }
 
-    const isOnline = networkDetectionService.isCurrentlyOnline();
+    // On server side, we're always "online" (connected to database)
+    const isOnline = true;
     
     if (isOnline) {
       // Online: Create in database
@@ -153,7 +198,8 @@ export class TimeTrackingService {
       throw new Error('Cannot clock out while on break. Please end your break first.');
     }
 
-    const isOnline = networkDetectionService.isCurrentlyOnline();
+    // On server side, we're always "online" (connected to database)
+    const isOnline = true;
     
     if (isOnline) {
       // Online: Update in database
@@ -224,7 +270,8 @@ export class TimeTrackingService {
       throw new Error('Work session not found');
     }
 
-    const isOnline = networkDetectionService.isCurrentlyOnline();
+    // On server side, we're always "online" (connected to database)
+    const isOnline = true;
     
     if (isOnline) {
       // Online: Create in database
@@ -284,7 +331,8 @@ export class TimeTrackingService {
       throw new Error('Work session not found');
     }
 
-    const isOnline = networkDetectionService.isCurrentlyOnline();
+    // On server side, we're always "online" (connected to database)
+    const isOnline = true;
     
     if (isOnline) {
       // Online: Update in database

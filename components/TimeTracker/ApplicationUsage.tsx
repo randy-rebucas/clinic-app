@@ -34,7 +34,7 @@ interface ApplicationActivity {
   category?: string;
 }
 
-export default function ApplicationUsage({ workSessionId }: ApplicationUsageProps) {
+export default function ApplicationUsage({ workSessionId, employeeId }: ApplicationUsageProps) {
   const [activities, setActivities] = useState<ApplicationActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
@@ -56,6 +56,13 @@ export default function ApplicationUsage({ workSessionId }: ApplicationUsageProp
 
   const loadActivities = useCallback(async () => {
     try {
+      // Check if employeeId is valid before making API calls
+      if (!employeeId || employeeId === 'undefined') {
+        console.warn('ApplicationUsage: employeeId is undefined or invalid:', employeeId);
+        setLoading(false);
+        return;
+      }
+
       setLoading(true);
       const data = await getApplicationActivities(workSessionId);
       setActivities(data.map(activity => ({
@@ -76,7 +83,7 @@ export default function ApplicationUsage({ workSessionId }: ApplicationUsageProp
     } finally {
       setLoading(false);
     }
-  }, [workSessionId]);
+  }, [workSessionId, employeeId]);
 
   useEffect(() => {
     loadActivities();

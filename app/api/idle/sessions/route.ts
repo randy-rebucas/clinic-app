@@ -4,13 +4,13 @@ import { getIdleSessions } from '@/lib/database';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const employeeId = searchParams.get('employeeId');
+    const workSessionId = searchParams.get('workSessionId');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    if (!employeeId) {
+    if (!workSessionId) {
       return NextResponse.json(
-        { error: 'Employee ID is required' },
+        { error: 'Work Session ID is required' },
         { status: 400 }
       );
     }
@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const startDateObj = startDate ? new Date(startDate) : undefined;
     const endDateObj = endDate ? new Date(endDate) : undefined;
 
-    const idleSessions = await getIdleSessions(employeeId, startDateObj, endDateObj);
+    const idleSessions = await getIdleSessions(workSessionId, startDateObj, endDateObj);
     
     return NextResponse.json({
       success: true,

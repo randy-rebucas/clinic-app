@@ -129,6 +129,31 @@ export function useIdleWarning() {
   const [isVisible, setIsVisible] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(60); // 1 minute default
 
+  useEffect(() => {
+    // Set up idle warning callback
+    const handleIdleWarning = () => {
+      import('@/lib/idleManagement').then(({ idleManagementService }) => {
+        const state = idleManagementService.getCurrentState();
+        if (state.settings?.warningTimeMinutes) {
+          showWarning(state.settings.warningTimeMinutes * 60);
+        } else {
+          showWarning(60); // Default 1 minute
+        }
+      });
+    };
+
+    import('@/lib/inactivityDetection').then(({ inactivityDetectionService }) => {
+      // Add warning callback to inactivity detection service
+      inactivityDetectionService.addWarningCallback(handleIdleWarning);
+    });
+
+    return () => {
+      import('@/lib/inactivityDetection').then(({ inactivityDetectionService }) => {
+        inactivityDetectionService.removeWarningCallback(handleIdleWarning);
+      });
+    };
+  }, []);
+
   const showWarning = (seconds: number = 60) => {
     setTimeRemaining(seconds);
     setIsVisible(true);
@@ -150,7 +175,9 @@ export function useIdleWarning() {
   const handleKeepActive = () => {
     hideWarning();
     // Reset activity detection
-    // This would be handled by the inactivity detection service
+    import('@/lib/inactivityDetection').then(({ inactivityDetectionService }) => {
+      inactivityDetectionService.resetIdleTime();
+    });
   };
 
   return {

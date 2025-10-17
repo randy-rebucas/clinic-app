@@ -17,6 +17,13 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
 
   const loadDailyData = useCallback(async () => {
     try {
+      // Check if employeeId is valid before making API calls
+      if (!employeeId || employeeId === 'undefined') {
+        console.warn('DailySummary: employeeId is undefined or invalid:', employeeId);
+        setLoading(false);
+        return;
+      }
+
       const dateStr = date.toISOString().split('T')[0];
       
       // Fetch daily summary from API
@@ -37,17 +44,26 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
         totalBreakTime: dailySummary.totalBreakTime,
         clockInTime: dailySummary.clockInTime,
         clockOutTime: dailySummary.clockOutTime,
-        workSessions: dailySummary.workSessions.map(session => session.toString()),
+        workSessions: dailySummary.workSessions.map((session: unknown) => (session as { toString(): string }).toString()),
         status: dailySummary.status,
         overtime: dailySummary.overtime
       } : null);
-      setTimeEntries(entries.map(entry => ({
-        id: entry._id.toString(),
-        employeeId: entry.employeeId.toString(),
-        type: entry.type,
-        timestamp: entry.timestamp,
-        notes: entry.notes
-      })));
+      setTimeEntries(entries.map((entry: unknown) => {
+        const e = entry as {
+          _id: { toString(): string };
+          employeeId: { toString(): string };
+          type: string;
+          timestamp: Date;
+          notes?: string;
+        };
+        return {
+          id: e._id.toString(),
+          employeeId: e.employeeId.toString(),
+          type: e.type,
+          timestamp: e.timestamp,
+          notes: e.notes
+        };
+      }));
     } catch (error) {
       console.error('Failed to load daily data:', error);
     } finally {

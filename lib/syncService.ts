@@ -247,7 +247,7 @@ export class SyncService {
           // Upload screen capture to server
           try {
             const formData = new FormData();
-            formData.append('file', screenCapture.blob);
+            formData.append('file', screenCapture.imageData);
             formData.append('employeeId', screenCapture.employeeId);
             formData.append('timestamp', screenCapture.timestamp.toISOString());
             formData.append('workSessionId', screenCapture.workSessionId || '');

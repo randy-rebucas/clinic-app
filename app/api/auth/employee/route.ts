@@ -7,15 +7,27 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get('id');
     const email = searchParams.get('email');
 
+    let employee;
     if (id) {
-      const employee = await getEmployee(id);
-      return NextResponse.json(employee);
+      employee = await getEmployee(id);
     } else if (email) {
-      const employee = await getEmployeeByEmail(email);
-      return NextResponse.json(employee);
+      employee = await getEmployeeByEmail(email);
     } else {
       return NextResponse.json({ error: 'Either id or email parameter is required' }, { status: 400 });
     }
+
+    if (!employee) {
+      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+    }
+
+    // Transform _id to id for frontend compatibility
+    const { _id, ...employeeData } = employee.toObject();
+    const transformedEmployee = {
+      ...employeeData,
+      id: _id.toString()
+    };
+
+    return NextResponse.json(transformedEmployee);
   } catch (error) {
     console.error('Error fetching employee:', error);
     return NextResponse.json({ error: 'Failed to fetch employee' }, { status: 500 });

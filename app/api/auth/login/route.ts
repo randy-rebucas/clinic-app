@@ -65,12 +65,18 @@ export async function POST(request: NextRequest) {
 
     // Return employee data (excluding password)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _password, ...employeeWithoutPassword } = employee.toObject();
+    const { password: _password, _id, ...employeeWithoutPassword } = employee.toObject();
+    
+    // Transform _id to id for frontend compatibility
+    const employeeData = {
+      ...employeeWithoutPassword,
+      id: _id.toString()
+    };
     
     // Log successful login (without sensitive data)
     console.log(`Successful login for user: ${email}`);
     
-    return NextResponse.json(employeeWithoutPassword, {
+    return NextResponse.json(employeeData, {
       headers: {
         'X-RateLimit-Limit': '5',
         'X-RateLimit-Remaining': rateLimit.remaining.toString(),

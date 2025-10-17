@@ -45,10 +45,14 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsDark(systemTheme === 'dark');
         root.classList.remove('light', 'dark');
         root.classList.add(systemTheme);
+        // Set data attribute for additional styling hooks
+        root.setAttribute('data-theme', systemTheme);
       } else {
         setIsDark(theme === 'dark');
         root.classList.remove('light', 'dark');
         root.classList.add(theme);
+        // Set data attribute for additional styling hooks
+        root.setAttribute('data-theme', theme);
       }
     };
 

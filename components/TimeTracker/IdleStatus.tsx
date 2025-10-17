@@ -31,16 +31,20 @@ export default function IdleStatus() {
     setIdleState(initialState);
 
     // Set up state change callback
-    // const handleStateChange = (state: IdleManagementState) => {
-    //   setIdleState(state);
-    // };
+    const handleStateChange = (state: IdleManagementState) => {
+      setIdleState(state);
+    };
 
-    // Add callback (this would be implemented in the service)
-    // idleManagementService.addStateCallback(handleStateChange);
+    // Add callback to idle management service
+    import('@/lib/idleManagement').then(({ idleManagementService }) => {
+      idleManagementService.addStateCallback(handleStateChange);
+    });
 
     return () => {
       // Remove callback
-      // idleManagementService.removeStateCallback(handleStateChange);
+      import('@/lib/idleManagement').then(({ idleManagementService }) => {
+        idleManagementService.removeStateCallback(handleStateChange);
+      });
     };
   }, []);
 
