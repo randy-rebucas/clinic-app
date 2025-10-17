@@ -99,18 +99,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
           const userData = JSON.parse(storedUser);
+          
+          // Validate that we have a valid user ID
+          if (!userData.id || !userData.email) {
+            console.warn('Invalid stored user data, clearing localStorage');
+            localStorage.removeItem('user');
+            setLoading(false);
+            return;
+          }
+          
           setUser(userData);
+          console.log('Restored user from localStorage:', userData);
           
           // Fetch employee data from API
           const response = await fetch(`/api/auth/employee?id=${userData.id}`);
           if (response.ok) {
             const data = await response.json();
             setEmployee(data);
+            console.log('Fetched employee data:', data);
+          } else {
+            console.warn('Failed to fetch employee data, clearing stored auth');
+            localStorage.removeItem('user');
+            setUser(null);
+            setEmployee(null);
           }
         }
       } catch (error) {
         console.error('Error checking stored auth:', error);
         localStorage.removeItem('user');
+        setUser(null);
+        setEmployee(null);
       } finally {
         setLoading(false);
       }
@@ -127,12 +145,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Invalid email or password');
       }
       
+      // Ensure we have a valid ID
+      if (!employeeData.id) {
+        throw new Error('Invalid employee data received');
+      }
+      
       const userData = { id: employeeData.id, email: employeeData.email };
       setUser(userData);
       setEmployee(employeeData);
       
       // Store in localStorage for persistence
       localStorage.setItem('user', JSON.stringify(userData));
+      
+      console.log('User signed in successfully:', { id: userData.id, email: userData.email });
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;

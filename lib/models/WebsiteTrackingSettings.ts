@@ -80,6 +80,17 @@ const WebsiteTrackingSettingsSchema = new Schema<IWebsiteTrackingSettings>({
   timestamps: true,
 });
 
+
+// Virtual for id field
+WebsiteTrackingSettingsSchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+WebsiteTrackingSettingsSchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 WebsiteTrackingSettingsSchema.index({ employeeId: 1 }, { unique: true });
 

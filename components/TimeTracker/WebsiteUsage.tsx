@@ -16,7 +16,7 @@ import {
   Gamepad2
 } from 'lucide-react';
 import { websiteTrackingService } from '@/lib/websiteTracking';
-import { getWebsiteActivities } from '@/lib/database';
+// Removed direct database import - using API route instead
 import { TimeFormat } from '@/lib/timeFormat';
 
 interface WebsiteUsageProps {
@@ -24,7 +24,7 @@ interface WebsiteUsageProps {
   employeeId: string;
 }
 
-interface WebsiteActivity {
+interface WebsiteActivityData {
   id: string;
   domain: string;
   url: string;
@@ -37,13 +37,13 @@ interface WebsiteActivity {
 }
 
 export default function WebsiteUsage({ workSessionId, employeeId }: WebsiteUsageProps) {
-  const [activities, setActivities] = useState<WebsiteActivity[]>([]);
+  const [activities, setActivities] = useState<WebsiteActivityData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
-  const [currentActivity, setCurrentActivity] = useState<WebsiteActivity | null>(null);
+  const [currentActivity, setCurrentActivity] = useState<WebsiteActivityData | null>(null);
   const [trackingStatus, setTrackingStatus] = useState<{
     isTracking: boolean;
-    currentActivity: WebsiteActivity | null;
+    currentActivity: WebsiteActivityData | null;
     settings: {
       enabled: boolean;
       trackWebsites: boolean;
@@ -69,7 +69,12 @@ export default function WebsiteUsage({ workSessionId, employeeId }: WebsiteUsage
       }
 
       setLoading(true);
-      const data = await getWebsiteActivities(workSessionId);
+      const response = await fetch(`/api/website-activities?workSessionId=${workSessionId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch website activities');
+      }
+      const result = await response.json();
+      const data = result.data;
       setActivities(data.map(activity => ({
         id: activity._id.toString(),
         employeeId: activity.employeeId.toString(),

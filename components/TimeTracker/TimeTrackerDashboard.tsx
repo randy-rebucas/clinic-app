@@ -25,11 +25,11 @@ import IdleWarningComponent, { useIdleWarning } from './IdleWarning';
 import ApplicationUsage from './ApplicationUsage';
 import WebsiteUsage from './WebsiteUsage';
 import TrackingSettings from './TrackingSettings';
-import { 
-  Play, 
-  Pause, 
-  Coffee, 
-  LogOut, 
+import {
+  Play,
+  Pause,
+  Coffee,
+  LogOut,
   AlertCircle,
   Camera,
   Settings,
@@ -49,6 +49,11 @@ import {
 
 export default function TimeTrackerDashboard() {
   const { user } = useAuth();
+  
+  // Debug log to track user object changes
+  useEffect(() => {
+    console.log('TimeTrackerDashboard - User object changed:', user);
+  }, [user]);
   const [workSession, setWorkSession] = useState<WorkSession | null>(null);
   const [breakSession, setBreakSession] = useState<BreakSession | null>(null);
   const [loading, setLoading] = useState(false);
@@ -60,13 +65,16 @@ export default function TimeTrackerDashboard() {
   const [showPrivacyNotification, setShowPrivacyNotification] = useState(false);
   const [showTrackingSettings, setShowTrackingSettings] = useState(false);
   const [currentDate] = useState(() => new Date());
-  
+
   // Idle warning hook
   const idleWarning = useIdleWarning();
 
   const loadActiveSessions = useCallback(async () => {
-    if (!user) return;
-    
+    if (!user || !user.id) {
+      console.warn('Cannot load active sessions: user or user.id is missing');
+      return;
+    }
+
     try {
       // Fetch active work session from API
       const workSessionResponse = await fetch(`/api/work-sessions/active?employeeId=${user.id}`);
@@ -75,7 +83,7 @@ export default function TimeTrackerDashboard() {
       }
       const workSessionData = await workSessionResponse.json();
       const activeWorkSession = workSessionData.data;
-      
+      console.log('activeWorkSession', activeWorkSession);
       setWorkSession(activeWorkSession ? {
         id: activeWorkSession._id.toString(),
         employeeId: activeWorkSession.employeeId.toString(),
@@ -86,14 +94,14 @@ export default function TimeTrackerDashboard() {
         createdAt: activeWorkSession.createdAt,
         updatedAt: activeWorkSession.updatedAt
       } : null);
-      
+
       // Load break session only if we have an active work session
       if (activeWorkSession) {
         const breakSessionResponse = await fetch(`/api/break-sessions/active?employeeId=${user.id}`);
         if (breakSessionResponse.ok) {
           const breakSessionData = await breakSessionResponse.json();
           const activeBreakSession = breakSessionData.data;
-          
+          console.log('activeBreakSession', activeBreakSession);
           setBreakSession(activeBreakSession ? {
             id: activeBreakSession._id.toString(),
             workSessionId: activeBreakSession.workSessionId.toString(),
@@ -125,23 +133,23 @@ export default function TimeTrackerDashboard() {
   // Load active sessions on component mount
   useEffect(() => {
     const initializeServices = async () => {
-      if (user) {
+      if (user && user.id) {
         loadActiveSessions();
         // Request notification permission
         notificationService.requestPermission();
-        
+
         // Initialize offline services
         await networkDetectionService.initialize();
         await syncService.initialize();
         await offlineStorageService.initialize();
-        
+
         // Initialize idle management
         await idleManagementService.initialize(user.id);
-        
+
         // Initialize tracking services
-            await applicationTrackingService.initialize(user.id);
-            await websiteTrackingService.initialize(user.id);
-        
+        await applicationTrackingService.initialize(user.id);
+        await websiteTrackingService.initialize(user.id);
+
         // Initialize screen capture service
         const initialized = await screenCaptureService.initialize();
         if (initialized) {
@@ -151,6 +159,9 @@ export default function TimeTrackerDashboard() {
             setShowPrivacyNotification(true);
           }
         }
+      } else if (user && !user.id) {
+        console.error('User object exists but missing ID. This indicates an authentication issue.');
+        setError('Authentication error: Missing user ID. Please log in again.');
       }
     };
 
@@ -169,10 +180,10 @@ export default function TimeTrackerDashboard() {
       setError('User ID is missing. Please log in again.');
       return;
     }
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       const result = await ClientTimeTrackingService.clockIn({
         employeeId: user.id,
@@ -181,17 +192,17 @@ export default function TimeTrackerDashboard() {
       setNotes('');
       await loadActiveSessions();
       notificationService.showClockInSuccess();
-      
+
       // Start screen capture if enabled
       const settings = screenCaptureService.getSettings();
       if (settings.enabled && result.workSessionId) {
         await screenCaptureService.startCapture(user.id, result.workSessionId);
       }
-      
+
       // Start idle management for work session
       if (result.workSessionId) {
         await TimeTrackingService.initializeIdleManagement(user.id, result.workSessionId);
-        
+
         // Start application and website tracking
         await applicationTrackingService.startTracking(result.workSessionId);
         await websiteTrackingService.startTracking(result.workSessionId);
@@ -208,27 +219,27 @@ export default function TimeTrackerDashboard() {
       setError('User ID is missing. Please log in again.');
       return;
     }
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       await ClientTimeTrackingService.clockOut({
         employeeId: user.id,
         notes: notes.trim() || undefined,
       });
       setNotes('');
-      
+
       // Stop screen capture
       screenCaptureService.stopCapture();
-      
+
       // Stop idle management
       await TimeTrackingService.stopIdleManagement();
-      
+
       // Stop application and website tracking
       applicationTrackingService.stopTracking();
       websiteTrackingService.stopTracking();
-      
+
       await loadActiveSessions();
       notificationService.showClockOutSuccess();
     } catch (err: unknown) {
@@ -240,10 +251,10 @@ export default function TimeTrackerDashboard() {
 
   const handleStartBreak = useCallback(async () => {
     if (!workSession) return;
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       await ClientTimeTrackingService.startBreak({
         workSessionId: workSession.id,
@@ -261,10 +272,10 @@ export default function TimeTrackerDashboard() {
 
   const handleEndBreak = useCallback(async () => {
     if (!workSession) return;
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       await ClientTimeTrackingService.endBreak(workSession.id, notes.trim() || undefined);
       setNotes('');
@@ -368,11 +379,10 @@ export default function TimeTrackerDashboard() {
               {/* Status Display */}
               <div className="flex-1 w-full">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className={`p-3 rounded-2xl transition-all duration-300 ${
-                    currentStatus === 'working' ? 'bg-green-100 dark:bg-green-900/30' :
-                    currentStatus === 'on_break' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
-                    'bg-gray-100 dark:bg-gray-800'
-                  }`}>
+                  <div className={`p-3 rounded-2xl transition-all duration-300 ${currentStatus === 'working' ? 'bg-green-100 dark:bg-green-900/30' :
+                      currentStatus === 'on_break' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
+                        'bg-gray-100 dark:bg-gray-800'
+                    }`}>
                     {currentStatus === 'working' && <Activity className="h-6 w-6 text-green-600 dark:text-green-400 animate-pulse" />}
                     {currentStatus === 'on_break' && <Coffee className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />}
                     {currentStatus === 'offline' && <XCircle className="h-6 w-6 text-gray-600 dark:text-gray-400" />}
@@ -389,7 +399,7 @@ export default function TimeTrackerDashboard() {
                     )}
                   </div>
                 </div>
-                
+
                 {/* Live Timer */}
                 {workSession && (
                   <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
@@ -413,10 +423,10 @@ export default function TimeTrackerDashboard() {
                     {TimeFormat.formatDisplayTime(currentTime)}
                   </div>
                   <div className="text-xs text-gray-300 mt-1">
-                    {currentTime.toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      month: 'short', 
-                      day: 'numeric' 
+                    {currentTime.toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      month: 'short',
+                      day: 'numeric'
                     })}
                   </div>
                 </div>
@@ -436,7 +446,7 @@ export default function TimeTrackerDashboard() {
                 </div>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">Quick Actions</h2>
               </div>
-          
+
               {error && (
                 <div className="mb-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-3 py-2 rounded-lg text-sm flex items-center">
                   <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
@@ -528,7 +538,7 @@ export default function TimeTrackerDashboard() {
                     </div>
                   </button>
                 )}
-          </div>
+              </div>
 
               {/* Notes Input */}
               <div>
@@ -580,7 +590,7 @@ export default function TimeTrackerDashboard() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Session Stats</h3>
               </div>
-              
+
               {workSession ? (
                 <div className="space-y-2">
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-3">
@@ -592,7 +602,7 @@ export default function TimeTrackerDashboard() {
                       {formatDuration(workSession.clockInTime)}
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Work Time</span>
@@ -602,7 +612,7 @@ export default function TimeTrackerDashboard() {
                       {TimeTrackingService.formatTime(workSession.totalWorkTime)}
                     </div>
                   </div>
-                  
+
                   <div className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Break Time</span>
@@ -612,7 +622,7 @@ export default function TimeTrackerDashboard() {
                       {TimeTrackingService.formatTime(workSession.totalBreakTime)}
                     </div>
                   </div>
-                  
+
                   {workSession.totalWorkTime > 480 && (
                     <div className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1">
@@ -638,17 +648,17 @@ export default function TimeTrackerDashboard() {
           </div>
         </div>
 
-         {/* Application and Website Usage */}
-           {user && workSession && (
-             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-               <ApplicationUsage workSessionId={workSession.id} employeeId={user.id} />
-               <WebsiteUsage workSessionId={workSession.id} employeeId={user.id} />
-             </div>
-           )}
+        {/* Application and Website Usage */}
+        {user && workSession && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            <ApplicationUsage workSessionId={workSession.id} employeeId={user.id} />
+            <WebsiteUsage workSessionId={workSession.id} employeeId={user.id} />
+          </div>
+        )}
 
 
-         {/* Screen Capture & Additional Features */}
-         {user && (
+        {/* Screen Capture & Additional Features */}
+        {user && (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
             {/* Screen Capture */}
             <div className="card p-3">
@@ -676,7 +686,7 @@ export default function TimeTrackerDashboard() {
                   </button>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                 <div className={`w-2 h-2 rounded-full ${screenCaptureService.isActive() ? 'bg-green-500' : 'bg-gray-400'}`}></div>
                 <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -684,19 +694,19 @@ export default function TimeTrackerDashboard() {
                 </span>
               </div>
 
-            {showScreenCaptureSettings && (
+              {showScreenCaptureSettings && (
                 <div className="mt-6">
-              <ScreenCaptureSettingsComponent />
+                  <ScreenCaptureSettingsComponent />
                 </div>
-            )}
+              )}
 
-            {showScreenCaptures && (
+              {showScreenCaptures && (
                 <div className="mt-6">
-              <ScreenCaptureViewerComponent 
-                employeeId={user.id} 
-                workSessionId={workSession?.id}
-                date={currentDate}
-              />
+                  <ScreenCaptureViewerComponent
+                    employeeId={user.id}
+                    workSessionId={workSession?.id}
+                    date={currentDate}
+                  />
                 </div>
               )}
             </div>
@@ -719,7 +729,7 @@ export default function TimeTrackerDashboard() {
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Today&apos;s Progress</h3>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
                   <div className="flex items-center gap-2">
@@ -736,14 +746,14 @@ export default function TimeTrackerDashboard() {
                       {workSession ? Math.round((workSession.totalWorkTime / 480) * 100) : 0}%
                     </div>
                     <div className="w-12 h-1.5 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-blue-600 dark:bg-blue-400 rounded-full transition-all duration-500"
                         style={{ width: `${workSession ? Math.min((workSession.totalWorkTime / 480) * 100, 100) : 0}%` }}
                       ></div>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-2 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
                     <div className="flex items-center gap-1 mb-1">
@@ -754,7 +764,7 @@ export default function TimeTrackerDashboard() {
                       {workSession ? Math.round((workSession.totalWorkTime / Math.max(workSession.totalWorkTime + workSession.totalBreakTime, 1)) * 100) : 0}%
                     </p>
                   </div>
-                  
+
                   <div className="p-2 bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg">
                     <div className="flex items-center gap-1 mb-1">
                       <Calendar className="h-3 w-3 text-purple-600 dark:text-purple-400" />
@@ -770,8 +780,8 @@ export default function TimeTrackerDashboard() {
           </div>
         )}
 
-         {/* Daily Summary */}
-         {user && (
+        {/* Daily Summary */}
+        {user && (
           <div className="card p-3">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 bg-cyan-100 rounded-lg">
@@ -792,23 +802,23 @@ export default function TimeTrackerDashboard() {
         />
       )}
 
-        {/* Idle Warning Modal */}
-        <IdleWarningComponent
-          isVisible={idleWarning.isVisible}
-          onClose={idleWarning.hideWarning}
-          onGoIdle={idleWarning.handleGoIdle}
-          onKeepActive={idleWarning.handleKeepActive}
-          timeRemaining={idleWarning.timeRemaining}
-        />
+      {/* Idle Warning Modal */}
+      <IdleWarningComponent
+        isVisible={idleWarning.isVisible}
+        onClose={idleWarning.hideWarning}
+        onGoIdle={idleWarning.handleGoIdle}
+        onKeepActive={idleWarning.handleKeepActive}
+        timeRemaining={idleWarning.timeRemaining}
+      />
 
-         {/* Tracking Settings Modal */}
-         {user && (
-          <TrackingSettings
-            employeeId={user.id}
-            isOpen={showTrackingSettings}
-            onClose={() => setShowTrackingSettings(false)}
-          />
-        )}
-      </div>
-    );
-  }
+      {/* Tracking Settings Modal */}
+      {user && (
+        <TrackingSettings
+          employeeId={user.id}
+          isOpen={showTrackingSettings}
+          onClose={() => setShowTrackingSettings(false)}
+        />
+      )}
+    </div>
+  );
+}

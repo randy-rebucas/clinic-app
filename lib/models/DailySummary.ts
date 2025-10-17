@@ -56,6 +56,17 @@ const DailySummarySchema = new Schema<IDailySummary>({
   timestamps: false,
 });
 
+
+// Virtual for id field
+DailySummarySchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+DailySummarySchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 DailySummarySchema.index({ employeeId: 1, date: 1 }, { unique: true });
 DailySummarySchema.index({ date: -1 });

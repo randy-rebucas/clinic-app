@@ -48,6 +48,17 @@ const WorkSessionSchema = new Schema<IWorkSession>({
   timestamps: true,
 });
 
+
+// Virtual for id field
+WorkSessionSchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+WorkSessionSchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 WorkSessionSchema.index({ employeeId: 1, status: 1 });
 WorkSessionSchema.index({ clockInTime: -1 });

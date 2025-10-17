@@ -5,7 +5,7 @@
 
 import { IWebsiteActivity } from './models';
 
-export interface WebsiteActivity {
+export interface WebsiteActivityData {
   id: string;
   employeeId: string;
   workSessionId: string;
@@ -47,7 +47,7 @@ export interface WebsiteTrackingSettings {
 class WebsiteTrackingService {
   private static instance: WebsiteTrackingService;
   private isTracking = false;
-  private currentActivity: WebsiteActivity | null = null;
+  private currentActivity: WebsiteActivityData | null = null;
   private trackingInterval: NodeJS.Timeout | null = null;
   private settings: WebsiteTrackingSettings | null = null;
   private employeeId: string | null = null;
@@ -427,7 +427,7 @@ class WebsiteTrackingService {
   /**
    * Store activity in database
    */
-  private async storeActivity(activity: WebsiteActivity): Promise<void> {
+  private async storeActivity(activity: WebsiteActivityData): Promise<void> {
     try {
       const { createWebsiteActivity } = await import('./database');
       await createWebsiteActivity(activity as unknown as Omit<IWebsiteActivity, '_id' | 'createdAt' | 'updatedAt'>);
@@ -439,7 +439,7 @@ class WebsiteTrackingService {
   /**
    * Update activity in database
    */
-  private async updateActivity(activity: WebsiteActivity): Promise<void> {
+  private async updateActivity(activity: WebsiteActivityData): Promise<void> {
     try {
       const { updateWebsiteActivity } = await import('./database');
       await updateWebsiteActivity(activity.id, activity as unknown as Partial<IWebsiteActivity>);
@@ -510,7 +510,7 @@ class WebsiteTrackingService {
    */
   getTrackingStatus(): {
     isTracking: boolean;
-    currentActivity: WebsiteActivity | null;
+    currentActivity: WebsiteActivityData | null;
     settings: WebsiteTrackingSettings | null;
   } {
     return {

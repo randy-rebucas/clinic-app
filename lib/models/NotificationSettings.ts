@@ -47,6 +47,17 @@ const NotificationSettingsSchema = new Schema<INotificationSettings>({
   timestamps: false,
 });
 
+
+// Virtual for id field
+NotificationSettingsSchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+NotificationSettingsSchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 NotificationSettingsSchema.index({ employeeId: 1 }, { unique: true });
 

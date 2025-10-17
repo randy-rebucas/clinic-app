@@ -8,13 +8,15 @@ import {
   WeeklySummary, IWeeklySummary,
   IdleSettings, IIdleSettings,
   IdleSession, IIdleSession,
-  ApplicationActivity, IApplicationActivity,
   ApplicationTrackingSettings, IApplicationTrackingSettings,
-  WebsiteActivity, IWebsiteActivity,
   WebsiteTrackingSettings, IWebsiteTrackingSettings,
   ScreenCapture, IScreenCapture,
   ScreenCaptureSettings, IScreenCaptureSettings,
 } from './models';
+
+// Import models directly to avoid potential import issues
+import { ApplicationActivity, IApplicationActivity } from './models/ApplicationActivity';
+import { WebsiteActivity, IWebsiteActivity } from './models/WebsiteActivity';
 
 import { Types } from 'mongoose';
 

@@ -6,7 +6,7 @@
 import { Types } from 'mongoose';
 import { IApplicationActivity } from './models/ApplicationActivity';
 
-export interface ApplicationActivity {
+export interface ApplicationActivityData {
   id: string;
   employeeId: string;
   workSessionId: string;
@@ -42,7 +42,7 @@ export interface ApplicationTrackingSettings {
 class ApplicationTrackingService {
   private static instance: ApplicationTrackingService;
   private isTracking = false;
-  private currentActivity: ApplicationActivity | null = null;
+  private currentActivity: ApplicationActivityData | null = null;
   private trackingInterval: NodeJS.Timeout | null = null;
   private settings: ApplicationTrackingSettings | null = null;
   private employeeId: string | null = null;
@@ -295,7 +295,7 @@ class ApplicationTrackingService {
   /**
    * Store activity in database
    */
-  private async storeActivity(activity: ApplicationActivity): Promise<void> {
+  private async storeActivity(activity: ApplicationActivityData): Promise<void> {
     try {
       const { createApplicationActivity } = await import('./database');
       await createApplicationActivity({
@@ -318,7 +318,7 @@ class ApplicationTrackingService {
   /**
    * Update activity in database
    */
-  private async updateActivity(activity: ApplicationActivity): Promise<void> {
+  private async updateActivity(activity: ApplicationActivityData): Promise<void> {
     try {
       const { updateApplicationActivity } = await import('./database');
       await updateApplicationActivity(activity.id, {
@@ -377,7 +377,7 @@ class ApplicationTrackingService {
    */
   getTrackingStatus(): {
     isTracking: boolean;
-    currentActivity: ApplicationActivity | null;
+    currentActivity: ApplicationActivityData | null;
     settings: ApplicationTrackingSettings | null;
   } {
     return {

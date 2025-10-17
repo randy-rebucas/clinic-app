@@ -63,6 +63,17 @@ const ApplicationActivitySchema = new Schema<IApplicationActivity>({
   timestamps: true,
 });
 
+
+// Virtual for id field
+ApplicationActivitySchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+ApplicationActivitySchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 ApplicationActivitySchema.index({ employeeId: 1, workSessionId: 1 });
 ApplicationActivitySchema.index({ workSessionId: 1, isActive: 1 });

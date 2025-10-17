@@ -15,7 +15,7 @@ import {
   FileText
 } from 'lucide-react';
 import { applicationTrackingService } from '@/lib/applicationTracking';
-import { getApplicationActivities } from '@/lib/database';
+// Removed direct database import - using API route instead
 import { TimeFormat } from '@/lib/timeFormat';
 
 interface ApplicationUsageProps {
@@ -23,7 +23,7 @@ interface ApplicationUsageProps {
   employeeId: string;
 }
 
-interface ApplicationActivity {
+interface ApplicationActivityData {
   id: string;
   applicationName: string;
   windowTitle: string;
@@ -35,13 +35,13 @@ interface ApplicationActivity {
 }
 
 export default function ApplicationUsage({ workSessionId, employeeId }: ApplicationUsageProps) {
-  const [activities, setActivities] = useState<ApplicationActivity[]>([]);
+  const [activities, setActivities] = useState<ApplicationActivityData[]>([]);
   const [loading, setLoading] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
-  const [currentActivity, setCurrentActivity] = useState<ApplicationActivity | null>(null);
+  const [currentActivity, setCurrentActivity] = useState<ApplicationActivityData | null>(null);
   const [trackingStatus, setTrackingStatus] = useState<{
     isTracking: boolean;
-    currentActivity: ApplicationActivity | null;
+    currentActivity: ApplicationActivityData | null;
     settings: {
       enabled: boolean;
       trackApplications: boolean;
@@ -64,7 +64,12 @@ export default function ApplicationUsage({ workSessionId, employeeId }: Applicat
       }
 
       setLoading(true);
-      const data = await getApplicationActivities(workSessionId);
+      const response = await fetch(`/api/application-activities?workSessionId=${workSessionId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch application activities');
+      }
+      const result = await response.json();
+      const data = result.data;
       setActivities(data.map(activity => ({
         id: activity._id.toString(),
         employeeId: activity.employeeId.toString(),

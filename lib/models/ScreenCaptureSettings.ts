@@ -87,6 +87,17 @@ const ScreenCaptureSettingsSchema = new Schema<IScreenCaptureSettings>({
   timestamps: true,
 });
 
+
+// Virtual for id field
+ScreenCaptureSettingsSchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+ScreenCaptureSettingsSchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 ScreenCaptureSettingsSchema.index({ employeeId: 1 }, { unique: true });
 

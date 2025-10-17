@@ -55,6 +55,17 @@ const WeeklySummarySchema = new Schema<IWeeklySummary>({
   timestamps: false,
 });
 
+
+// Virtual for id field
+WeeklySummarySchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+WeeklySummarySchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 WeeklySummarySchema.index({ employeeId: 1, weekStart: 1 }, { unique: true });
 WeeklySummarySchema.index({ weekStart: -1 });

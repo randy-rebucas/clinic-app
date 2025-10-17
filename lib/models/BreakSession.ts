@@ -39,6 +39,17 @@ const BreakSessionSchema = new Schema<IBreakSession>({
   timestamps: false,
 });
 
+
+// Virtual for id field
+BreakSessionSchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+BreakSessionSchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 BreakSessionSchema.index({ workSessionId: 1, status: 1 });
 BreakSessionSchema.index({ startTime: -1 });

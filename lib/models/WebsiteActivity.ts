@@ -68,6 +68,17 @@ const WebsiteActivitySchema = new Schema<IWebsiteActivity>({
   timestamps: true,
 });
 
+
+// Virtual for id field
+WebsiteActivitySchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+WebsiteActivitySchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 WebsiteActivitySchema.index({ employeeId: 1, workSessionId: 1 });
 WebsiteActivitySchema.index({ workSessionId: 1, isActive: 1 });

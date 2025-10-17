@@ -49,6 +49,17 @@ const IdleSettingsSchema = new Schema<IIdleSettings>({
   timestamps: true,
 });
 
+
+// Virtual for id field
+IdleSettingsSchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+IdleSettingsSchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 IdleSettingsSchema.index({ employeeId: 1 }, { unique: true });
 

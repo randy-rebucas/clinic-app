@@ -62,6 +62,17 @@ const ApplicationTrackingSettingsSchema = new Schema<IApplicationTrackingSetting
   timestamps: true,
 });
 
+
+// Virtual for id field
+ApplicationTrackingSettingsSchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+ApplicationTrackingSettingsSchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 ApplicationTrackingSettingsSchema.index({ employeeId: 1 }, { unique: true });
 

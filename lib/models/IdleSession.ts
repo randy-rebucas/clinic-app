@@ -45,6 +45,17 @@ const IdleSessionSchema = new Schema<IIdleSession>({
   timestamps: false,
 });
 
+
+// Virtual for id field
+IdleSessionSchema.virtual('id').get(function() {
+  return this._id.toString();
+});
+
+// Ensure virtual fields are serialized
+IdleSessionSchema.set('toJSON', {
+  virtuals: true
+});
+
 // Indexes
 IdleSessionSchema.index({ workSessionId: 1, status: 1 });
 IdleSessionSchema.index({ startTime: -1 });
