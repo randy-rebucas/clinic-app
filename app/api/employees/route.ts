@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllEmployees } from '@/lib/database';
 import { apiRateLimiter } from '@/lib/rateLimiter';
+import { 
+  parsePaginationParams, 
+  getPaginationParams, 
+  createPaginationResponse, 
+  addPaginationHeaders,
+  getDefaultLimit,
+  validatePaginationParams
+} from '@/lib/pagination/paginationUtils';
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,11 +32,35 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const employees = await getAllEmployees();
+    // Parse pagination parameters
+    const paginationOptions = parsePaginationParams(request);
     
-    return NextResponse.json({
+    // Validate pagination parameters
+    const validation = validatePaginationParams(paginationOptions);
+    if (!validation.isValid) {
+      return NextResponse.json(
+        { error: 'Invalid pagination parameters', details: validation.errors },
+        { status: 400 }
+      );
+    }
+    
+    // Set default limit for employees
+    if (!paginationOptions.limit) {
+      paginationOptions.limit = getDefaultLimit('EMPLOYEES');
+    }
+    
+    // Get pagination parameters for database query
+    const { skip, limit, sort } = getPaginationParams(paginationOptions);
+    
+    // Get employees with pagination
+    const { employees, total } = await getAllEmployees(skip, limit, sort);
+    
+    // Create paginated response
+    const paginatedResponse = createPaginationResponse(employees, total, paginationOptions);
+    
+    const response = NextResponse.json({
       success: true,
-      data: employees
+      ...paginatedResponse
     }, {
       headers: {
         'X-RateLimit-Limit': '100',
@@ -36,6 +68,9 @@ export async function GET(request: NextRequest) {
         'X-RateLimit-Reset': rateLimit.resetTime.toString()
       }
     });
+    
+    // Add pagination headers
+    return addPaginationHeaders(response, paginatedResponse.pagination);
   } catch (error) {
     console.error('Error fetching employees:', {
       error: error instanceof Error ? error.message : 'Unknown error',

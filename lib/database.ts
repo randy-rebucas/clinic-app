@@ -75,11 +75,23 @@ export const getEmployeeByEmail = async (email: string): Promise<IEmployee | nul
   return employee;
 };
 
-export const getAllEmployees = async (): Promise<IEmployee[]> => {
+export const getAllEmployees = async (
+  skip: number = 0, 
+  limit: number = 50, 
+  sort: Record<string, 1 | -1> = { name: 1 }
+): Promise<{ employees: IEmployee[]; total: number }> => {
   await connectDB();
   
-  const employees = await Employee.find({}).sort({ name: 1 });
-  return employees;
+  const [employees, total] = await Promise.all([
+    Employee.find({})
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Employee.countDocuments({})
+  ]);
+  
+  return { employees: employees as IEmployee[], total };
 };
 
 export const updateEmployee = async (employeeId: string, updates: Partial<IEmployee>) => {
@@ -101,11 +113,18 @@ export const createTimeEntry = async (timeEntryData: Omit<ITimeEntry, '_id'>) =>
   return savedTimeEntry._id.toString();
 };
 
-export const getTimeEntries = async (employeeId: string, startDate?: Date, endDate?: Date) => {
+export const getTimeEntries = async (
+  employeeId: string, 
+  startDate?: Date, 
+  endDate?: Date,
+  skip: number = 0,
+  limit: number = 100,
+  sort: Record<string, 1 | -1> = { timestamp: -1 }
+) => {
   await connectDB();
   
   if (!Types.ObjectId.isValid(employeeId)) {
-    return [];
+    return { timeEntries: [], total: 0 };
   }
   
   const query: { employeeId: Types.ObjectId; timestamp?: { $gte?: Date; $lte?: Date } } = { employeeId: new Types.ObjectId(employeeId) };
@@ -116,11 +135,17 @@ export const getTimeEntries = async (employeeId: string, startDate?: Date, endDa
     if (endDate) query.timestamp.$lte = endDate;
   }
   
-  const timeEntries = await TimeEntry.find(query)
-    .sort({ timestamp: -1 })
-    .populate('employeeId', 'name email');
+  const [timeEntries, total] = await Promise.all([
+    TimeEntry.find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .populate('employeeId', 'name email')
+      .lean(),
+    TimeEntry.countDocuments(query)
+  ]);
     
-  return timeEntries;
+  return { timeEntries, total };
 };
 
 // Work Session Management

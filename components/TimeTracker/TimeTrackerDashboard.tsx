@@ -5,6 +5,30 @@ import { useAuth } from '@/contexts/AuthContext';
 import { TimeTrackingService } from '@/lib/timeTracking';
 import { ClientTimeTrackingService } from '@/lib/clientTimeTracking';
 import { WorkSession, BreakSession } from '@/types';
+
+// API response types for batch data
+interface ApiWorkSession {
+  _id: string;
+  employeeId: string;
+  clockInTime: Date;
+  clockOutTime?: Date;
+  totalBreakTime: number;
+  totalWorkTime: number;
+  notes?: string;
+  status: 'active' | 'completed';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface ApiBreakSession {
+  _id: string;
+  workSessionId: string;
+  startTime: Date;
+  endTime?: Date;
+  duration?: number;
+  notes?: string;
+  status: 'active' | 'completed';
+}
 import NavBar from '@/components/Navigation/NavBar';
 
 // Lazy load DailySummary as it's at the bottom of the page
@@ -34,6 +58,9 @@ import { websiteTrackingService } from '@/lib/websiteTracking';
 import dynamic from 'next/dynamic';
 import { useIdleWarning } from './IdleWarning';
 import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary';
+import { useDashboardTimer, useSessionTimer } from '@/lib/hooks/useOptimizedTimer';
+import { preloadCriticalData } from '@/lib/cache/apiCache';
+import { getDashboardDataBatch } from '@/lib/api/batchClient';
 
 // Lazy load heavy components that are not immediately visible
 const ScreenCaptureSettingsComponent = dynamic(() => import('./ScreenCaptureSettings'), {
@@ -149,7 +176,6 @@ export default function TimeTrackerDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [notes, setNotes] = useState('');
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [showScreenCaptureSettings, setShowScreenCaptureSettings] = useState(false);
   const [showScreenCaptures, setShowScreenCaptures] = useState(false);
   const [showPrivacyNotification, setShowPrivacyNotification] = useState(false);
@@ -158,6 +184,10 @@ export default function TimeTrackerDashboard() {
 
   // Idle warning hook
   const idleWarning = useIdleWarning();
+  
+  // Optimized timers
+  const { displayTime: currentTime } = useDashboardTimer();
+  const { displayTime: sessionTime } = useSessionTimer(); // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const loadActiveSessions = useCallback(async () => {
     if (!user || !user.id) {
@@ -166,40 +196,36 @@ export default function TimeTrackerDashboard() {
     }
 
     try {
-      // Fetch active work session from API
-      const workSessionResponse = await fetch(`/api/work-sessions/active?employeeId=${user.id}`);
-      if (!workSessionResponse.ok) {
-        throw new Error('Failed to fetch active work session');
-      }
-      const workSessionData = await workSessionResponse.json();
-      const activeWorkSession = workSessionData.data;
-      console.log('activeWorkSession', activeWorkSession);
-      setWorkSession(activeWorkSession ? {
-        id: activeWorkSession._id.toString(),
-        employeeId: activeWorkSession.employeeId.toString(),
-        clockInTime: activeWorkSession.clockInTime,
-        totalBreakTime: activeWorkSession.totalBreakTime,
-        totalWorkTime: activeWorkSession.totalWorkTime,
-        status: activeWorkSession.status,
-        createdAt: activeWorkSession.createdAt,
-        updatedAt: activeWorkSession.updatedAt
-      } : null);
+      // Use batch API for better performance - single request instead of multiple
+      const batchData = await getDashboardDataBatch(user.id);
+      
+      // Process work session data
+      if (batchData.workSession) {
+        const activeWorkSession = batchData.workSession as ApiWorkSession;
+        console.log('activeWorkSession', activeWorkSession);
+        setWorkSession({
+          id: activeWorkSession._id.toString(),
+          employeeId: activeWorkSession.employeeId.toString(),
+          clockInTime: activeWorkSession.clockInTime,
+          totalBreakTime: activeWorkSession.totalBreakTime,
+          totalWorkTime: activeWorkSession.totalWorkTime,
+          status: activeWorkSession.status,
+          createdAt: activeWorkSession.createdAt,
+          updatedAt: activeWorkSession.updatedAt
+        });
 
-      // Load break session only if we have an active work session
-      if (activeWorkSession) {
-        const breakSessionResponse = await fetch(`/api/break-sessions/active?employeeId=${user.id}`);
-        if (breakSessionResponse.ok) {
-          const breakSessionData = await breakSessionResponse.json();
-          const activeBreakSession = breakSessionData.data;
+        // Process break session data
+        if (batchData.breakSession) {
+          const activeBreakSession = batchData.breakSession as ApiBreakSession;
           console.log('activeBreakSession', activeBreakSession);
-          setBreakSession(activeBreakSession ? {
+          setBreakSession({
             id: activeBreakSession._id.toString(),
             workSessionId: activeBreakSession.workSessionId.toString(),
             startTime: activeBreakSession.startTime,
             endTime: activeBreakSession.endTime,
             duration: activeBreakSession.duration,
             status: activeBreakSession.status
-          } : null);
+          });
         } else {
           setBreakSession(null);
         }
@@ -207,68 +233,30 @@ export default function TimeTrackerDashboard() {
         setWorkSession(null);
         setBreakSession(null);
       }
+
+      // Log any errors from the batch request
+      if (Object.values(batchData.errors).some(error => error)) {
+        console.warn('Some batch requests failed:', batchData.errors);
+      }
     } catch (err) {
       console.error('Error loading active sessions:', err);
     }
   }, [user]);
 
-  // Update current time every second
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  // Timer is now handled by useDashboardTimer hook
 
   // Load active sessions on component mount
   useEffect(() => {
     const initializeServices = async () => {
       if (user && user.id) {
-        // Load active sessions directly here to avoid dependency loop
         try {
-          // Fetch active work session from API
-          const workSessionResponse = await fetch(`/api/work-sessions/active?employeeId=${user.id}`);
-          if (!workSessionResponse.ok) {
-            throw new Error('Failed to fetch active work session');
-          }
-          const workSessionData = await workSessionResponse.json();
-          const activeWorkSession = workSessionData.data;
-          console.log('activeWorkSession', activeWorkSession);
-          setWorkSession(activeWorkSession ? {
-            id: activeWorkSession._id.toString(),
-            employeeId: activeWorkSession.employeeId.toString(),
-            clockInTime: activeWorkSession.clockInTime,
-            totalBreakTime: activeWorkSession.totalBreakTime,
-            totalWorkTime: activeWorkSession.totalWorkTime,
-            status: activeWorkSession.status,
-            createdAt: activeWorkSession.createdAt,
-            updatedAt: activeWorkSession.updatedAt
-          } : null);
-
-          // Load break session only if we have an active work session
-          if (activeWorkSession) {
-            const breakSessionResponse = await fetch(`/api/break-sessions/active?employeeId=${user.id}`);
-            if (breakSessionResponse.ok) {
-              const breakSessionData = await breakSessionResponse.json();
-              const activeBreakSession = breakSessionData.data;
-              console.log('activeBreakSession', activeBreakSession);
-              setBreakSession(activeBreakSession ? {
-                id: activeBreakSession._id.toString(),
-                workSessionId: activeBreakSession.workSessionId.toString(),
-                startTime: activeBreakSession.startTime,
-                endTime: activeBreakSession.endTime,
-                duration: activeBreakSession.duration,
-                status: activeBreakSession.status
-              } : null);
-            } else {
-              setBreakSession(null);
-            }
-          } else {
-            setWorkSession(null);
-            setBreakSession(null);
-          }
+          // Preload critical data for better performance
+          await preloadCriticalData(user.id);
+          
+          // Load active sessions using the optimized function
+          await loadActiveSessions();
         } catch (err) {
-          console.error('Error loading active sessions:', err);
+          console.error('Error initializing services:', err);
         }
 
         // Request notification permission
@@ -302,7 +290,7 @@ export default function TimeTrackerDashboard() {
     };
 
     initializeServices();
-  }, [user]);
+  }, [user, loadActiveSessions]);
 
   // Get current status
   const getCurrentStatus = () => {

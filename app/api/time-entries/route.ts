@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTimeEntries } from '@/lib/database';
+import { 
+  parsePaginationParams, 
+  getPaginationParams, 
+  createPaginationResponse, 
+  addPaginationHeaders,
+  getDefaultLimit,
+  validatePaginationParams
+} from '@/lib/pagination/paginationUtils';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,12 +26,39 @@ export async function GET(request: NextRequest) {
     const startDateObj = startDate ? new Date(startDate) : undefined;
     const endDateObj = endDate ? new Date(endDate) : undefined;
 
-    const timeEntries = await getTimeEntries(employeeId, startDateObj, endDateObj);
+    // Parse pagination parameters
+    const paginationOptions = parsePaginationParams(request);
     
-    return NextResponse.json({
+    // Validate pagination parameters
+    const validation = validatePaginationParams(paginationOptions);
+    if (!validation.isValid) {
+      return NextResponse.json(
+        { error: 'Invalid pagination parameters', details: validation.errors },
+        { status: 400 }
+      );
+    }
+    
+    // Set default limit for time entries
+    if (!paginationOptions.limit) {
+      paginationOptions.limit = getDefaultLimit('TIME_ENTRIES');
+    }
+    
+    // Get pagination parameters for database query
+    const { skip, limit, sort } = getPaginationParams(paginationOptions);
+    
+    // Get time entries with pagination
+    const { timeEntries, total } = await getTimeEntries(employeeId, startDateObj, endDateObj, skip, limit, sort);
+    
+    // Create paginated response
+    const paginatedResponse = createPaginationResponse(timeEntries, total, paginationOptions);
+    
+    const response = NextResponse.json({
       success: true,
-      data: timeEntries
+      ...paginatedResponse
     });
+    
+    // Add pagination headers
+    return addPaginationHeaders(response, paginatedResponse.pagination);
   } catch (error) {
     console.error('Error fetching time entries:', error);
     return NextResponse.json(
