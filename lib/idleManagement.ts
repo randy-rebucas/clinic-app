@@ -4,16 +4,8 @@
  */
 
 import { inactivityDetectionService, IdleState, IdleSettings } from './inactivityDetection';
-import { IIdleSettings, IIdleSession } from './models';
-import { 
-  createIdleSession, 
-  updateIdleSession, 
-  getActiveIdleSession,
-  getIdleSettings,
-  createIdleSettings,
-  updateIdleSettings,
-  getIdleSessions
-} from './database';
+import { IIdleSession } from './models';
+// Database functions are now accessed via API routes
 import { networkDetectionService } from './networkDetection';
 import { IdleSession } from '@/types';
 
@@ -104,7 +96,15 @@ export class IdleManagementService {
    */
   private async loadIdleSettings(employeeId: string): Promise<void> {
     try {
-      const dbSettings = await getIdleSettings(employeeId);
+      // Fetch idle settings from API
+      const response = await fetch(`/api/idle/settings?employeeId=${employeeId}`);
+      if (!response.ok) {
+        console.log('Idle settings fetch failed:', response.status, response.statusText);
+        return;
+      }
+      const data = await response.json();
+      console.log('Idle settings fetch response:', data);
+      const dbSettings = data.data;
       if (dbSettings) {
         this.settingsId = dbSettings._id.toString();
         this.settings = {
@@ -120,7 +120,6 @@ export class IdleManagementService {
       // Create default settings if none exist
       if (!this.settings) {
         const defaultSettings = {
-          employeeId: new (await import('mongoose')).Types.ObjectId(employeeId),
           enabled: true,
           idleThresholdMinutes: 5,
           pauseTimerOnIdle: true,
@@ -129,7 +128,27 @@ export class IdleManagementService {
           autoResumeOnActivity: true,
         };
 
-        this.settingsId = await createIdleSettings(defaultSettings as Omit<IIdleSettings, '_id' | 'createdAt' | 'updatedAt'>);
+        // Create idle settings via API
+        const createResponse = await fetch('/api/idle/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            employeeId,
+            ...defaultSettings
+          }),
+        });
+        
+        if (createResponse.ok) {
+          const createData = await createResponse.json();
+          console.log('Idle settings creation response:', createData);
+          this.settingsId = createData.data.id;
+        } else {
+          const errorData = await createResponse.json();
+          console.error('Failed to create idle settings:', errorData);
+          return;
+        }
         this.settings = {
           enabled: defaultSettings.enabled,
           idleThresholdMinutes: defaultSettings.idleThresholdMinutes,
@@ -141,6 +160,15 @@ export class IdleManagementService {
       }
     } catch (error) {
       console.error('Failed to load idle settings:', error);
+      // Set default settings if loading fails
+      this.settings = {
+        enabled: true,
+        idleThresholdMinutes: 5,
+        pauseTimerOnIdle: true,
+        showIdleWarning: true,
+        warningTimeMinutes: 1,
+        autoResumeOnActivity: true,
+      };
     }
   }
 
@@ -259,7 +287,12 @@ export class IdleManagementService {
           reason: 'inactivity',
           status: 'active',
         };
-        // TODO: Store in offline storage
+        // Store in offline storage
+        try {
+          await offlineStorageService.store('idleSession', this.currentIdleSession);
+        } catch (error) {
+          console.error('Failed to store idle session offline:', error);
+        }
       }
 
       console.log('Started idle session:', this.currentIdleSession.id);
@@ -291,7 +324,18 @@ export class IdleManagementService {
           status: 'completed',
         });
       } else {
-        // TODO: Update in offline storage
+        // Update in offline storage
+        try {
+          const updatedSession = {
+            ...this.currentIdleSession,
+            endTime: now,
+            duration,
+            status: 'completed' as const,
+          };
+          await offlineStorageService.update('idleSession', this.currentIdleSession.id, updatedSession);
+        } catch (error) {
+          console.error('Failed to update idle session offline:', error);
+        }
       }
 
       console.log('Ended idle session:', this.currentIdleSession.id, `Duration: ${duration} minutes`);

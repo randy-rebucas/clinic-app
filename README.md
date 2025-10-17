@@ -57,21 +57,35 @@ A comprehensive employee time tracking and attendance management system built wi
 4. **Configure environment variables**
    Create a `.env.local` file in the root directory:
    ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/localpro-time-tracker?retryWrites=true&w=majority
+   # MongoDB Configuration
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/localpro-time-tracker?retryWrites=true&w=majority
    ```
    
-   **Important**: Replace the MongoDB URI with your actual database connection string.
+   **Examples:**
+   ```env
+   # For local MongoDB:
+   MONGODB_URI=mongodb://localhost:27017/localpro-time-tracker
+   
+   # For MongoDB Atlas:
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/localpro-time-tracker?retryWrites=true&w=majority
+   ```
+   
+   **Important**: 
+   - Replace the MongoDB URI with your actual database connection string
+   - Never commit the `.env.local` file to version control
+   - For production, set the environment variable in your deployment platform
+   - If no `.env.local` file is found, the app will use a default connection string for demo purposes
 
 5. **Set up demo accounts (optional)**
    ```bash
    # Create demo employee and admin accounts for testing
-   npx tsx scripts/demo-accounts-summary.ts
+   npx tsx scripts/recreate-demo-accounts.ts
    ```
    
-   This will show you the available demo accounts:
-   - **Employee**: `john.doe@demo.com` (Software Developer)
-   - **Employee**: `jane.smith@demo.com` (Marketing Manager)  
-   - **Admin**: `admin@demo.com` (System Administrator)
+   This will create demo accounts with secure passwords:
+   - **Employee**: `john.doe@demo.com` / `john123` (Software Developer)
+   - **Employee**: `jane.smith@demo.com` / `jane123` (Marketing Manager)  
+   - **Admin**: `admin@demo.com` / `admin123` (System Administrator)
 
 6. **Run the development server**
    ```bash
@@ -85,24 +99,34 @@ MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/localpro-time-tr
 
 To quickly test the application with pre-configured accounts:
 
-1. **View available demo accounts**:
+1. **Create demo accounts with passwords**:
    ```bash
-   npx tsx scripts/demo-accounts-summary.ts
+   npx tsx scripts/recreate-demo-accounts.ts
    ```
 
 2. **Use demo credentials**:
+<<<<<<< HEAD
    - **Employee**: `john.doe@demo.com` (password: `password123`) or `jane.smith@demo.com` (password: `password123`)
    - **Admin**: `admin@demo.com` (password: `admin123`)
+=======
+   - **Employee**: `john.doe@demo.com` / `john123`
+   - **Employee**: `jane.smith@demo.com` / `jane123`
+   - **Admin**: `admin@demo.com` / `admin123`
+>>>>>>> bab687a62730d08ef0aaa73351bb4c568bbdbbfc
 
 3. **Start testing**:
    - Navigate to [http://localhost:3000](http://localhost:3000)
-   - Use demo email addresses to sign in
+   - Use demo email addresses and passwords to sign in
    - Test time tracking, breaks, and admin features
 
 ## 📱 Usage
 
 ### For Employees
+<<<<<<< HEAD
 1. **Sign In** - Use your company email and password (or demo account: `john.doe@demo.com` / `password123`)
+=======
+1. **Sign In** - Use your company email and password (or demo account: `john.doe@demo.com` / `john123`)
+>>>>>>> bab687a62730d08ef0aaa73351bb4c568bbdbbfc
 2. **Clock In** - Click "Clock In" to start your work day
 3. **Take Breaks** - Use "Start Break" and "End Break" buttons
 4. **Clock Out** - Click "Clock Out" to end your work day
@@ -121,12 +145,12 @@ To quickly test the application with pre-configured accounts:
 - **Frontend**: Next.js 15, React 19, TypeScript
 - **Styling**: Tailwind CSS 4
 - **Backend**: MongoDB with Mongoose ODM
-- **Authentication**: Local authentication system
+- **Authentication**: Secure password-based authentication with bcrypt hashing
 - **Icons**: Lucide React
 - **Charts**: Recharts (for future analytics)
 
 ### Database Schema
-- **Employees** - User accounts and role management
+- **Employees** - User accounts with secure password authentication and role management
 - **Time Entries** - Individual clock in/out and break records
 - **Work Sessions** - Complete work periods with break tracking
 - **Daily Summaries** - Aggregated daily attendance data
@@ -142,6 +166,8 @@ To quickly test the application with pre-configured accounts:
 
 ### Scripts Directory
 The `scripts/` directory contains utility scripts for database management and demo setup:
+- `recreate-demo-accounts.ts` - Create demo accounts with secure passwords
+- `add-passwords-to-demo-accounts.ts` - Add passwords to existing demo accounts
 - `demo-accounts-summary.ts` - Display all demo accounts with details
 - `check-demo-accounts.ts` - Check existing demo accounts
 - `create-admin-account.ts` - Create admin demo accounts
@@ -151,17 +177,24 @@ The `scripts/` directory contains utility scripts for database management and de
 
 ## 🎭 Demo Accounts
 
-The application comes with pre-configured demo accounts for testing and development:
+The application comes with pre-configured demo accounts with secure passwords for testing and development:
 
 ### Available Demo Accounts
+<<<<<<< HEAD
 - **John Doe** (`john.doe@demo.com`) - Software Developer (Engineering)
   - Password: `password123`
 - **Jane Smith** (`jane.smith@demo.com`) - Marketing Manager (Marketing)
   - Password: `password123`
 - **Admin User** (`admin@demo.com`) - System Administrator (Administration)
   - Password: `admin123`
+=======
+- **John Doe** (`john.doe@demo.com` / `john123`) - Software Developer (Engineering)
+- **Jane Smith** (`jane.smith@demo.com` / `jane123`) - Marketing Manager (Marketing)
+- **Admin User** (`admin@demo.com` / `admin123`) - System Administrator (Administration)
+>>>>>>> bab687a62730d08ef0aaa73351bb4c568bbdbbfc
 
 ### Demo Account Features
+- ✅ Secure password authentication with bcrypt hashing
 - ✅ Pre-configured work schedules
 - ✅ Idle detection settings
 - ✅ Attendance tracking setup
@@ -169,6 +202,12 @@ The application comes with pre-configured demo accounts for testing and developm
 
 ### Demo Account Scripts
 ```bash
+# Create demo accounts with secure passwords
+npx tsx scripts/recreate-demo-accounts.ts
+
+# Add passwords to existing demo accounts
+npx tsx scripts/add-passwords-to-demo-accounts.ts
+
 # View all demo accounts and their details
 npx tsx scripts/demo-accounts-summary.ts
 
@@ -185,7 +224,7 @@ npx tsx scripts/update-demo-accounts-with-passwords.ts
 npx tsx scripts/create-admin-account.ts
 ```
 
-**Note**: These are demo accounts for testing purposes. In a production environment, implement proper authentication and password management.
+**Note**: These are demo accounts for testing purposes. All passwords are securely hashed using bcrypt. In a production environment, implement additional security measures and proper password policies.
 
 ### Authentication Security
 - **Password Hashing**: All passwords are hashed using bcrypt with 12 salt rounds
@@ -226,12 +265,35 @@ CSV files are compatible with:
 - Accounting platforms
 - Custom reporting tools
 
+## 🔐 Authentication System
+
+### Password Security
+- **Bcrypt Hashing** - All passwords are hashed using bcrypt with cost factor 12
+- **Secure Comparison** - Password verification uses bcrypt's secure comparison method
+- **Minimum Requirements** - Passwords must be at least 6 characters long
+- **No Plain Text Storage** - Passwords are never stored in plain text
+
+### Authentication Flow
+1. **Login** - Users provide email and password
+2. **Verification** - Server verifies credentials against hashed passwords
+3. **Session Creation** - Valid users receive authentication tokens
+4. **Role Assignment** - Users are assigned appropriate roles (employee/admin)
+5. **Access Control** - Role-based permissions control feature access
+
+### API Endpoints
+- `POST /api/auth/login` - User authentication with password verification
+- `GET /api/auth/employee` - Fetch employee data by ID or email
+- `POST /api/auth/employee` - Create new employee accounts with passwords
+
 ## 🔒 Security
 
-- **Authentication** - Local authentication with MongoDB
+- **Authentication** - Secure password-based authentication with bcrypt hashing
+- **Password Security** - Passwords are hashed with bcrypt (cost factor 12)
 - **Authorization** - Role-based access control (employee/admin)
 - **Data Validation** - Input sanitization and validation
+- **Session Management** - Secure session handling with localStorage persistence
 - **Audit Trail** - Complete history of all time entries and changes
+- **API Security** - Passwords are never returned in API responses
 
 ## 🚀 Deployment
 
@@ -257,8 +319,35 @@ CSV files are compatible with:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Support
+## 🆘 Support & Troubleshooting
 
+### Common Issues
+
+#### Environment Variable Errors
+If you see "MONGODB_URI environment variable is required":
+1. Create a `.env.local` file in the root directory
+2. Add your MongoDB connection string:
+   ```env
+   MONGODB_URI=your_mongodb_connection_string_here
+   ```
+3. Restart the development server
+
+#### Database Connection Issues
+- Ensure your MongoDB server is running
+- Verify your connection string is correct
+- Check if your IP is whitelisted (for MongoDB Atlas)
+- Ensure your database user has proper permissions
+
+#### Demo Account Issues
+If demo accounts don't work:
+1. Run the demo account setup script:
+   ```bash
+   npx tsx scripts/recreate-demo-accounts.ts
+   ```
+2. Verify the accounts were created successfully
+3. Check the console for any error messages
+
+### Getting Help
 For support and questions:
 - Create an issue in the GitHub repository
 - Contact the development team

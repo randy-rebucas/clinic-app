@@ -52,4 +52,4 @@ ScreenCaptureSchema.index({ employeeId: 1, timestamp: -1 });
 ScreenCaptureSchema.index({ workSessionId: 1 });
 ScreenCaptureSchema.index({ timestamp: -1 });
 
-export const ScreenCapture = mongoose.models && mongoose.models.ScreenCapture || mongoose.model<IScreenCapture>('ScreenCapture', ScreenCaptureSchema);
+export const ScreenCapture = (mongoose.models && mongoose.models.ScreenCapture) || mongoose.model<IScreenCapture>('ScreenCapture', ScreenCaptureSchema);

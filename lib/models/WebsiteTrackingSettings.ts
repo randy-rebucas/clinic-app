@@ -83,4 +83,4 @@ const WebsiteTrackingSettingsSchema = new Schema<IWebsiteTrackingSettings>({
 // Indexes
 WebsiteTrackingSettingsSchema.index({ employeeId: 1 }, { unique: true });
 
-export const WebsiteTrackingSettings = mongoose.models && mongoose.models.WebsiteTrackingSettings || mongoose.model<IWebsiteTrackingSettings>('WebsiteTrackingSettings', WebsiteTrackingSettingsSchema);
+export const WebsiteTrackingSettings = (mongoose.models && mongoose.models.WebsiteTrackingSettings) || mongoose.model<IWebsiteTrackingSettings>('WebsiteTrackingSettings', WebsiteTrackingSettingsSchema);

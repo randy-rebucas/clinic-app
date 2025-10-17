@@ -59,4 +59,4 @@ const WeeklySummarySchema = new Schema<IWeeklySummary>({
 WeeklySummarySchema.index({ employeeId: 1, weekStart: 1 }, { unique: true });
 WeeklySummarySchema.index({ weekStart: -1 });
 
-export const WeeklySummary = mongoose.models && mongoose.models.WeeklySummary || mongoose.model<IWeeklySummary>('WeeklySummary', WeeklySummarySchema);
+export const WeeklySummary = (mongoose.models && mongoose.models.WeeklySummary) || mongoose.model<IWeeklySummary>('WeeklySummary', WeeklySummarySchema);

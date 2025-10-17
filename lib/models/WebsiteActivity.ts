@@ -76,4 +76,4 @@ WebsiteActivitySchema.index({ domain: 1 });
 WebsiteActivitySchema.index({ category: 1 });
 WebsiteActivitySchema.index({ productivity: 1 });
 
-export const WebsiteActivity = mongoose.models && mongoose.models.WebsiteActivity || mongoose.model<IWebsiteActivity>('WebsiteActivity', WebsiteActivitySchema);
+export const WebsiteActivity = (mongoose.models && mongoose.models.WebsiteActivity) || mongoose.model<IWebsiteActivity>('WebsiteActivity', WebsiteActivitySchema);

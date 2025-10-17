@@ -98,10 +98,10 @@ export default function IdleStatus() {
   };
 
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+    <div className="card p-3">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-orange-100 rounded-lg">
+          <div className="icon-container icon-container-orange">
             <Timer className="h-4 w-4 text-orange-600" />
           </div>
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">Idle Detection</h3>

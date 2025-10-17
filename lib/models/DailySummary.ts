@@ -61,4 +61,4 @@ DailySummarySchema.index({ employeeId: 1, date: 1 }, { unique: true });
 DailySummarySchema.index({ date: -1 });
 DailySummarySchema.index({ status: 1 });
 
-export const DailySummary = mongoose.models && mongoose.models.DailySummary || mongoose.model<IDailySummary>('DailySummary', DailySummarySchema);
+export const DailySummary = (mongoose.models && mongoose.models.DailySummary) || mongoose.model<IDailySummary>('DailySummary', DailySummarySchema);

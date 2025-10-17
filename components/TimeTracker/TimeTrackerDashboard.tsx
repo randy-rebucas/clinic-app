@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { TimeTrackingService } from '@/lib/timeTracking';
-// Removed direct database imports - using API routes instead
 import { WorkSession, BreakSession } from '@/types';
 import NavBar from '@/components/Navigation/NavBar';
 import DailySummaryComponent from './DailySummary';
@@ -16,7 +15,6 @@ import { offlineStorageService } from '@/lib/offlineStorage';
 import { idleManagementService } from '@/lib/idleManagement';
 import { applicationTrackingService } from '@/lib/applicationTracking';
 import { websiteTrackingService } from '@/lib/websiteTracking';
-import { attendanceTrackingService } from '@/lib/attendanceTracking';
 import ScreenCaptureSettingsComponent from './ScreenCaptureSettings';
 import ScreenCaptureViewerComponent from './ScreenCaptureViewer';
 import PrivacyNotificationComponent from './PrivacyNotification';
@@ -26,7 +24,6 @@ import IdleWarningComponent, { useIdleWarning } from './IdleWarning';
 import ApplicationUsage from './ApplicationUsage';
 import WebsiteUsage from './WebsiteUsage';
 import TrackingSettings from './TrackingSettings';
-import AttendanceDashboard from './AttendanceDashboard';
 import { 
   Play, 
   Pause, 
@@ -71,20 +68,39 @@ export default function TimeTrackerDashboard() {
     
     try {
       // Fetch active work session from API
-      const workSessionResponse = await fetch(`/api/time-tracking/active-work-session?employeeId=${user.id}`);
-      if (workSessionResponse.ok) {
-        const workSessionData = await workSessionResponse.json();
-        setWorkSession(workSessionData.workSession);
-        
-        // Load break session only if we have an active work session
-        if (workSessionData.workSession) {
-          const breakSessionResponse = await fetch(`/api/time-tracking/active-break-session?workSessionId=${workSessionData.workSession.id}`);
-          if (breakSessionResponse.ok) {
-            const breakSessionData = await breakSessionResponse.json();
-            setBreakSession(breakSessionData.breakSession);
-          } else {
-            setBreakSession(null);
-          }
+      const workSessionResponse = await fetch(`/api/work-sessions/active?employeeId=${user.id}`);
+      if (!workSessionResponse.ok) {
+        throw new Error('Failed to fetch active work session');
+      }
+      const workSessionData = await workSessionResponse.json();
+      const activeWorkSession = workSessionData.data;
+      
+      setWorkSession(activeWorkSession ? {
+        id: activeWorkSession._id.toString(),
+        employeeId: activeWorkSession.employeeId.toString(),
+        clockInTime: activeWorkSession.clockInTime,
+        totalBreakTime: activeWorkSession.totalBreakTime,
+        totalWorkTime: activeWorkSession.totalWorkTime,
+        status: activeWorkSession.status,
+        createdAt: activeWorkSession.createdAt,
+        updatedAt: activeWorkSession.updatedAt
+      } : null);
+      
+      // Load break session only if we have an active work session
+      if (activeWorkSession) {
+        const breakSessionResponse = await fetch(`/api/break-sessions/active?employeeId=${user.id}`);
+        if (breakSessionResponse.ok) {
+          const breakSessionData = await breakSessionResponse.json();
+          const activeBreakSession = breakSessionData.data;
+          
+          setBreakSession(activeBreakSession ? {
+            id: activeBreakSession._id.toString(),
+            workSessionId: activeBreakSession.workSessionId.toString(),
+            startTime: activeBreakSession.startTime,
+            endTime: activeBreakSession.endTime,
+            duration: activeBreakSession.duration,
+            status: activeBreakSession.status
+          } : null);
         } else {
           setBreakSession(null);
         }
@@ -124,7 +140,6 @@ export default function TimeTrackerDashboard() {
         // Initialize tracking services
             await applicationTrackingService.initialize(user.id);
             await websiteTrackingService.initialize(user.id);
-            await attendanceTrackingService.initialize(user.id);
         
         // Initialize screen capture service
         const initialized = await screenCaptureService.initialize();
@@ -335,28 +350,33 @@ export default function TimeTrackerDashboard() {
   }, [workSession, breakSession, currentStatus, notes, handleClockIn, handleClockOut, handleStartBreak, handleEndBreak]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <NavBar />
 
       <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
         {/* Hero Section - Current Status & Time */}
-        <div className="mb-4">
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3 sm:p-4">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
+        <div className="mb-6">
+          <div className="card p-4 sm:p-6">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
               {/* Status Display */}
               <div className="flex-1 w-full">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`p-2 rounded-xl ${getStatusColor(currentStatus).replace('text-', 'bg-').replace('border-', 'bg-').replace('100', '500')} bg-opacity-10`}>
-                    {currentStatus === 'working' && <Activity className="h-5 w-5 text-green-600" />}
-                    {currentStatus === 'on_break' && <Coffee className="h-5 w-5 text-yellow-600" />}
-                    {currentStatus === 'offline' && <XCircle className="h-5 w-5 text-gray-600" />}
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={`p-3 rounded-2xl transition-all duration-300 ${
+                    currentStatus === 'working' ? 'bg-green-100 dark:bg-green-900/30' :
+                    currentStatus === 'on_break' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
+                    'bg-gray-100 dark:bg-gray-800'
+                  }`}>
+                    {currentStatus === 'working' && <Activity className="h-6 w-6 text-green-600 dark:text-green-400 animate-pulse" />}
+                    {currentStatus === 'on_break' && <Coffee className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />}
+                    {currentStatus === 'offline' && <XCircle className="h-6 w-6 text-gray-600 dark:text-gray-400" />}
                   </div>
                   <div className="flex-1">
-                    <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
                       {getStatusText(currentStatus)}
                     </h1>
                     {workSession && (
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 flex items-center">
+                        <Clock className="h-4 w-4 mr-1" />
                         Since {TimeFormat.formatDisplayTime(workSession.clockInTime)}
                       </p>
                     )}
@@ -365,15 +385,15 @@ export default function TimeTrackerDashboard() {
                 
                 {/* Live Timer */}
                 {workSession && (
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-3 text-white">
+                  <div className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-xl p-4 text-white shadow-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs opacity-90">Current Session</p>
-                        <p className="text-lg font-mono font-bold">
+                        <p className="text-xs opacity-90 mb-1">Current Session</p>
+                        <p className="text-2xl font-mono font-bold">
                           {formatDuration(workSession.clockInTime)}
                         </p>
                       </div>
-                      <Timer className="h-5 w-5 opacity-80" />
+                      <Timer className="h-6 w-6 opacity-80" />
                     </div>
                   </div>
                 )}
@@ -381,13 +401,13 @@ export default function TimeTrackerDashboard() {
 
               {/* Current Time */}
               <div className="text-center lg:text-right w-full lg:w-auto">
-                <div className="bg-gray-900 text-white rounded-xl p-3">
-                  <div className="text-xl font-mono font-bold">
+                <div className="bg-gradient-to-br from-gray-800 to-gray-900 text-white rounded-xl p-4 shadow-lg">
+                  <div className="text-2xl font-mono font-bold">
                     {TimeFormat.formatDisplayTime(currentTime)}
                   </div>
                   <div className="text-xs text-gray-300 mt-1">
                     {currentTime.toLocaleDateString('en-US', { 
-                      weekday: 'short', 
+                      weekday: 'long', 
                       month: 'short', 
                       day: 'numeric' 
                     })}
@@ -402,9 +422,9 @@ export default function TimeTrackerDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           {/* Primary Actions */}
           <div className="lg:col-span-2">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3 sm:p-4">
+            <div className="card p-3 sm:p-4">
               <div className="flex items-center gap-2 mb-3">
-                <div className="p-1.5 bg-blue-100 rounded-lg">
+                <div className="icon-container icon-container-primary">
                   <Zap className="h-4 w-4 text-blue-600" />
                 </div>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">Quick Actions</h2>
@@ -418,20 +438,20 @@ export default function TimeTrackerDashboard() {
               )}
 
               {/* Primary Action Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 {!workSession ? (
                   <button
                     onClick={handleClockIn}
                     disabled={loading}
-                    className="group relative overflow-hidden bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-3 rounded-xl hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="btn-success px-4 py-4 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
                   >
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="p-1 bg-white/20 rounded-lg">
-                        <Play className="h-4 w-4" />
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="p-2 bg-white/20 rounded-xl">
+                        <Play className="h-5 w-5" />
                       </div>
                       <div className="text-left">
-                        <div className="text-sm font-semibold">Clock In</div>
-                        <div className="text-xs opacity-90">Start workday</div>
+                        <div className="text-base font-semibold">Clock In</div>
+                        <div className="text-xs opacity-90">Start your workday</div>
                       </div>
                     </div>
                   </button>
@@ -439,15 +459,15 @@ export default function TimeTrackerDashboard() {
                   <button
                     onClick={handleClockOut}
                     disabled={loading || currentStatus === 'on_break'}
-                    className="group relative overflow-hidden bg-gradient-to-r from-red-500 to-rose-600 text-white px-3 py-3 rounded-xl hover:from-red-600 hover:to-rose-700 focus:outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="btn-danger px-4 py-4 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 disabled:hover:scale-100"
                   >
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="p-1 bg-white/20 rounded-lg">
-                        <LogOut className="h-4 w-4" />
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="p-2 bg-white/20 rounded-xl">
+                        <LogOut className="h-5 w-5" />
                       </div>
                       <div className="text-left">
-                        <div className="text-sm font-semibold">Clock Out</div>
-                        <div className="text-xs opacity-90">End workday</div>
+                        <div className="text-base font-semibold">Clock Out</div>
+                        <div className="text-xs opacity-90">End your workday</div>
                       </div>
                     </div>
                   </button>
@@ -457,15 +477,15 @@ export default function TimeTrackerDashboard() {
                   <button
                     onClick={handleStartBreak}
                     disabled={loading}
-                    className="group relative overflow-hidden bg-gradient-to-r from-yellow-500 to-amber-600 text-white px-3 py-3 rounded-xl hover:from-yellow-600 hover:to-amber-700 focus:outline-none focus:ring-2 focus:ring-yellow-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="btn-warning px-4 py-4 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
                   >
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="p-1 bg-white/20 rounded-lg">
-                        <Coffee className="h-4 w-4" />
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="p-2 bg-white/20 rounded-xl">
+                        <Coffee className="h-5 w-5" />
                       </div>
                       <div className="text-left">
-                        <div className="text-sm font-semibold">Start Break</div>
-                        <div className="text-xs opacity-90">Take a break</div>
+                        <div className="text-base font-semibold">Start Break</div>
+                        <div className="text-xs opacity-90">Take a well-deserved break</div>
                       </div>
                     </div>
                   </button>
@@ -473,29 +493,29 @@ export default function TimeTrackerDashboard() {
                   <button
                     onClick={handleEndBreak}
                     disabled={loading}
-                    className="group relative overflow-hidden bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-3 rounded-xl hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                    className="btn-primary px-4 py-4 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
                   >
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="p-1 bg-white/20 rounded-lg">
-                        <Pause className="h-4 w-4" />
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="p-2 bg-white/20 rounded-xl">
+                        <Pause className="h-5 w-5" />
                       </div>
                       <div className="text-left">
-                        <div className="text-sm font-semibold">End Break</div>
-                        <div className="text-xs opacity-90">Back to work</div>
+                        <div className="text-base font-semibold">End Break</div>
+                        <div className="text-xs opacity-90">Back to productive work</div>
                       </div>
                     </div>
                   </button>
                 ) : (
                   <button
                     disabled
-                    className="bg-gray-100 text-gray-400 px-3 py-3 rounded-xl cursor-not-allowed"
+                    className="bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 px-4 py-4 rounded-xl cursor-not-allowed"
                   >
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="p-1 bg-gray-200 rounded-lg">
-                        <Coffee className="h-4 w-4" />
+                    <div className="flex items-center justify-center space-x-3">
+                      <div className="p-2 bg-gray-200 dark:bg-gray-600 rounded-xl">
+                        <Coffee className="h-5 w-5" />
                       </div>
                       <div className="text-left">
-                        <div className="text-sm font-semibold">Start Break</div>
+                        <div className="text-base font-semibold">Start Break</div>
                         <div className="text-xs">Clock in first</div>
                       </div>
                     </div>
@@ -505,12 +525,12 @@ export default function TimeTrackerDashboard() {
 
               {/* Notes Input */}
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-3">
                   <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Notes (Optional)
                   </label>
                   <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                    <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">Esc</kbd>
+                    <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-md text-xs font-mono">Esc</kbd>
                     <span>to clear</span>
                   </div>
                 </div>
@@ -518,26 +538,26 @@ export default function TimeTrackerDashboard() {
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none text-sm"
-                  placeholder="What are you working on?"
+                  rows={3}
+                  className="input-field resize-none"
+                  placeholder="What are you working on? Add any notes about your current task..."
                 />
               </div>
 
               {/* Keyboard Shortcuts Help */}
-              <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Zap className="h-3 w-3 text-gray-600 dark:text-gray-400" />
-                  <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Shortcuts</span>
+              <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-2 mb-3">
+                  <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm font-medium text-blue-900 dark:text-blue-300">Keyboard Shortcuts</span>
                 </div>
-                <div className="flex gap-4 text-xs">
-                  <div className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-xs">Ctrl+Enter</kbd>
-                    <span className="text-gray-600 dark:text-gray-400">Clock In/Out</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <kbd className="px-2 py-1 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-md text-xs font-mono text-blue-800 dark:text-blue-300">Ctrl+Enter</kbd>
+                    <span className="text-blue-700 dark:text-blue-400">Clock In/Out</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded text-xs">Ctrl+B</kbd>
-                    <span className="text-gray-600 dark:text-gray-400">Break</span>
+                  <div className="flex items-center gap-2">
+                    <kbd className="px-2 py-1 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-md text-xs font-mono text-blue-800 dark:text-blue-300">Ctrl+B</kbd>
+                    <span className="text-blue-700 dark:text-blue-400">Start/End Break</span>
                   </div>
                 </div>
               </div>
@@ -546,9 +566,9 @@ export default function TimeTrackerDashboard() {
 
           {/* Session Stats */}
           <div className="lg:col-span-1">
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+            <div className="card p-3">
               <div className="flex items-center gap-2 mb-3">
-                <div className="p-1.5 bg-purple-100 rounded-lg">
+                <div className="icon-container icon-container-purple">
                   <BarChart3 className="h-4 w-4 text-purple-600" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Session Stats</h3>
@@ -599,12 +619,12 @@ export default function TimeTrackerDashboard() {
                   )}
                 </div>
               ) : (
-                <div className="text-center py-4">
+                <div className="empty-state py-4">
                   <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg w-fit mx-auto mb-2">
                     <Clock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No active session</p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Clock in to start</p>
+                  <div className="empty-state-title text-sm">No Active Session</div>
+                  <div className="empty-state-subtitle">Clock in to start</div>
                 </div>
               )}
             </div>
@@ -619,18 +639,12 @@ export default function TimeTrackerDashboard() {
             </div>
           )}
 
-          {/* Attendance Dashboard */}
-          {user && (
-            <div className="mb-6">
-              <AttendanceDashboard employeeId={user.id} />
-            </div>
-          )}
 
         {/* Screen Capture & Additional Features */}
         {user && (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
             {/* Screen Capture */}
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+            <div className="card p-3">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="p-1.5 bg-indigo-100 rounded-lg">
@@ -691,7 +705,7 @@ export default function TimeTrackerDashboard() {
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+            <div className="card p-3">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-1.5 bg-emerald-100 rounded-lg">
                   <TrendingUp className="h-4 w-4 text-emerald-600" />
@@ -751,7 +765,7 @@ export default function TimeTrackerDashboard() {
 
         {/* Daily Summary */}
         {user && (
-          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+          <div className="card p-3">
             <div className="flex items-center gap-2 mb-3">
               <div className="p-1.5 bg-cyan-100 rounded-lg">
                 <Calendar className="h-4 w-4 text-cyan-600" />

@@ -43,4 +43,4 @@ const BreakSessionSchema = new Schema<IBreakSession>({
 BreakSessionSchema.index({ workSessionId: 1, status: 1 });
 BreakSessionSchema.index({ startTime: -1 });
 
-export const BreakSession = mongoose.models && mongoose.models.BreakSession || mongoose.model<IBreakSession>('BreakSession', BreakSessionSchema);
+export const BreakSession = (mongoose.models && mongoose.models.BreakSession) || mongoose.model<IBreakSession>('BreakSession', BreakSessionSchema);

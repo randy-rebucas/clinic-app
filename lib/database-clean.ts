@@ -6,7 +6,6 @@ import {
   BreakSession, IBreakSession,
   DailySummary, IDailySummary,
   WeeklySummary, IWeeklySummary,
-  AttendanceReport, IAttendanceReport,
   IdleSettings, IIdleSettings,
   IdleSession, IIdleSession,
   ApplicationActivity, IApplicationActivity,
@@ -14,9 +13,6 @@ import {
   WebsiteActivity, IWebsiteActivity,
   WebsiteTrackingSettings, IWebsiteTrackingSettings,
   ScreenCaptureSettings, IScreenCaptureSettings,
-  AttendanceRecord, IAttendanceRecord,
-  PunchRecord, IPunchRecord,
-  AttendanceSettings, IAttendanceSettings
 } from './models';
 import { Types } from 'mongoose';
 
@@ -234,50 +230,6 @@ export const getWeeklySummary = async (employeeId: string, weekStart: string): P
   return weeklySummary;
 };
 
-// Report Generation
-export const generateAttendanceReport = async (
-  employeeId: string | null,
-  startDate: string,
-  endDate: string,
-  generatedBy: string
-): Promise<IAttendanceReport> => {
-  await connectDB();
-  
-  const query: { date: { $gte: Date; $lte: Date }; employeeId?: Types.ObjectId } = {
-    date: {
-      $gte: new Date(startDate),
-      $lte: new Date(endDate)
-    }
-  };
-  
-  if (employeeId && Types.ObjectId.isValid(employeeId)) {
-    query.employeeId = new Types.ObjectId(employeeId);
-  }
-  
-  const summaries = await DailySummary.find(query);
-  
-  const totalWorkTime = summaries.reduce((sum, summary) => sum + summary.totalWorkTime, 0);
-  const totalBreakTime = summaries.reduce((sum, summary) => sum + summary.totalBreakTime, 0);
-  const workDays = summaries.length;
-  const averageWorkTime = workDays > 0 ? totalWorkTime / workDays : 0;
-  const overtime = summaries.reduce((sum, summary) => sum + (summary.overtime || 0), 0);
-  
-  const report = new AttendanceReport({
-    employeeId: employeeId ? new Types.ObjectId(employeeId) : undefined,
-    startDate,
-    endDate,
-    totalWorkTime,
-    totalBreakTime,
-    workDays,
-    averageWorkTime,
-    overtime,
-    generatedAt: new Date(),
-    generatedBy: new Types.ObjectId(generatedBy),
-  });
-  
-  const savedReport = await report.save();
-  return savedReport;
-};
 
 // Idle Settings Management
 export const createIdleSettings = async (idleSettingsData: Omit<IIdleSettings, '_id' | 'createdAt' | 'updatedAt'>) => {
@@ -564,137 +516,3 @@ export const getAllScreenCaptureSettings = async (): Promise<IScreenCaptureSetti
   return settings;
 };
 
-// Attendance Management
-export const createAttendanceRecord = async (recordData: Omit<IAttendanceRecord, '_id' | 'createdAt' | 'updatedAt'>) => {
-  await connectDB();
-  
-  const record = new AttendanceRecord(recordData);
-  const savedRecord = await record.save();
-  return { 
-    id: savedRecord._id.toString(), 
-    ...recordData, 
-    createdAt: new Date(), 
-    updatedAt: new Date() 
-  };
-};
-
-export const updateAttendanceRecord = async (recordId: string, updates: Partial<IAttendanceRecord>) => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(recordId)) {
-    throw new Error('Invalid record ID');
-  }
-  
-  await AttendanceRecord.findByIdAndUpdate(recordId, updates, { new: true });
-};
-
-export const getAttendanceRecord = async (employeeId: string, date: Date): Promise<IAttendanceRecord | null> => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(employeeId)) {
-    return null;
-  }
-  
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
-  
-  const record = await AttendanceRecord.findOne({
-    employeeId: new Types.ObjectId(employeeId),
-    date: {
-      $gte: startOfDay,
-      $lte: endOfDay
-    }
-  });
-  
-  return record;
-};
-
-export const getAttendanceRecords = async (employeeId: string, startDate: Date, endDate: Date): Promise<IAttendanceRecord[]> => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(employeeId)) {
-    return [];
-  }
-  
-  const records = await AttendanceRecord.find({
-    employeeId: new Types.ObjectId(employeeId),
-    date: {
-      $gte: startDate,
-      $lte: endDate
-    }
-  }).sort({ date: 1 });
-  
-  return records;
-};
-
-// Punch Record Management
-export const createPunchRecord = async (recordData: Omit<IPunchRecord, '_id' | 'createdAt'>) => {
-  await connectDB();
-  
-  const record = new PunchRecord(recordData);
-  const savedRecord = await record.save();
-  return { 
-    id: savedRecord._id.toString(), 
-    ...recordData, 
-    createdAt: new Date() 
-  };
-};
-
-export const getPunchRecords = async (employeeId: string, startDate: Date, endDate: Date): Promise<IPunchRecord[]> => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(employeeId)) {
-    return [];
-  }
-  
-  const records = await PunchRecord.find({
-    employeeId: new Types.ObjectId(employeeId),
-    punchTime: {
-      $gte: startDate,
-      $lte: endDate
-    }
-  }).sort({ punchTime: 1 });
-  
-  return records;
-};
-
-// Attendance Settings Management
-export const createAttendanceSettings = async (settingsData: Omit<IAttendanceSettings, '_id' | 'createdAt' | 'updatedAt'>) => {
-  await connectDB();
-  
-  const settings = new AttendanceSettings(settingsData);
-  const savedSettings = await settings.save();
-  return { id: savedSettings._id.toString(), ...settingsData, createdAt: new Date(), updatedAt: new Date() };
-};
-
-export const updateAttendanceSettings = async (employeeId: string, updates: Partial<IAttendanceSettings>) => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(employeeId)) {
-    throw new Error('Invalid employee ID');
-  }
-  
-  const settings = await AttendanceSettings.findOneAndUpdate(
-    { employeeId: new Types.ObjectId(employeeId) },
-    updates,
-    { new: true, upsert: true }
-  );
-  
-  return settings;
-};
-
-export const getAttendanceSettings = async (employeeId: string): Promise<IAttendanceSettings | null> => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(employeeId)) {
-    return null;
-  }
-  
-  const settings = await AttendanceSettings.findOne({
-    employeeId: new Types.ObjectId(employeeId)
-  });
-  
-  return settings;
-};

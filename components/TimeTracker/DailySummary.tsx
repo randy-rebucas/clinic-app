@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { getDailySummary, getTimeEntries } from '@/lib/database';
 import { DailySummary, TimeEntry } from '@/types';
 import { TimeFormat } from '@/lib/timeFormat';
 import { Calendar, Clock, Coffee, Download, BarChart3, Target, Award, Activity } from 'lucide-react';
@@ -19,10 +18,16 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
   const loadDailyData = useCallback(async () => {
     try {
       const dateStr = date.toISOString().split('T')[0];
-      const [dailySummary, entries] = await Promise.all([
-        getDailySummary(employeeId, dateStr),
-        getTimeEntries(employeeId, date, date)
-      ]);
+      
+      // Fetch daily summary from API
+      const summaryResponse = await fetch(`/api/daily-summary?employeeId=${employeeId}&date=${dateStr}`);
+      const summaryData = summaryResponse.ok ? await summaryResponse.json() : { data: null };
+      const dailySummary = summaryData.data;
+      
+      // Fetch time entries from API
+      const entriesResponse = await fetch(`/api/time-entries?employeeId=${employeeId}&startDate=${date.toISOString()}&endDate=${date.toISOString()}`);
+      const entriesData = entriesResponse.ok ? await entriesResponse.json() : { data: [] };
+      const entries = entriesData.data;
       
       setSummary(dailySummary ? {
         id: dailySummary._id.toString(),
@@ -124,14 +129,12 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-6">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-          <div className="space-y-3">
-            <div className="h-3 bg-gray-200 rounded"></div>
-            <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-            <div className="h-3 bg-gray-200 rounded w-4/6"></div>
-          </div>
+      <div className="loading-container">
+        <div className="loading-header h-4 w-1/4"></div>
+        <div className="space-y-3">
+          <div className="loading-line h-3"></div>
+          <div className="loading-line-medium h-3"></div>
+          <div className="loading-line-short h-3"></div>
         </div>
       </div>
     );
@@ -252,7 +255,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
           )}
 
           {/* Productivity Insights */}
-          <div className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/50 dark:to-gray-800/50 rounded-lg p-3">
+          <div className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800/50 dark:to-slate-700/50 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-1.5 bg-slate-100 dark:bg-slate-700 rounded-lg">
                 <BarChart3 className="h-3 w-3 text-slate-600 dark:text-slate-400" />
@@ -282,13 +285,15 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
           </div>
         </>
       ) : (
-        <div className="text-center py-6">
+        <div className="empty-state">
           <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg w-fit mx-auto mb-3">
             <Calendar className="h-6 w-6 text-gray-400 dark:text-gray-500" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">No data for this date</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">No time entries found for {TimeFormat.formatDate(date)}</p>
-          <div className="text-xs text-gray-400 dark:text-gray-500">
+          <div className="empty-state-title">No Data for This Date</div>
+          <div className="empty-state-description">
+            No time entries found for {TimeFormat.formatDate(date)}
+          </div>
+          <div className="empty-state-subtitle">
             Clock in to start tracking your time
           </div>
         </div>
@@ -296,10 +301,10 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
 
       {/* Time Entries */}
       {timeEntries.length > 0 && (
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-3">
+        <div className="card p-3">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+              <div className="icon-container icon-container-info">
                 <BarChart3 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white">Time Entries</h3>
@@ -315,7 +320,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
           
           <div className="space-y-2">
             {timeEntries.map((entry, index) => (
-              <div key={entry.id} className="group relative overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700/50 dark:to-gray-600/50 rounded-lg p-3 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-600/50 dark:hover:to-gray-500/50 transition-all duration-200">
+              <div key={entry.id} className="group relative overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-700/50 dark:to-slate-600/50 rounded-lg p-3 hover:from-gray-100 hover:to-gray-200 dark:hover:from-slate-600/50 dark:hover:to-slate-500/50 transition-all duration-200">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="flex-shrink-0">

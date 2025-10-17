@@ -139,24 +139,22 @@ export default function ApplicationUsage({ workSessionId }: ApplicationUsageProp
 
   if (loading) {
     return (
-      <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-4">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-3"></div>
-          <div className="space-y-2">
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-          </div>
+      <div className="card p-4">
+        <div className="loading-header h-4 w-1/3 mb-3"></div>
+        <div className="space-y-2">
+          <div className="loading-line h-3"></div>
+          <div className="loading-line-short h-3"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 dark:border-gray-700/20 p-4">
+    <div className="card p-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-blue-100 rounded-lg">
+          <div className="icon-container icon-container-primary">
             <Monitor className="h-4 w-4 text-blue-600" />
           </div>
           <h3 className="text-lg font-bold text-gray-900 dark:text-white">Application Usage</h3>
@@ -273,11 +271,15 @@ export default function ApplicationUsage({ workSessionId }: ApplicationUsageProp
 
       {/* Empty State */}
       {activities.length === 0 && (
-        <div className="text-center py-6">
-          <Monitor className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-600 dark:text-gray-400 text-sm">
+        <div className="empty-state py-6">
+          <Monitor className="empty-state-icon" />
+          <div className="empty-state-title">No Activity Yet</div>
+          <div className="empty-state-description">
             No application activity recorded yet
-          </p>
+          </div>
+          <div className="empty-state-subtitle">
+            Start working to see your application usage
+          </div>
         </div>
       )}
     </div>

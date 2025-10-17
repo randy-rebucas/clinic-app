@@ -69,4 +69,4 @@ ApplicationActivitySchema.index({ workSessionId: 1, isActive: 1 });
 ApplicationActivitySchema.index({ startTime: -1 });
 ApplicationActivitySchema.index({ category: 1 });
 
-export const ApplicationActivity = mongoose.models && mongoose.models.ApplicationActivity || mongoose.model<IApplicationActivity>('ApplicationActivity', ApplicationActivitySchema);
+export const ApplicationActivity = (mongoose.models && mongoose.models.ApplicationActivity) || mongoose.model<IApplicationActivity>('ApplicationActivity', ApplicationActivitySchema);

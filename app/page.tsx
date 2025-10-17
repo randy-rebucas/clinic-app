@@ -11,13 +11,18 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-            <Clock className="h-8 w-8 text-white animate-pulse" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+        <div className="card p-8 max-w-md w-full mx-4">
+          <div className="empty-state">
+            <div className="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
+              <Clock className="h-8 w-8 text-white animate-pulse" />
+            </div>
+            <div className="empty-state-title">Loading Dashboard</div>
+            <div className="empty-state-description">Please wait while we load your dashboard</div>
+            <div className="flex justify-center">
+              <div className="spinner spinner-md"></div>
+            </div>
           </div>
-          <div className="text-lg font-medium text-gray-900">Loading...</div>
-          <div className="text-sm text-gray-500">Please wait while we load your dashboard</div>
         </div>
       </div>
     );

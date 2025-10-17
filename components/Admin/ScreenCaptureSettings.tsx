@@ -224,7 +224,7 @@ export default function ScreenCaptureSettings({ employeeId, isOpen, onClose }: S
                   max="60"
                   value={settings.intervalMinutes}
                   onChange={(e) => updateSetting('intervalMinutes', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="input-field"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   How often screenshots are taken (1-60 minutes)
@@ -261,7 +261,7 @@ export default function ScreenCaptureSettings({ employeeId, isOpen, onClose }: S
                   max="100"
                   value={settings.maxCapturesPerDay}
                   onChange={(e) => updateSetting('maxCapturesPerDay', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="input-field"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Maximum screenshots per day per employee
@@ -420,7 +420,7 @@ export default function ScreenCaptureSettings({ employeeId, isOpen, onClose }: S
                       step="30"
                       value={settings.burstIntervalSeconds}
                       onChange={(e) => updateSetting('burstIntervalSeconds', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="input-field"
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       How often screenshots are taken during burst mode (minimum 30 seconds)
@@ -437,7 +437,7 @@ export default function ScreenCaptureSettings({ employeeId, isOpen, onClose }: S
                       max="30"
                       value={settings.burstDurationMinutes}
                       onChange={(e) => updateSetting('burstDurationMinutes', parseInt(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="input-field"
                     />
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       How long burst mode lasts each time it&apos;s triggered
@@ -451,7 +451,7 @@ export default function ScreenCaptureSettings({ employeeId, isOpen, onClose }: S
                     <select
                       value={settings.burstFrequency}
                       onChange={(e) => updateSetting('burstFrequency', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      className="input-field"
                     >
                       <option value="low">Low - Every hour</option>
                       <option value="medium">Medium - Every 30 minutes</option>
@@ -474,7 +474,7 @@ export default function ScreenCaptureSettings({ employeeId, isOpen, onClose }: S
                         max="120"
                         value={settings.customBurstIntervalMinutes}
                         onChange={(e) => updateSetting('customBurstIntervalMinutes', parseInt(e.target.value))}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="input-field"
                       />
                     </div>
                   )}

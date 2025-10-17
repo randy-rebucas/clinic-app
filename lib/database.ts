@@ -6,25 +6,51 @@ import {
   BreakSession, IBreakSession,
   DailySummary, IDailySummary,
   WeeklySummary, IWeeklySummary,
-  AttendanceReport, IAttendanceReport,
   IdleSettings, IIdleSettings,
   IdleSession, IIdleSession,
   ApplicationActivity, IApplicationActivity,
   ApplicationTrackingSettings, IApplicationTrackingSettings,
   WebsiteActivity, IWebsiteActivity,
   WebsiteTrackingSettings, IWebsiteTrackingSettings,
+  ScreenCapture, IScreenCapture,
   ScreenCaptureSettings, IScreenCaptureSettings,
-  AttendanceRecord, IAttendanceRecord,
-  PunchRecord, IPunchRecord,
-  AttendanceSettings, IAttendanceSettings
 } from './models';
+
 import { Types } from 'mongoose';
 
+// Helper function to generate a default password
+const generateDefaultPassword = (): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let password = '';
+  for (let i = 0; i < 8; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
+
 // Employee Management
-export const createEmployee = async (employeeData: Omit<IEmployee, '_id' | 'createdAt' | 'updatedAt'>) => {
+export const createEmployee = async (employeeData: {
+  name: string;
+  email: string;
+  password?: string;
+  role: 'employee' | 'admin';
+  department?: string;
+  position?: string;
+}) => {
   await connectDB();
   
-  const employee = new Employee(employeeData);
+  // Generate a default password if none provided
+  const defaultPassword = employeeData.password || generateDefaultPassword();
+  
+  // Log the generated password for admin reference (in production, this should be sent via email)
+  if (!employeeData.password) {
+    console.log(`Generated default password for ${employeeData.email}: ${defaultPassword}`);
+  }
+  
+  const employee = new Employee({
+    ...employeeData,
+    password: defaultPassword
+  });
   const savedEmployee = await employee.save();
   return savedEmployee._id.toString();
 };
@@ -234,50 +260,6 @@ export const getWeeklySummary = async (employeeId: string, weekStart: string): P
   return weeklySummary;
 };
 
-// Report Generation
-export const generateAttendanceReport = async (
-  employeeId: string | null,
-  startDate: string,
-  endDate: string,
-  generatedBy: string
-): Promise<IAttendanceReport> => {
-  await connectDB();
-  
-  const query: { date: { $gte: Date; $lte: Date }; employeeId?: Types.ObjectId } = {
-    date: {
-      $gte: new Date(startDate),
-      $lte: new Date(endDate)
-    }
-  };
-  
-  if (employeeId && Types.ObjectId.isValid(employeeId)) {
-    query.employeeId = new Types.ObjectId(employeeId);
-  }
-  
-  const summaries = await DailySummary.find(query);
-  
-  const totalWorkTime = summaries.reduce((sum, summary) => sum + summary.totalWorkTime, 0);
-  const totalBreakTime = summaries.reduce((sum, summary) => sum + summary.totalBreakTime, 0);
-  const workDays = summaries.length;
-  const averageWorkTime = workDays > 0 ? totalWorkTime / workDays : 0;
-  const overtime = summaries.reduce((sum, summary) => sum + (summary.overtime || 0), 0);
-  
-  const report = new AttendanceReport({
-    employeeId: employeeId ? new Types.ObjectId(employeeId) : undefined,
-    startDate,
-    endDate,
-    totalWorkTime,
-    totalBreakTime,
-    workDays,
-    averageWorkTime,
-    overtime,
-    generatedAt: new Date(),
-    generatedBy: new Types.ObjectId(generatedBy),
-  });
-  
-  const savedReport = await report.save();
-  return savedReport;
-};
 
 // Idle Settings Management
 export const createIdleSettings = async (idleSettingsData: Omit<IIdleSettings, '_id' | 'createdAt' | 'updatedAt'>) => {
@@ -346,16 +328,25 @@ export const getActiveIdleSession = async (workSessionId: string): Promise<IIdle
   return idleSession;
 };
 
-export const getIdleSessions = async (workSessionId: string) => {
+export const getIdleSessions = async (employeeId: string, startDate?: Date, endDate?: Date) => {
   await connectDB();
   
-  if (!Types.ObjectId.isValid(workSessionId)) {
+  if (!Types.ObjectId.isValid(employeeId)) {
     return [];
   }
   
-  const idleSessions = await IdleSession.find({
-    workSessionId: new Types.ObjectId(workSessionId)
-  }).sort({ startTime: -1 });
+  const query: Record<string, unknown> = {
+    employeeId: new Types.ObjectId(employeeId)
+  };
+  
+  if (startDate && endDate) {
+    query.startTime = {
+      $gte: startDate,
+      $lte: endDate
+    };
+  }
+  
+  const idleSessions = await IdleSession.find(query).sort({ startTime: -1 });
   
   return idleSessions;
 };
@@ -564,147 +555,48 @@ export const getAllScreenCaptureSettings = async (): Promise<IScreenCaptureSetti
   return settings;
 };
 
-// Attendance Management
-export const createAttendanceRecord = async (recordData: Omit<IAttendanceRecord, '_id' | 'createdAt' | 'updatedAt'>) => {
+// Screen Capture Management
+export const createScreenCapture = async (captureData: {
+  employeeId: string;
+  workSessionId?: string;
+  timestamp: Date;
+  imageData: string;
+  thumbnail: string;
+  fileSize: number;
+  isActive: boolean;
+}) => {
   await connectDB();
   
-  const record = new AttendanceRecord(recordData);
-  const savedRecord = await record.save();
+  const capture = new ScreenCapture(captureData);
+  const savedCapture = await capture.save();
   return { 
-    id: savedRecord._id.toString(), 
-    ...recordData, 
-    createdAt: new Date(), 
-    updatedAt: new Date() 
+    id: savedCapture._id.toString(), 
+    ...captureData,
+    _id: savedCapture._id
   };
 };
 
-export const updateAttendanceRecord = async (recordId: string, updates: Partial<IAttendanceRecord>) => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(recordId)) {
-    throw new Error('Invalid record ID');
-  }
-  
-  const updatedRecord = await AttendanceRecord.findByIdAndUpdate(recordId, updates, { new: true });
-  if (!updatedRecord) {
-    throw new Error('Attendance record not found');
-  }
-  
-  return {
-    id: updatedRecord._id.toString(),
-    ...updatedRecord.toObject(),
-    createdAt: updatedRecord.createdAt,
-    updatedAt: updatedRecord.updatedAt,
-  };
-};
-
-export const getAttendanceRecord = async (employeeId: string, date: Date): Promise<IAttendanceRecord | null> => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(employeeId)) {
-    return null;
-  }
-  
-  const startOfDay = new Date(date);
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date(date);
-  endOfDay.setHours(23, 59, 59, 999);
-  
-  const record = await AttendanceRecord.findOne({
-    employeeId: new Types.ObjectId(employeeId),
-    date: {
-      $gte: startOfDay,
-      $lte: endOfDay
-    }
-  });
-  
-  return record;
-};
-
-export const getAttendanceRecords = async (employeeId: string, startDate: Date, endDate: Date): Promise<IAttendanceRecord[]> => {
+export const getScreenCaptures = async (employeeId: string, startDate?: Date, endDate?: Date): Promise<IScreenCapture[]> => {
   await connectDB();
   
   if (!Types.ObjectId.isValid(employeeId)) {
     return [];
   }
   
-  const records = await AttendanceRecord.find({
-    employeeId: new Types.ObjectId(employeeId),
-    date: {
-      $gte: startDate,
-      $lte: endDate
-    }
-  }).sort({ date: 1 });
-  
-  return records;
-};
-
-// Punch Record Management
-export const createPunchRecord = async (recordData: Omit<IPunchRecord, '_id' | 'createdAt'>) => {
-  await connectDB();
-  
-  const record = new PunchRecord(recordData);
-  const savedRecord = await record.save();
-  return { 
-    id: savedRecord._id.toString(), 
-    ...recordData, 
-    createdAt: new Date() 
-  };
-};
-
-export const getPunchRecords = async (employeeId: string, startDate: Date, endDate: Date): Promise<IPunchRecord[]> => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(employeeId)) {
-    return [];
-  }
-  
-  const records = await PunchRecord.find({
-    employeeId: new Types.ObjectId(employeeId),
-    punchTime: {
-      $gte: startDate,
-      $lte: endDate
-    }
-  }).sort({ punchTime: 1 });
-  
-  return records;
-};
-
-// Attendance Settings Management
-export const createAttendanceSettings = async (settingsData: Omit<IAttendanceSettings, '_id' | 'createdAt' | 'updatedAt'>) => {
-  await connectDB();
-  
-  const settings = new AttendanceSettings(settingsData);
-  const savedSettings = await settings.save();
-  return { id: savedSettings._id.toString(), ...settingsData, createdAt: new Date(), updatedAt: new Date() };
-};
-
-export const updateAttendanceSettings = async (employeeId: string, updates: Partial<IAttendanceSettings>) => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(employeeId)) {
-    throw new Error('Invalid employee ID');
-  }
-  
-  const settings = await AttendanceSettings.findOneAndUpdate(
-    { employeeId: new Types.ObjectId(employeeId) },
-    updates,
-    { new: true, upsert: true }
-  );
-  
-  return settings;
-};
-
-export const getAttendanceSettings = async (employeeId: string): Promise<IAttendanceSettings | null> => {
-  await connectDB();
-  
-  if (!Types.ObjectId.isValid(employeeId)) {
-    return null;
-  }
-  
-  const settings = await AttendanceSettings.findOne({
+  const query: Record<string, unknown> = {
     employeeId: new Types.ObjectId(employeeId)
-  });
+  };
   
-  return settings;
+  if (startDate && endDate) {
+    query.timestamp = {
+      $gte: startDate,
+      $lte: endDate
+    };
+  }
+  
+  const captures = await ScreenCapture.find(query)
+    .sort({ timestamp: -1 });
+  
+  return captures;
 };
+

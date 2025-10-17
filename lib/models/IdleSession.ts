@@ -49,4 +49,4 @@ const IdleSessionSchema = new Schema<IIdleSession>({
 IdleSessionSchema.index({ workSessionId: 1, status: 1 });
 IdleSessionSchema.index({ startTime: -1 });
 
-export const IdleSession = mongoose.models && mongoose.models.IdleSession || mongoose.model<IIdleSession>('IdleSession', IdleSessionSchema);
+export const IdleSession = (mongoose.models && mongoose.models.IdleSession) || mongoose.model<IIdleSession>('IdleSession', IdleSessionSchema);
