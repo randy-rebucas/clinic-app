@@ -59,8 +59,8 @@ import dynamic from 'next/dynamic';
 import { useIdleWarning } from './IdleWarning';
 import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary';
 import { useDashboardTimer, useSessionTimer } from '@/lib/hooks/useOptimizedTimer';
-import { preloadCriticalData } from '@/lib/cache/apiCache';
-import { getDashboardDataBatch } from '@/lib/api/batchClient';
+// Removed caching system for real-time data
+// Removed batch API for direct real-time calls
 
 // Lazy load heavy components that are not immediately visible
 const ScreenCaptureSettingsComponent = dynamic(() => import('./ScreenCaptureSettings'), {
@@ -196,28 +196,41 @@ export default function TimeTrackerDashboard() {
     }
 
     try {
-      // Use batch API for better performance - single request instead of multiple
-      const batchData = await getDashboardDataBatch(user.id);
-      
-      // Process work session data
-      if (batchData.workSession) {
-        const activeWorkSession = batchData.workSession as ApiWorkSession;
-        console.log('activeWorkSession', activeWorkSession);
-        setWorkSession({
-          id: activeWorkSession._id.toString(),
-          employeeId: activeWorkSession.employeeId.toString(),
-          clockInTime: activeWorkSession.clockInTime,
-          totalBreakTime: activeWorkSession.totalBreakTime,
-          totalWorkTime: activeWorkSession.totalWorkTime,
-          status: activeWorkSession.status,
-          createdAt: activeWorkSession.createdAt,
-          updatedAt: activeWorkSession.updatedAt
-        });
+      // Make direct API calls for real-time data
+      const [workSessionResponse, breakSessionResponse] = await Promise.all([
+        fetch(`/api/work-sessions/active?employeeId=${user.id}`),
+        fetch(`/api/break-sessions/active?employeeId=${user.id}`)
+      ]);
 
-        // Process break session data
-        if (batchData.breakSession) {
-          const activeBreakSession = batchData.breakSession as ApiBreakSession;
-          console.log('activeBreakSession', activeBreakSession);
+      // Process work session data
+      if (workSessionResponse.ok) {
+        const workSessionData = await workSessionResponse.json();
+        if (workSessionData.data) {
+          const activeWorkSession = workSessionData.data as ApiWorkSession;
+          // Active work session loaded
+          setWorkSession({
+            id: activeWorkSession._id.toString(),
+            employeeId: activeWorkSession.employeeId.toString(),
+            clockInTime: activeWorkSession.clockInTime,
+            totalBreakTime: activeWorkSession.totalBreakTime,
+            totalWorkTime: activeWorkSession.totalWorkTime,
+            status: activeWorkSession.status,
+            createdAt: activeWorkSession.createdAt,
+            updatedAt: activeWorkSession.updatedAt
+          });
+        } else {
+          setWorkSession(null);
+        }
+      } else {
+        setWorkSession(null);
+      }
+
+      // Process break session data
+      if (breakSessionResponse.ok) {
+        const breakSessionData = await breakSessionResponse.json();
+        if (breakSessionData.data) {
+          const activeBreakSession = breakSessionData.data as ApiBreakSession;
+          // Active break session loaded
           setBreakSession({
             id: activeBreakSession._id.toString(),
             workSessionId: activeBreakSession.workSessionId.toString(),
@@ -227,16 +240,11 @@ export default function TimeTrackerDashboard() {
             status: activeBreakSession.status
           });
         } else {
+          // No active break session
           setBreakSession(null);
         }
       } else {
-        setWorkSession(null);
         setBreakSession(null);
-      }
-
-      // Log any errors from the batch request
-      if (Object.values(batchData.errors).some(error => error)) {
-        console.warn('Some batch requests failed:', batchData.errors);
       }
     } catch (err) {
       console.error('Error loading active sessions:', err);
@@ -250,10 +258,7 @@ export default function TimeTrackerDashboard() {
     const initializeServices = async () => {
       if (user && user.id) {
         try {
-          // Preload critical data for better performance
-          await preloadCriticalData(user.id);
-          
-          // Load active sessions using the optimized function
+          // Load active sessions directly for real-time data
           await loadActiveSessions();
         } catch (err) {
           console.error('Error initializing services:', err);
@@ -298,6 +303,8 @@ export default function TimeTrackerDashboard() {
   };
 
   const currentStatus = getCurrentStatus();
+  
+  // Real-time state tracking (no caching)
 
   const handleClockIn = useCallback(async () => {
     if (!user || !user.id) {
@@ -376,32 +383,33 @@ export default function TimeTrackerDashboard() {
   const handleStartBreak = useCallback(async () => {
     if (!workSession) return;
 
+    // Starting break
     setLoading(true);
     setError('');
 
     try {
-      // First refresh the break session state to ensure we have the latest data
-      await loadActiveSessions();
-      
-      // Check again if there's an active break session after refresh
-      if (breakSession) {
-        setError('You are already on a break. Please end the current break first.');
-        return;
-      }
-
-      await ClientTimeTrackingService.startBreak({
+      const result = await ClientTimeTrackingService.startBreak({
         workSessionId: workSession.id,
         notes: notes.trim() || undefined,
       });
+      // Break started successfully
       setNotes('');
       await loadActiveSessions();
       notificationService.showBreakStartSuccess();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Failed to start break');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to start break';
+      // Failed to start break
+      setError(errorMessage);
+      
+      // If the error is about already being on break, refresh the session data
+      if (errorMessage.includes('already on break')) {
+        // Break already active, refreshing session data
+        await loadActiveSessions();
+      }
     } finally {
       setLoading(false);
     }
-  }, [workSession, breakSession, notes, loadActiveSessions]);
+  }, [workSession, notes, loadActiveSessions]);
 
   const handleEndBreak = useCallback(async () => {
     if (!workSession) return;

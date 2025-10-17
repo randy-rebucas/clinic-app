@@ -260,7 +260,26 @@ export class TimeTrackingService {
     // Check if there's already an active break
     const activeBreak = await getActiveBreakSession(data.workSessionId);
     if (activeBreak) {
-      throw new Error('Employee is already on break');
+      // Return the existing break session instead of throwing an error
+      // This handles race conditions where multiple requests come in simultaneously
+      console.warn('Break already active, returning existing break session:', activeBreak._id);
+      
+      // Get the work session to get employee ID for time entry
+      const workSession = await getWorkSession(data.workSessionId);
+      if (!workSession) {
+        throw new Error('Work session not found');
+      }
+      
+      // Create a time entry for the break start (in case it was missed)
+      const { Types } = await import('mongoose');
+      const timeEntryId = await createTimeEntry({
+        employeeId: new Types.ObjectId(workSession.employeeId),
+        type: 'break_start',
+        timestamp: activeBreak.startTime,
+        notes: data.notes || activeBreak.notes,
+      } as unknown as Omit<ITimeEntry, '_id'>);
+      
+      return { breakSessionId: activeBreak._id.toString(), timeEntryId };
     }
 
     // Get the work session to get employee ID

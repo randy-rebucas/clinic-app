@@ -64,4 +64,13 @@ WorkSessionSchema.index({ employeeId: 1, status: 1 });
 WorkSessionSchema.index({ clockInTime: -1 });
 WorkSessionSchema.index({ status: 1 });
 
-export const WorkSession = (mongoose.models && mongoose.models.WorkSession) || mongoose.model<IWorkSession>('WorkSession', WorkSessionSchema);
+// Use a function to get the model to avoid issues with mongoose.models during module evaluation
+const getWorkSessionModel = () => {
+  try {
+    return mongoose.models.WorkSession || mongoose.model<IWorkSession>('WorkSession', WorkSessionSchema);
+  } catch (error) {
+    return mongoose.model<IWorkSession>('WorkSession', WorkSessionSchema);
+  }
+};
+
+export const WorkSession = getWorkSessionModel();

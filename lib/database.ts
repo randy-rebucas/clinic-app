@@ -17,6 +17,7 @@ import {
 // Import models directly to avoid potential import issues
 import { ApplicationActivity, IApplicationActivity } from './models/ApplicationActivity';
 import { WebsiteActivity, IWebsiteActivity } from './models/WebsiteActivity';
+import { IdleSession as IdleSessionModel, IIdleSession as IIdleSessionType } from './models/IdleSession';
 
 import { Types } from 'mongoose';
 
@@ -337,7 +338,7 @@ export const getIdleSettings = async (employeeId: string): Promise<IIdleSettings
 export const createIdleSession = async (idleSessionData: Omit<IIdleSession, '_id'>) => {
   await connectDB();
   
-  const idleSession = new IdleSession(idleSessionData);
+  const idleSession = new IdleSessionModel(idleSessionData);
   const savedIdleSession = await idleSession.save();
   return savedIdleSession._id.toString();
 };
@@ -349,7 +350,7 @@ export const updateIdleSession = async (sessionId: string, updates: Partial<IIdl
     throw new Error('Invalid session ID');
   }
   
-  await IdleSession.findByIdAndUpdate(sessionId, updates, { new: true });
+  await IdleSessionModel.findByIdAndUpdate(sessionId, updates, { new: true });
 };
 
 export const getActiveIdleSession = async (workSessionId: string): Promise<IIdleSession | null> => {
@@ -359,7 +360,7 @@ export const getActiveIdleSession = async (workSessionId: string): Promise<IIdle
     return null;
   }
   
-  const idleSession = await IdleSession.findOne({
+  const idleSession = await IdleSessionModel.findOne({
     workSessionId: new Types.ObjectId(workSessionId),
     status: 'active'
   });
@@ -385,7 +386,7 @@ export const getIdleSessions = async (workSessionId: string, startDate?: Date, e
     };
   }
   
-  const idleSessions = await IdleSession.find(query).sort({ startTime: -1 });
+  const idleSessions = await IdleSessionModel.find(query).sort({ startTime: -1 });
   
   return idleSessions;
 };

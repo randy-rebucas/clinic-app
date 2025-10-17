@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { DailySummary, TimeEntry } from '@/types';
 import { TimeFormat } from '@/lib/timeFormat';
 import { Calendar, Clock, Coffee, Download, BarChart3, Target, Award, Activity } from 'lucide-react';
@@ -10,7 +10,18 @@ interface DailySummaryProps {
   date?: Date;
 }
 
-export default function DailySummaryComponent({ employeeId, date = new Date() }: DailySummaryProps) {
+// Create a stable date reference outside the component
+const getTodayDate = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
+export default function DailySummaryComponent({ employeeId, date }: DailySummaryProps) {
+  // Memoize the date to prevent infinite re-renders
+  const memoizedDate = useMemo(() => {
+    return date || getTodayDate();
+  }, [date?.getTime()]); // Use getTime() to compare actual date values, not object references
   const [summary, setSummary] = useState<DailySummary | null>(null);
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +35,8 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
         return;
       }
 
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = memoizedDate.toISOString().split('T')[0];
+      // Loading daily summary data
       
       // Fetch daily summary from API
       const summaryResponse = await fetch(`/api/daily-summary?employeeId=${employeeId}&date=${dateStr}`);
@@ -32,7 +44,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
       const dailySummary = summaryData.data;
       
       // Fetch time entries from API
-      const entriesResponse = await fetch(`/api/time-entries?employeeId=${employeeId}&startDate=${date.toISOString()}&endDate=${date.toISOString()}`);
+      const entriesResponse = await fetch(`/api/time-entries?employeeId=${employeeId}&startDate=${memoizedDate.toISOString()}&endDate=${memoizedDate.toISOString()}`);
       const entriesData = entriesResponse.ok ? await entriesResponse.json() : { data: [] };
       const entries = entriesData.data;
       
@@ -69,7 +81,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
     } finally {
       setLoading(false);
     }
-  }, [employeeId, date]);
+  }, [employeeId, memoizedDate]);
 
   useEffect(() => {
     loadDailyData();
@@ -115,7 +127,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
     const csvContent = [
       ['Date', 'Clock In', 'Clock Out', 'Total Work Time', 'Total Break Time', 'Overtime'],
       [
-        TimeFormat.formatDate(date),
+        TimeFormat.formatDate(memoizedDate),
         summary.clockInTime ? TimeFormat.formatCSVTime(summary.clockInTime) : 'N/A',
         summary.clockOutTime ? TimeFormat.formatCSVTime(summary.clockOutTime) : 'N/A',
         formatTime(summary.totalWorkTime),
@@ -136,7 +148,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `daily-summary-${date.toISOString().split('T')[0]}.csv`;
+    a.download = `daily-summary-${memoizedDate.toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -307,7 +319,7 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
           </div>
           <div className="empty-state-title">No Data for This Date</div>
           <div className="empty-state-description">
-            No time entries found for {TimeFormat.formatDate(date)}
+            No time entries found for {TimeFormat.formatDate(memoizedDate)}
           </div>
           <div className="empty-state-subtitle">
             Clock in to start tracking your time

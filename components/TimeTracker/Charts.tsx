@@ -26,8 +26,8 @@ export default function Charts({ workSessionId, employeeId }: ChartsProps) {
   const [showCharts, setShowCharts] = useState(false);
 
   return (
-    <div className="card p-4">
-      <div className="flex items-center justify-between mb-4">
+    <div className="card p-4 mb-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="icon-container icon-container-purple">
             <BarChart3 className="h-4 w-4 text-purple-600" />

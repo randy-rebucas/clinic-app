@@ -73,4 +73,13 @@ EmployeeSchema.methods.comparePassword = async function(candidatePassword: strin
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-export const Employee = (mongoose.models && mongoose.models.Employee) || mongoose.model<IEmployee>('Employee', EmployeeSchema);
+// Use a function to get the model to avoid issues with mongoose.models during module evaluation
+const getEmployeeModel = () => {
+  try {
+    return mongoose.models.Employee || mongoose.model<IEmployee>('Employee', EmployeeSchema);
+  } catch (error) {
+    return mongoose.model<IEmployee>('Employee', EmployeeSchema);
+  }
+};
+
+export const Employee = getEmployeeModel();

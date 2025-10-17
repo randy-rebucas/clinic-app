@@ -60,4 +60,13 @@ IdleSessionSchema.set('toJSON', {
 IdleSessionSchema.index({ workSessionId: 1, status: 1 });
 IdleSessionSchema.index({ startTime: -1 });
 
-export const IdleSession = (mongoose.models && mongoose.models.IdleSession) || mongoose.model<IIdleSession>('IdleSession', IdleSessionSchema);
+// Use a function to get the model to avoid issues with mongoose.models during module evaluation
+const getModel = () => {
+  try {
+    return mongoose.models.IdleSession || mongoose.model<IIdleSession>('IdleSession', IdleSessionSchema);
+  } catch (error) {
+    return mongoose.model<IIdleSession>('IdleSession', IdleSessionSchema);
+  }
+};
+
+export const IdleSession = getModel();
