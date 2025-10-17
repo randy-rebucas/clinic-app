@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IEmployee extends Document {
   name: string;
   email: string;
+  password: string;
   role: 'employee' | 'admin';
   department?: string;
   position?: string;
@@ -22,6 +23,11 @@ const EmployeeSchema = new Schema<IEmployee>({
     unique: true,
     lowercase: true,
     trim: true,
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 6,
   },
   role: {
     type: String,

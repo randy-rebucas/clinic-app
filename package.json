@@ -10,6 +10,8 @@
     "generate-sw": "node scripts/generate-sw.js"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.2",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.545.0",
     "mongodb": "^4.17.2",

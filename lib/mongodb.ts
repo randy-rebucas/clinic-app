@@ -3,9 +3,11 @@ import { MONGODB_URI } from './config';
 
 declare global {
   var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  } | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    conn: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    promise: any;
+  };
 }
 
 if (!MONGODB_URI) {
@@ -17,13 +19,27 @@ if (!MONGODB_URI) {
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-let cached = global.mongoose;
+let cached: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null };
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+// Only access global on the server side
+if (typeof window === 'undefined') {
+  if (global.mongoose) {
+    cached = global.mongoose;
+  } else {
+    cached = { conn: null, promise: null };
+    global.mongoose = cached;
+  }
+} else {
+  // On the client side, initialize a local cache
+  cached = { conn: null, promise: null };
 }
 
 async function connectDB() {
+  // Don't connect to MongoDB on the client side
+  if (typeof window !== 'undefined') {
+    throw new Error('MongoDB connection should only be used on the server side');
+  }
+
   if (cached?.conn) {
     return cached.conn;
   }

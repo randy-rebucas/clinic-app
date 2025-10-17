@@ -1,9 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { getEmployee, createEmployee, getEmployeeByEmail } from '@/lib/database';
 import { Employee } from '@/types';
-import { IEmployee } from '@/lib/models/Employee';
 
 interface LocalUser {
   id: string;
@@ -12,7 +10,7 @@ interface LocalUser {
 
 interface AuthContextType {
   user: LocalUser | null;
-  employee: IEmployee | null;
+  employee: Employee | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, employeeData: Omit<Employee, 'id' | 'email' | 'createdAt' | 'updatedAt'>) => Promise<void>;
@@ -35,7 +33,7 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<LocalUser | null>(null);
-  const [employee, setEmployee] = useState<IEmployee | null>(null);
+  const [employee, setEmployee] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,8 +45,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const userData = JSON.parse(storedUser);
           setUser(userData);
           
-          const employeeData = await getEmployee(userData.id);
-          setEmployee(employeeData);
+          // Fetch employee data from API
+          const response = await fetch(`/api/auth/employee?id=${userData.id}`);
+          if (response.ok) {
+            const data = await response.json();
+            setEmployee(data.employee);
+          }
         }
       } catch (error) {
         console.error('Error checking stored auth:', error);
@@ -65,14 +67,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // Simple authentication - find employee by email
       // In a real app, you'd hash the password and verify it
-      const employeeData = await getEmployeeByEmail(email);
-      if (!employeeData) {
-        throw new Error('Employee not found');
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Login failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseError) {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
+
+      const data = await response.json();
+      const employeeData = data.employee;
       
       // Accept any password (implement proper password verification in production)
       // In production, you'd verify the password hash
-      const userData = { id: employeeData._id.toString(), email: employeeData.email };
+      const userData = { id: employeeData.id, email: employeeData.email };
       setUser(userData);
       setEmployee(employeeData);
       
@@ -96,20 +116,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const newEmployeeData = {
         name: employeeData.name,
         email,
+        password,
         role: employeeData.role,
         department: employeeData.department,
         position: employeeData.position,
-      } as Omit<IEmployee, '_id' | 'createdAt' | 'updatedAt'>;
+      };
       
-      await createEmployee(newEmployeeData);
+      const response = await fetch('/api/auth/create-employee', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newEmployeeData),
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Sign up failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (parseError) {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      const employeeId = data.employeeId;
       
       // Auto-login after signup
-      const userData = { id, email };
+      const userData = { id: employeeId, email };
       setUser(userData);
       
-      // Create a mock IEmployee object for the state
-      const mockEmployee: IEmployee = {
-        _id: id as any,
+      // Create a mock Employee object for the state
+      const mockEmployee: Employee = {
+        id: employeeId,
         name: employeeData.name,
         email,
         role: employeeData.role,
@@ -117,7 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         position: employeeData.position,
         createdAt: new Date(),
         updatedAt: new Date(),
-      } as IEmployee;
+      };
       
       setEmployee(mockEmployee);
       localStorage.setItem('user', JSON.stringify(userData));

@@ -91,8 +91,8 @@ To quickly test the application with pre-configured accounts:
    ```
 
 2. **Use demo credentials**:
-   - **Employee**: `john.doe@demo.com` or `jane.smith@demo.com`
-   - **Admin**: `admin@demo.com`
+   - **Employee**: `john.doe@demo.com` (password: `password123`) or `jane.smith@demo.com` (password: `password123`)
+   - **Admin**: `admin@demo.com` (password: `admin123`)
 
 3. **Start testing**:
    - Navigate to [http://localhost:3000](http://localhost:3000)
@@ -102,14 +102,14 @@ To quickly test the application with pre-configured accounts:
 ## 📱 Usage
 
 ### For Employees
-1. **Sign In** - Use your company email and password (or demo account: `john.doe@demo.com`)
+1. **Sign In** - Use your company email and password (or demo account: `john.doe@demo.com` / `password123`)
 2. **Clock In** - Click "Clock In" to start your work day
 3. **Take Breaks** - Use "Start Break" and "End Break" buttons
 4. **Clock Out** - Click "Clock Out" to end your work day
 5. **View Summary** - Check your daily time summary at the bottom
 
 ### For Administrators
-1. **Access Admin Panel** - Navigate to `/admin` (use demo admin: `admin@demo.com`)
+1. **Access Admin Panel** - Navigate to `/admin` (use demo admin: `admin@demo.com` / `admin123`)
 2. **Manage Employees** - Add, edit, or remove employee accounts
 3. **View Attendance** - Monitor all employee time entries
 4. **Generate Reports** - Create attendance reports for any date range
@@ -155,8 +155,11 @@ The application comes with pre-configured demo accounts for testing and developm
 
 ### Available Demo Accounts
 - **John Doe** (`john.doe@demo.com`) - Software Developer (Engineering)
+  - Password: `password123`
 - **Jane Smith** (`jane.smith@demo.com`) - Marketing Manager (Marketing)
+  - Password: `password123`
 - **Admin User** (`admin@demo.com`) - System Administrator (Administration)
+  - Password: `admin123`
 
 ### Demo Account Features
 - ✅ Pre-configured work schedules
@@ -172,11 +175,23 @@ npx tsx scripts/demo-accounts-summary.ts
 # Check existing demo accounts
 npx tsx scripts/check-demo-accounts.ts
 
+# Test authentication with demo accounts
+npx tsx scripts/test-authentication.ts
+
+# Update existing accounts with passwords
+npx tsx scripts/update-demo-accounts-with-passwords.ts
+
 # Create additional demo accounts (if needed)
 npx tsx scripts/create-admin-account.ts
 ```
 
 **Note**: These are demo accounts for testing purposes. In a production environment, implement proper authentication and password management.
+
+### Authentication Security
+- **Password Hashing**: All passwords are hashed using bcrypt with 12 salt rounds
+- **Password Validation**: Minimum 6 characters required (configurable)
+- **Secure Storage**: Passwords are never stored in plain text
+- **API Protection**: Authentication endpoints validate credentials server-side
 
 ## 🔧 Configuration
 

@@ -6,16 +6,21 @@
 import { createEmployee } from '../lib/database';
 import { createAttendanceSettings } from '../lib/database';
 import { createIdleSettings } from '../lib/database';
+import { hashPassword } from '../lib/auth';
 import { Types } from 'mongoose';
 
 async function createAdminAccount(): Promise<void> {
   try {
     console.log('🚀 Creating admin demo account...\n');
 
+    // Hash password
+    const hashedPassword = await hashPassword('admin123');
+
     // Create admin employee
     const adminId = await createEmployee({
       name: 'Admin User',
       email: 'admin@demo.com',
+      password: hashedPassword,
       role: 'admin',
       department: 'Administration',
       position: 'System Administrator'
@@ -60,6 +65,7 @@ async function createAdminAccount(): Promise<void> {
     console.log('\n📋 Account Details:');
     console.log(`   Name: Admin User`);
     console.log(`   Email: admin@demo.com`);
+    console.log(`   Password: admin123`);
     console.log(`   Role: ADMIN`);
     console.log(`   Department: Administration`);
     console.log(`   Position: System Administrator`);

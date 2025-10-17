@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { TimeTrackingService } from '@/lib/timeTracking';
-import { getActiveWorkSession, getActiveBreakSession } from '@/lib/database';
+// Removed direct database imports - using API routes instead
 import { WorkSession, BreakSession } from '@/types';
 import NavBar from '@/components/Navigation/NavBar';
 import DailySummaryComponent from './DailySummary';
@@ -70,30 +70,26 @@ export default function TimeTrackerDashboard() {
     if (!user) return;
     
     try {
-      const activeWorkSession = await getActiveWorkSession(user.id);
-      setWorkSession(activeWorkSession ? {
-        id: activeWorkSession._id.toString(),
-        employeeId: activeWorkSession.employeeId.toString(),
-        clockInTime: activeWorkSession.clockInTime,
-        totalBreakTime: activeWorkSession.totalBreakTime,
-        totalWorkTime: activeWorkSession.totalWorkTime,
-        status: activeWorkSession.status,
-        createdAt: activeWorkSession.createdAt,
-        updatedAt: activeWorkSession.updatedAt
-      } : null);
-      
-      // Load break session only if we have an active work session
-      if (activeWorkSession) {
-        const activeBreakSession = await getActiveBreakSession(activeWorkSession._id.toString());
-        setBreakSession(activeBreakSession ? {
-          id: activeBreakSession._id.toString(),
-          workSessionId: activeBreakSession.workSessionId.toString(),
-          startTime: activeBreakSession.startTime,
-          endTime: activeBreakSession.endTime,
-          duration: activeBreakSession.duration,
-          status: activeBreakSession.status
-        } : null);
+      // Fetch active work session from API
+      const workSessionResponse = await fetch(`/api/time-tracking/active-work-session?employeeId=${user.id}`);
+      if (workSessionResponse.ok) {
+        const workSessionData = await workSessionResponse.json();
+        setWorkSession(workSessionData.workSession);
+        
+        // Load break session only if we have an active work session
+        if (workSessionData.workSession) {
+          const breakSessionResponse = await fetch(`/api/time-tracking/active-break-session?workSessionId=${workSessionData.workSession.id}`);
+          if (breakSessionResponse.ok) {
+            const breakSessionData = await breakSessionResponse.json();
+            setBreakSession(breakSessionData.breakSession);
+          } else {
+            setBreakSession(null);
+          }
+        } else {
+          setBreakSession(null);
+        }
       } else {
+        setWorkSession(null);
         setBreakSession(null);
       }
     } catch (err) {
