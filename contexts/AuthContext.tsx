@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { getEmployee, createEmployee, getEmployeeByEmail } from '@/lib/database';
 import { Employee } from '@/types';
 import { IEmployee } from '@/lib/models/Employee';
 
@@ -24,6 +23,62 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// API helper functions
+const apiCall = async (url: string, options: RequestInit = {}) => {
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+};
+
+const getEmployee = async (id: string): Promise<IEmployee | null> => {
+  try {
+    return await apiCall(`/api/auth/employee?id=${encodeURIComponent(id)}`);
+  } catch (error) {
+    console.error('Error fetching employee:', error);
+    return null;
+  }
+};
+
+const getEmployeeByEmail = async (email: string): Promise<IEmployee | null> => {
+  try {
+    return await apiCall(`/api/auth/employee?email=${encodeURIComponent(email)}`);
+  } catch (error) {
+    console.error('Error fetching employee by email:', error);
+    return null;
+  }
+};
+
+const loginEmployee = async (email: string, password: string): Promise<IEmployee | null> => {
+  try {
+    return await apiCall('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  } catch (error) {
+    console.error('Error during login:', error);
+    throw error;
+  }
+};
+
+const createEmployee = async (employeeData: Omit<IEmployee, '_id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+  const response = await apiCall('/api/auth/employee', {
+    method: 'POST',
+    body: JSON.stringify(employeeData),
+  });
+  return response.id;
+};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -63,15 +118,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Simple authentication - find employee by email
-      // In a real app, you'd hash the password and verify it
-      const employeeData = await getEmployeeByEmail(email);
+      // Use proper password verification
+      const employeeData = await loginEmployee(email, password);
       if (!employeeData) {
-        throw new Error('Employee not found');
+        throw new Error('Invalid email or password');
       }
       
-      // Accept any password (implement proper password verification in production)
-      // In production, you'd verify the password hash
       const userData = { id: employeeData._id.toString(), email: employeeData.email };
       setUser(userData);
       setEmployee(employeeData);
@@ -85,31 +137,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (
-    email: string, 
+    email: string,
     password: string, 
     employeeData: Omit<Employee, 'id' | 'email' | 'createdAt' | 'updatedAt'>
   ) => {
     try {
-      // Generate a simple ID (in production, use a proper UUID generator)
-      const id = `emp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
       const newEmployeeData = {
         name: employeeData.name,
         email,
+        password,
         role: employeeData.role,
         department: employeeData.department,
         position: employeeData.position,
       } as Omit<IEmployee, '_id' | 'createdAt' | 'updatedAt'>;
       
-      await createEmployee(newEmployeeData);
+      const employeeId = await createEmployee(newEmployeeData);
       
       // Auto-login after signup
-      const userData = { id, email };
+      const userData = { id: employeeId, email };
       setUser(userData);
       
       // Create a mock IEmployee object for the state
       const mockEmployee: IEmployee = {
-        _id: id as any,
+        _id: employeeId as any,
         name: employeeData.name,
         email,
         role: employeeData.role,

@@ -13,7 +13,6 @@ import {
   Minus
 } from 'lucide-react';
 import { attendanceTrackingService, AttendanceRecord, AttendanceSummary, AttendanceSettings } from '@/lib/attendanceTracking';
-import { getAttendanceRecords, getAttendanceSettings } from '@/lib/database';
 import { TimeFormat } from '@/lib/timeFormat';
 
 interface AttendanceDashboardProps {
@@ -55,26 +54,43 @@ export default function AttendanceDashboard({ employeeId }: AttendanceDashboardP
           break;
       }
       
-      const history = await getAttendanceRecords(employeeId, startDate, endDate);
-      setAttendanceHistory(history.map(record => ({
+      // Load attendance history from API
+      const historyResponse = await fetch(`/api/attendance/records?employeeId=${employeeId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
+      const historyData = historyResponse.ok ? await historyResponse.json() : { data: [] };
+      const history = historyData.data;
+      
+      setAttendanceHistory(history.map((record: {
+        _id: { toString(): string };
+        employeeId: { toString(): string };
+        date: string;
+        punchInTime?: string;
+        punchOutTime?: string;
+        totalWorkingHours: number;
+        totalBreakTime: number;
+        status: string;
+        createdAt: string;
+        updatedAt: string;
+      }) => ({
         id: record._id.toString(),
         employeeId: record.employeeId.toString(),
-        date: record.date,
-        punchInTime: record.punchInTime,
-        punchOutTime: record.punchOutTime,
+        date: new Date(record.date),
+        punchInTime: record.punchInTime ? new Date(record.punchInTime) : undefined,
+        punchOutTime: record.punchOutTime ? new Date(record.punchOutTime) : undefined,
         totalWorkingHours: record.totalWorkingHours,
         totalBreakTime: record.totalBreakTime,
         status: record.status,
-        createdAt: record.createdAt,
-        updatedAt: record.updatedAt
+        createdAt: new Date(record.createdAt),
+        updatedAt: new Date(record.updatedAt)
       })));
 
       // Load attendance summary
       const summary = await attendanceTrackingService.getAttendanceSummary(employeeId, startDate, endDate);
       setAttendanceSummary(summary);
 
-      // Load attendance settings
-      const settings = await getAttendanceSettings(employeeId);
+      // Load attendance settings from API
+      const settingsResponse = await fetch(`/api/attendance/settings?employeeId=${employeeId}`);
+      const settingsData = settingsResponse.ok ? await settingsResponse.json() : { data: null };
+      const settings = settingsData.data;
       setAttendanceSettings(settings ? {
         id: settings._id.toString(),
         employeeId: settings.employeeId.toString(),

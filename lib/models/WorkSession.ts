@@ -53,4 +53,4 @@ WorkSessionSchema.index({ employeeId: 1, status: 1 });
 WorkSessionSchema.index({ clockInTime: -1 });
 WorkSessionSchema.index({ status: 1 });
 
-export const WorkSession = mongoose.models && mongoose.models.WorkSession || mongoose.model<IWorkSession>('WorkSession', WorkSessionSchema);
+export const WorkSession = (mongoose.models && mongoose.models.WorkSession) || mongoose.model<IWorkSession>('WorkSession', WorkSessionSchema);

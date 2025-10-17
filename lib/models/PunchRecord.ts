@@ -83,4 +83,4 @@ PunchRecordSchema.index({ employeeId: 1, punchTime: -1 });
 PunchRecordSchema.index({ attendanceRecordId: 1 });
 PunchRecordSchema.index({ punchType: 1 });
 
-export const PunchRecord = mongoose.models && mongoose.models.PunchRecord || mongoose.model<IPunchRecord>('PunchRecord', PunchRecordSchema);
+export const PunchRecord = (mongoose.models && mongoose.models.PunchRecord) || mongoose.model<IPunchRecord>('PunchRecord', PunchRecordSchema);

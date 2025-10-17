@@ -244,9 +244,29 @@ export class SyncService {
             errors,
           });
 
-          // TODO: Implement screen capture upload to server
-          // For now, just mark as synced since they're stored locally
-          offlineStorageService.markAsSynced('screenCapture', screenCapture.id);
+          // Upload screen capture to server
+          try {
+            const formData = new FormData();
+            formData.append('file', screenCapture.blob);
+            formData.append('employeeId', screenCapture.employeeId);
+            formData.append('timestamp', screenCapture.timestamp.toISOString());
+            formData.append('workSessionId', screenCapture.workSessionId || '');
+            
+            const response = await fetch('/api/screen-captures', {
+              method: 'POST',
+              body: formData,
+            });
+            
+            if (response.ok) {
+              offlineStorageService.markAsSynced('screenCapture', screenCapture.id);
+            } else {
+              throw new Error(`Server responded with status: ${response.status}`);
+            }
+          } catch (uploadError) {
+            // If upload fails, keep it in offline storage for retry
+            console.warn(`Failed to upload screen capture ${screenCapture.id}, keeping offline:`, uploadError);
+            throw uploadError;
+          }
           syncedItems++;
           
           console.log(`Synced screen capture: ${screenCapture.id}`);

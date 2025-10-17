@@ -50,4 +50,4 @@ const NotificationSettingsSchema = new Schema<INotificationSettings>({
 // Indexes
 NotificationSettingsSchema.index({ employeeId: 1 }, { unique: true });
 
-export const NotificationSettings = mongoose.models && mongoose.models.NotificationSettings || mongoose.model<INotificationSettings>('NotificationSettings', NotificationSettingsSchema);
+export const NotificationSettings = (mongoose.models && mongoose.models.NotificationSettings) || mongoose.model<INotificationSettings>('NotificationSettings', NotificationSettingsSchema);

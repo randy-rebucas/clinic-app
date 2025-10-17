@@ -82,4 +82,4 @@ const AttendanceSettingsSchema = new Schema<IAttendanceSettings>({
 // Indexes
 AttendanceSettingsSchema.index({ employeeId: 1 }, { unique: true });
 
-export const AttendanceSettings = mongoose.models && mongoose.models.AttendanceSettings || mongoose.model<IAttendanceSettings>('AttendanceSettings', AttendanceSettingsSchema);
+export const AttendanceSettings = (mongoose.models && mongoose.models.AttendanceSettings) || mongoose.model<IAttendanceSettings>('AttendanceSettings', AttendanceSettingsSchema);

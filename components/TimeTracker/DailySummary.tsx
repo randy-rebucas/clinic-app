@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { getDailySummary, getTimeEntries } from '@/lib/database';
 import { DailySummary, TimeEntry } from '@/types';
 import { TimeFormat } from '@/lib/timeFormat';
 import { Calendar, Clock, Coffee, Download, BarChart3, Target, Award, Activity } from 'lucide-react';
@@ -19,10 +18,16 @@ export default function DailySummaryComponent({ employeeId, date = new Date() }:
   const loadDailyData = useCallback(async () => {
     try {
       const dateStr = date.toISOString().split('T')[0];
-      const [dailySummary, entries] = await Promise.all([
-        getDailySummary(employeeId, dateStr),
-        getTimeEntries(employeeId, date, date)
-      ]);
+      
+      // Fetch daily summary from API
+      const summaryResponse = await fetch(`/api/daily-summary?employeeId=${employeeId}&date=${dateStr}`);
+      const summaryData = summaryResponse.ok ? await summaryResponse.json() : { data: null };
+      const dailySummary = summaryData.data;
+      
+      // Fetch time entries from API
+      const entriesResponse = await fetch(`/api/time-entries?employeeId=${employeeId}&startDate=${date.toISOString()}&endDate=${date.toISOString()}`);
+      const entriesData = entriesResponse.ok ? await entriesResponse.json() : { data: [] };
+      const entries = entriesData.data;
       
       setSummary(dailySummary ? {
         id: dailySummary._id.toString(),

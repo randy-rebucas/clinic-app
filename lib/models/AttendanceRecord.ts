@@ -72,4 +72,4 @@ AttendanceRecordSchema.index({ employeeId: 1, date: 1 }, { unique: true });
 AttendanceRecordSchema.index({ date: -1 });
 AttendanceRecordSchema.index({ status: 1 });
 
-export const AttendanceRecord = mongoose.models && mongoose.models.AttendanceRecord || mongoose.model<IAttendanceRecord>('AttendanceRecord', AttendanceRecordSchema);
+export const AttendanceRecord = (mongoose.models && mongoose.models.AttendanceRecord) || mongoose.model<IAttendanceRecord>('AttendanceRecord', AttendanceRecordSchema);

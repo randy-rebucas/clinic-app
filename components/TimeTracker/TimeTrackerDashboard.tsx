@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { TimeTrackingService } from '@/lib/timeTracking';
-import { getActiveWorkSession, getActiveBreakSession } from '@/lib/database';
 import { WorkSession, BreakSession } from '@/types';
 import NavBar from '@/components/Navigation/NavBar';
 import DailySummaryComponent from './DailySummary';
@@ -70,7 +69,14 @@ export default function TimeTrackerDashboard() {
     if (!user) return;
     
     try {
-      const activeWorkSession = await getActiveWorkSession(user.id);
+      // Fetch active work session from API
+      const workSessionResponse = await fetch(`/api/work-sessions/active?employeeId=${user.id}`);
+      if (!workSessionResponse.ok) {
+        throw new Error('Failed to fetch active work session');
+      }
+      const workSessionData = await workSessionResponse.json();
+      const activeWorkSession = workSessionData.data;
+      
       setWorkSession(activeWorkSession ? {
         id: activeWorkSession._id.toString(),
         employeeId: activeWorkSession.employeeId.toString(),
@@ -84,15 +90,22 @@ export default function TimeTrackerDashboard() {
       
       // Load break session only if we have an active work session
       if (activeWorkSession) {
-        const activeBreakSession = await getActiveBreakSession(activeWorkSession._id.toString());
-        setBreakSession(activeBreakSession ? {
-          id: activeBreakSession._id.toString(),
-          workSessionId: activeBreakSession.workSessionId.toString(),
-          startTime: activeBreakSession.startTime,
-          endTime: activeBreakSession.endTime,
-          duration: activeBreakSession.duration,
-          status: activeBreakSession.status
-        } : null);
+        const breakSessionResponse = await fetch(`/api/break-sessions/active?employeeId=${user.id}`);
+        if (breakSessionResponse.ok) {
+          const breakSessionData = await breakSessionResponse.json();
+          const activeBreakSession = breakSessionData.data;
+          
+          setBreakSession(activeBreakSession ? {
+            id: activeBreakSession._id.toString(),
+            workSessionId: activeBreakSession.workSessionId.toString(),
+            startTime: activeBreakSession.startTime,
+            endTime: activeBreakSession.endTime,
+            duration: activeBreakSession.duration,
+            status: activeBreakSession.status
+          } : null);
+        } else {
+          setBreakSession(null);
+        }
       } else {
         setBreakSession(null);
       }

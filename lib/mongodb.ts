@@ -17,13 +17,28 @@ if (!MONGODB_URI) {
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-let cached = global.mongoose;
+let cached: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null } | null = null;
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+// Check if we're in a browser environment
+if (typeof window === 'undefined') {
+  // Server-side: use global object
+  cached = (global as typeof globalThis & { mongoose: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null } }).mongoose;
+  
+  if (!cached) {
+    cached = (global as typeof globalThis & { mongoose: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null } }).mongoose = { conn: null, promise: null };
+  }
+} else {
+  // Client-side: create a simple cache object
+  cached = { conn: null, promise: null };
 }
 
 async function connectDB() {
+  // If we're in a browser environment, don't actually connect to MongoDB
+  if (typeof window !== 'undefined') {
+    console.warn('MongoDB connection attempted in browser environment. This should only be used in API routes.');
+    return null;
+  }
+
   if (cached?.conn) {
     return cached.conn;
   }
@@ -33,7 +48,7 @@ async function connectDB() {
       bufferCommands: false,
     };
 
-    cached!.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseConnection) => {
+    cached!.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseConnection) => {
       console.log('Connected to MongoDB successfully');
       return mongooseConnection;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

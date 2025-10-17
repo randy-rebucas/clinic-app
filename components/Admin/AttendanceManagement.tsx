@@ -12,15 +12,57 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
-  BarChart3
+  BarChart3,
+  Mail
 } from 'lucide-react';
 import { AttendanceRecord, AttendanceSummary, AttendanceSettings } from '@/lib/attendanceTracking';
-import { getAttendanceRecords, getAttendanceSettings, getAllEmployees } from '@/lib/database';
+// Removed direct database imports - now using API routes
 import { TimeFormat } from '@/lib/timeFormat';
 
+// API helper functions
+const apiCall = async (url: string, options: RequestInit = {}) => {
+  const response = await fetch(url, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+};
+
+const getAttendanceRecords = async (employeeId: string, startDate: Date, endDate: Date) => {
+  try {
+    const params = new URLSearchParams({
+      employeeId,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    });
+    return await apiCall(`/api/attendance/records?${params}`);
+  } catch (error) {
+    console.error('Error fetching attendance records:', error);
+    return [];
+  }
+};
+
+const getAttendanceSettings = async (employeeId: string) => {
+  try {
+    const params = new URLSearchParams({ employeeId });
+    return await apiCall(`/api/attendance/settings?${params}`);
+  } catch (error) {
+    console.error('Error fetching attendance settings:', error);
+    return null;
+  }
+};
+
 interface AttendanceManagementProps {
-  isOpen: boolean;
-  onClose: () => void;
+  // No props needed for page component
 }
 
 interface EmployeeAttendanceData {
@@ -35,7 +77,7 @@ interface EmployeeAttendanceData {
   settings?: AttendanceSettings;
 }
 
-export default function AttendanceManagement({ isOpen, onClose }: AttendanceManagementProps) {
+export default function AttendanceManagement({}: AttendanceManagementProps) {
   const [employees, setEmployees] = useState<EmployeeAttendanceData[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [loading, setLoading] = useState(false);
@@ -47,8 +89,13 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
     try {
       setLoading(true);
       
-      // Get all employees
-      const allEmployees = await getAllEmployees();
+      // Get all employees via API
+      const response = await fetch('/api/employees');
+      if (!response.ok) {
+        throw new Error('Failed to fetch employees');
+      }
+      const data = await response.json();
+      const allEmployees = data.data;
       
       // Get current date range
       const endDate = new Date();
@@ -71,7 +118,13 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
 
       // Load attendance data for each employee
       const employeeData: EmployeeAttendanceData[] = await Promise.all(
-        allEmployees.map(async (employee) => {
+        allEmployees.map(async (employee: { 
+          _id: { toString(): string }; 
+          id: string;
+          name: string;
+          email: string;
+          department?: string;
+        }) => {
           try {
             const [currentAttendance, summary, settings] = await Promise.all([
               getAttendanceRecords(employee._id.toString(), new Date(), new Date()).then(records => {
@@ -92,13 +145,13 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
                 if (records.length === 0) return undefined;
                 
                 const totalWorkingDays = records.length;
-                const presentDays = records.filter(r => r.status === 'present' || r.status === 'late').length;
-                const absentDays = records.filter(r => r.status === 'absent').length;
-                const lateDays = records.filter(r => r.status === 'late').length;
-                const halfDays = records.filter(r => r.status === 'half_day').length;
+                const presentDays = records.filter((r: any) => r.status === 'present' || r.status === 'late').length;
+                const absentDays = records.filter((r: any) => r.status === 'absent').length;
+                const lateDays = records.filter((r: any) => r.status === 'late').length;
+                const halfDays = records.filter((r: any) => r.status === 'half_day').length;
                 
-                const totalWorkingHours = records.reduce((sum, r) => sum + r.totalWorkingHours, 0);
-                const totalOvertimeHours = records.reduce((sum, r) => sum + (r.overtimeHours || 0), 0);
+                const totalWorkingHours = records.reduce((sum: number, r: any) => sum + r.totalWorkingHours, 0);
+                const totalOvertimeHours = records.reduce((sum: number, r: any) => sum + (r.overtimeHours || 0), 0);
                 const averageWorkingHours = records.length > 0 ? totalWorkingHours / records.length : 0;
                 
                 const punctualityScore = presentDays > 0 ? 
@@ -123,8 +176,8 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
               getAttendanceSettings(employee._id.toString()).then(settings => {
                 if (!settings) return undefined;
                 return {
-                  id: settings._id.toString(),
-                  employeeId: settings.employeeId.toString(),
+                  id: settings._id?.toString() || settings.id || 'default',
+                  employeeId: settings.employeeId?.toString() || employee._id.toString(),
                   workStartTime: settings.workStartTime,
                   workEndTime: settings.workEndTime,
                   breakDuration: settings.breakDuration,
@@ -177,10 +230,8 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
   }, [selectedPeriod]);
 
   useEffect(() => {
-    if (isOpen) {
-      loadEmployeeData();
-    }
-  }, [isOpen, loadEmployeeData]);
+    loadEmployeeData();
+  }, [loadEmployeeData]);
 
   const filteredEmployees = employees.filter(emp => {
     const matchesSearch = emp.employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -214,17 +265,17 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
   const getStatusColor = (status: AttendanceRecord['status']) => {
     switch (status) {
       case 'present':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
+        return 'bg-green-100 text-green-800';
       case 'late':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400';
+        return 'bg-yellow-100 text-yellow-800';
       case 'absent':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
+        return 'bg-red-100 text-red-800';
       case 'half_day':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400';
+        return 'bg-orange-100 text-orange-800';
       case 'on_leave':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400';
+        return 'bg-blue-100 text-blue-800';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -264,18 +315,14 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
     window.URL.revokeObjectURL(url);
   };
 
-  if (!isOpen) return null;
-
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-4xl w-full mx-4">
-          <div className="animate-pulse">
-            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-            <div className="space-y-3">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
-            </div>
+      <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
           </div>
         </div>
       </div>
@@ -283,112 +330,107 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-7xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-blue-600" />
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Attendance Management
-            </h2>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium text-gray-900">Attendance Management</h3>
+        <button
+          onClick={() => window.location.reload()}
+          className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <BarChart3 className="h-4 w-4" />
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      {/* Controls */}
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search employees..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+        </div>
+        
+        <div className="flex gap-2">
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value as 'week' | 'month' | 'quarter' | 'year')}
+            className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <XCircle className="h-5 w-5 text-gray-600" />
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+          </select>
+          
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as 'all' | 'present' | 'absent' | 'late' | 'half_day')}
+            className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All Status</option>
+            <option value="present">Present</option>
+            <option value="late">Late</option>
+            <option value="absent">Absent</option>
+            <option value="half_day">Half Day</option>
+          </select>
+          
+          <button
+            onClick={exportAttendanceReport}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            Export
           </button>
         </div>
+      </div>
 
-        {/* Controls */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search employees..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          
-          <div className="flex gap-2">
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value as 'week' | 'month' | 'quarter' | 'year')}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="quarter">This Quarter</option>
-              <option value="year">This Year</option>
-            </select>
-            
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value as 'all' | 'present' | 'absent' | 'late' | 'half_day')}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">All Status</option>
-              <option value="present">Present</option>
-              <option value="late">Late</option>
-              <option value="absent">Absent</option>
-              <option value="half_day">Half Day</option>
-            </select>
-            
-            <button
-              onClick={exportAttendanceReport}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <Download className="h-4 w-4" />
-              Export
-            </button>
-          </div>
-        </div>
-
-        {/* Summary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+      {/* Summary Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-green-50 p-4 rounded-lg">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-green-600" />
               <div>
                 <div className="text-2xl font-bold text-green-600">
                   {filteredEmployees.filter(emp => emp.currentAttendance?.status === 'present').length}
                 </div>
-                <div className="text-sm text-green-700 dark:text-green-400">Present Today</div>
+                <div className="text-sm text-green-700">Present Today</div>
               </div>
             </div>
           </div>
           
-          <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+          <div className="bg-red-50 p-4 rounded-lg">
             <div className="flex items-center gap-2">
               <XCircle className="h-5 w-5 text-red-600" />
               <div>
                 <div className="text-2xl font-bold text-red-600">
                   {filteredEmployees.filter(emp => emp.currentAttendance?.status === 'absent').length}
                 </div>
-                <div className="text-sm text-red-700 dark:text-red-400">Absent Today</div>
+                <div className="text-sm text-red-700 text-red-400">Absent Today</div>
               </div>
             </div>
           </div>
           
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+          <div className="bg-yellow-50 bg-yellow-900/20 p-4 rounded-lg">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-yellow-600" />
               <div>
                 <div className="text-2xl font-bold text-yellow-600">
                   {filteredEmployees.filter(emp => emp.currentAttendance?.status === 'late').length}
                 </div>
-                <div className="text-sm text-yellow-700 dark:text-yellow-400">Late Today</div>
+                <div className="text-sm text-yellow-700 text-yellow-400">Late Today</div>
               </div>
             </div>
           </div>
           
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+          <div className="bg-blue-50 bg-blue-900/20 p-4 rounded-lg">
             <div className="flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-blue-600" />
               <div>
@@ -396,175 +438,182 @@ export default function AttendanceManagement({ isOpen, onClose }: AttendanceMana
                   {filteredEmployees.length > 0 ? 
                     Math.round(filteredEmployees.reduce((sum, emp) => sum + (emp.summary?.attendanceRate || 0), 0) / filteredEmployees.length) : 0}%
                 </div>
-                <div className="text-sm text-blue-700 dark:text-blue-400">Avg Attendance</div>
+                <div className="text-sm text-blue-700 text-blue-400">Avg Attendance</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Employee List */}
-        <div className="space-y-3">
-          {filteredEmployees.map((emp) => (
-            <div key={emp.employee.id} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-                    <span className="text-blue-600 font-semibold">
-                      {emp.employee.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-white">
-                      {emp.employee.name}
-                    </div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {emp.employee.email}
-                      {emp.employee.department && ` • ${emp.employee.department}`}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                  {/* Current Status */}
-                  <div className="text-center">
-                    <div className="flex items-center gap-2 mb-1">
-                      {emp.currentAttendance && getStatusIcon(emp.currentAttendance.status)}
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(emp.currentAttendance?.status || 'absent')}`}>
-                        {emp.currentAttendance?.status?.replace('_', ' ').toUpperCase() || 'NOT TRACKED'}
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {emp.currentAttendance?.punchInTime ? 
-                        `${formatTime(emp.currentAttendance.punchInTime)} - ${formatTime(emp.currentAttendance.punchOutTime)}` :
-                        'No attendance today'
-                      }
-                    </div>
-                  </div>
-
-                  {/* Summary Stats */}
-                  {emp.summary && (
-                    <div className="text-center">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {Math.round(emp.summary.attendanceRate)}% / {emp.summary.punctualityScore}%
+      {/* Attendance Table */}
+      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Employee
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Punch In/Out
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Working Hours
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Attendance Rate
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredEmployees.map((emp) => (
+              <tr key={emp.employee.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-10 w-10">
+                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-blue-600 font-semibold">
+                          {emp.employee.name.charAt(0).toUpperCase()}
+                        </span>
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        Attendance / Punctuality
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900">{emp.employee.name}</div>
+                      <div className="text-sm text-gray-500 flex items-center">
+                        <Mail className="h-3 w-3 mr-1" />
+                        {emp.employee.email}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {emp.currentAttendance?.status ? (
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(emp.currentAttendance.status)}`}>
+                      {getStatusIcon(emp.currentAttendance.status)}
+                      {emp.currentAttendance.status.replace('_', ' ').toUpperCase()}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <Clock className="h-3 w-3 mr-1" />
+                      NOT TRACKED
+                    </span>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div>
+                    <div>In: {formatTime(emp.currentAttendance?.punchInTime)}</div>
+                    <div>Out: {formatTime(emp.currentAttendance?.punchOutTime)}</div>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {emp.currentAttendance?.totalWorkingHours?.toFixed(1) || '0.0'}h
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {emp.summary ? (
+                    <div>
+                      <div>{emp.summary.attendanceRate.toFixed(0)}%</div>
+                      <div className="text-xs text-gray-500">Punctuality: {emp.summary.punctualityScore.toFixed(0)}%</div>
+                    </div>
+                  ) : (
+                    <span className="text-gray-500">No data</span>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => setShowDetails(showDetails === emp.employee.id ? null : emp.employee.id)}
+                      className="text-blue-600 hover:text-blue-900"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button className="text-blue-600 hover:text-blue-900">
+                      <Edit className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {filteredEmployees.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          No employees found matching your criteria.
+        </div>
+      )}
+
+      {/* Details Modal */}
+      {showDetails && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium text-gray-900">Employee Details</h3>
+              <button
+                onClick={() => setShowDetails(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle className="h-6 w-6" />
+              </button>
+            </div>
+            
+            {(() => {
+              const emp = filteredEmployees.find(e => e.employee.id === showDetails);
+              if (!emp) return null;
+              
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Today&apos;s Details</h4>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Punch In:</span>
+                        <span>{formatTime(emp.currentAttendance?.punchInTime)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Punch Out:</span>
+                        <span>{formatTime(emp.currentAttendance?.punchOutTime)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Working Hours:</span>
+                        <span>{emp.currentAttendance?.totalWorkingHours?.toFixed(1) || '0.0'}h</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {emp.summary && (
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-2">Period Summary</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Present Days:</span>
+                          <span>{emp.summary.presentDays}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Absent Days:</span>
+                          <span>{emp.summary.absentDays}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Late Days:</span>
+                          <span>{emp.summary.lateDays}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Total Hours:</span>
+                          <span>{emp.summary.totalWorkingHours.toFixed(1)}h</span>
+                        </div>
                       </div>
                     </div>
                   )}
-
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setShowDetails(showDetails === emp.employee.id ? null : emp.employee.id)}
-                      className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                    >
-                      <Eye className="h-4 w-4 text-gray-600" />
-                    </button>
-                    <button className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors">
-                      <Edit className="h-4 w-4 text-gray-600" />
-                    </button>
-                  </div>
                 </div>
-              </div>
-
-              {/* Detailed View */}
-              {showDetails === emp.employee.id && (
-                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Current Day Details */}
-                    <div>
-                      <h4 className="font-medium text-gray-900 dark:text-white mb-2">Today&apos;s Details</h4>
-                      <div className="space-y-1 text-sm">
-                        <div>
-                          <span className="text-gray-500 dark:text-gray-400">Punch In:</span>
-                          <span className="ml-2">{formatTime(emp.currentAttendance?.punchInTime)}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500 dark:text-gray-400">Punch Out:</span>
-                          <span className="ml-2">{formatTime(emp.currentAttendance?.punchOutTime)}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-500 dark:text-gray-400">Working Hours:</span>
-                          <span className="ml-2">
-                            {emp.currentAttendance?.totalWorkingHours ? 
-                              TimeFormat.formatDuration(emp.currentAttendance.totalWorkingHours * 60) : 
-                              'N/A'
-                            }
-                          </span>
-                        </div>
-                        {emp.currentAttendance?.lateMinutes && (
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Late by:</span>
-                            <span className="ml-2 text-yellow-600">{emp.currentAttendance.lateMinutes} min</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Period Summary */}
-                    {emp.summary && (
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">Period Summary</h4>
-                        <div className="space-y-1 text-sm">
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Present Days:</span>
-                            <span className="ml-2">{emp.summary.presentDays}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Absent Days:</span>
-                            <span className="ml-2">{emp.summary.absentDays}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Late Days:</span>
-                            <span className="ml-2">{emp.summary.lateDays}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Total Hours:</span>
-                            <span className="ml-2">{TimeFormat.formatDuration(emp.summary.totalWorkingHours * 60)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Settings */}
-                    {emp.settings && (
-                      <div>
-                        <h4 className="font-medium text-gray-900 dark:text-white mb-2">Work Schedule</h4>
-                        <div className="space-y-1 text-sm">
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Work Hours:</span>
-                            <span className="ml-2">{emp.settings.workStartTime} - {emp.settings.workEndTime}</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Break Duration:</span>
-                            <span className="ml-2">{emp.settings.breakDuration} min</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Late Threshold:</span>
-                            <span className="ml-2">{emp.settings.lateThreshold} min</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-500 dark:text-gray-400">Working Days:</span>
-                            <span className="ml-2">{emp.settings.workingDays.length} days/week</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {filteredEmployees.length === 0 && (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            No employees found matching your criteria.
+              );
+            })()}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

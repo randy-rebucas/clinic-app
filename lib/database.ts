@@ -13,15 +13,24 @@ import {
   ApplicationTrackingSettings, IApplicationTrackingSettings,
   WebsiteActivity, IWebsiteActivity,
   WebsiteTrackingSettings, IWebsiteTrackingSettings,
+  ScreenCapture, IScreenCapture,
   ScreenCaptureSettings, IScreenCaptureSettings,
   AttendanceRecord, IAttendanceRecord,
   PunchRecord, IPunchRecord,
   AttendanceSettings, IAttendanceSettings
 } from './models';
+
 import { Types } from 'mongoose';
 
 // Employee Management
-export const createEmployee = async (employeeData: Omit<IEmployee, '_id' | 'createdAt' | 'updatedAt'>) => {
+export const createEmployee = async (employeeData: {
+  name: string;
+  email: string;
+  password: string;
+  role: 'employee' | 'admin';
+  department?: string;
+  position?: string;
+}) => {
   await connectDB();
   
   const employee = new Employee(employeeData);
@@ -346,16 +355,25 @@ export const getActiveIdleSession = async (workSessionId: string): Promise<IIdle
   return idleSession;
 };
 
-export const getIdleSessions = async (workSessionId: string) => {
+export const getIdleSessions = async (employeeId: string, startDate?: Date, endDate?: Date) => {
   await connectDB();
   
-  if (!Types.ObjectId.isValid(workSessionId)) {
+  if (!Types.ObjectId.isValid(employeeId)) {
     return [];
   }
   
-  const idleSessions = await IdleSession.find({
-    workSessionId: new Types.ObjectId(workSessionId)
-  }).sort({ startTime: -1 });
+  const query: Record<string, unknown> = {
+    employeeId: new Types.ObjectId(employeeId)
+  };
+  
+  if (startDate && endDate) {
+    query.startTime = {
+      $gte: startDate,
+      $lte: endDate
+    };
+  }
+  
+  const idleSessions = await IdleSession.find(query).sort({ startTime: -1 });
   
   return idleSessions;
 };
@@ -562,6 +580,51 @@ export const getAllScreenCaptureSettings = async (): Promise<IScreenCaptureSetti
     .sort({ updatedAt: -1 });
   
   return settings;
+};
+
+// Screen Capture Management
+export const createScreenCapture = async (captureData: {
+  employeeId: string;
+  workSessionId?: string;
+  timestamp: Date;
+  imageData: string;
+  thumbnail: string;
+  fileSize: number;
+  isActive: boolean;
+}) => {
+  await connectDB();
+  
+  const capture = new ScreenCapture(captureData);
+  const savedCapture = await capture.save();
+  return { 
+    id: savedCapture._id.toString(), 
+    ...captureData,
+    _id: savedCapture._id
+  };
+};
+
+export const getScreenCaptures = async (employeeId: string, startDate?: Date, endDate?: Date): Promise<IScreenCapture[]> => {
+  await connectDB();
+  
+  if (!Types.ObjectId.isValid(employeeId)) {
+    return [];
+  }
+  
+  const query: Record<string, unknown> = {
+    employeeId: new Types.ObjectId(employeeId)
+  };
+  
+  if (startDate && endDate) {
+    query.timestamp = {
+      $gte: startDate,
+      $lte: endDate
+    };
+  }
+  
+  const captures = await ScreenCapture.find(query)
+    .sort({ timestamp: -1 });
+  
+  return captures;
 };
 
 // Attendance Management

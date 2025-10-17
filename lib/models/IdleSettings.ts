@@ -52,4 +52,4 @@ const IdleSettingsSchema = new Schema<IIdleSettings>({
 // Indexes
 IdleSettingsSchema.index({ employeeId: 1 }, { unique: true });
 
-export const IdleSettings = mongoose.models && mongoose.models.IdleSettings || mongoose.model<IIdleSettings>('IdleSettings', IdleSettingsSchema);
+export const IdleSettings = (mongoose.models && mongoose.models.IdleSettings) || mongoose.model<IIdleSettings>('IdleSettings', IdleSettingsSchema);

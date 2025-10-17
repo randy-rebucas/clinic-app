@@ -60,7 +60,7 @@ export default function AdminDashboard() {
       case 'employees':
         return <EmployeeManagement />;
       case 'attendance':
-        return <AttendanceManagement isOpen={true} onClose={() => {}} />;
+        return <AttendanceManagement />;
       case 'screen-captures':
         return <ScreenCaptureManagement />;
       case 'reports':

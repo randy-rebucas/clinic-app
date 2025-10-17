@@ -46,4 +46,4 @@ TimeEntrySchema.index({ employeeId: 1, timestamp: -1 });
 TimeEntrySchema.index({ type: 1 });
 TimeEntrySchema.index({ timestamp: -1 });
 
-export const TimeEntry = mongoose.models && mongoose.models.TimeEntry || mongoose.model<ITimeEntry>('TimeEntry', TimeEntrySchema);
+export const TimeEntry = (mongoose.models && mongoose.models.TimeEntry) || mongoose.model<ITimeEntry>('TimeEntry', TimeEntrySchema);

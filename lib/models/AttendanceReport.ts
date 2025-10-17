@@ -73,4 +73,4 @@ AttendanceReportSchema.index({ employeeId: 1, generatedAt: -1 });
 AttendanceReportSchema.index({ generatedBy: 1 });
 AttendanceReportSchema.index({ generatedAt: -1 });
 
-export const AttendanceReport = mongoose.models && mongoose.models.AttendanceReport || mongoose.model<IAttendanceReport>('AttendanceReport', AttendanceReportSchema);
+export const AttendanceReport = (mongoose.models && mongoose.models.AttendanceReport) || mongoose.model<IAttendanceReport>('AttendanceReport', AttendanceReportSchema);

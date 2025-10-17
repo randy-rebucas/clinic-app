@@ -140,9 +140,15 @@ class AttendanceTrackingService {
       }
 
       // Get attendance settings
-      const settings = this.attendanceSettings.get(employeeId);
+      let settings = this.attendanceSettings.get(employeeId);
       if (!settings) {
-        throw new Error('Attendance settings not found');
+        // Load settings if not in cache
+        settings = await this.getAttendanceSettings(employeeId);
+        if (!settings) {
+          throw new Error('Attendance settings not found');
+        }
+        // Cache the settings for future use
+        this.attendanceSettings.set(employeeId, settings);
       }
 
       // Check if it's a working day
@@ -217,9 +223,15 @@ class AttendanceTrackingService {
       }
 
       // Get attendance settings
-      const settings = this.attendanceSettings.get(employeeId);
+      let settings = this.attendanceSettings.get(employeeId);
       if (!settings) {
-        throw new Error('Attendance settings not found');
+        // Load settings if not in cache
+        settings = await this.getAttendanceSettings(employeeId);
+        if (!settings) {
+          throw new Error('Attendance settings not found');
+        }
+        // Cache the settings for future use
+        this.attendanceSettings.set(employeeId, settings);
       }
 
       // Calculate working hours
@@ -291,21 +303,25 @@ class AttendanceTrackingService {
         return cached;
       }
 
-      // Load from database
-      const { getAttendanceRecord } = await import('./database');
-      const record = await getAttendanceRecord(employeeId, today);
+      // Load from API
+      const response = await fetch(`/api/attendance/record?employeeId=${employeeId}&date=${today.toISOString()}`);
+      if (!response.ok) {
+        return null;
+      }
+      const data = await response.json();
+      const record = data.data;
       if (!record) return null;
       return {
         id: record._id.toString(),
         employeeId: record.employeeId.toString(),
-        date: record.date,
-        punchInTime: record.punchInTime,
-        punchOutTime: record.punchOutTime,
+        date: new Date(record.date),
+        punchInTime: record.punchInTime ? new Date(record.punchInTime) : undefined,
+        punchOutTime: record.punchOutTime ? new Date(record.punchOutTime) : undefined,
         totalWorkingHours: record.totalWorkingHours,
         totalBreakTime: record.totalBreakTime,
         status: record.status,
-        createdAt: record.createdAt,
-        updatedAt: record.updatedAt
+        createdAt: new Date(record.createdAt),
+        updatedAt: new Date(record.updatedAt)
       };
     } catch (error) {
       console.error('Failed to get today\'s attendance record:', error);
@@ -318,19 +334,24 @@ class AttendanceTrackingService {
    */
   async getAttendanceSummary(employeeId: string, startDate: Date, endDate: Date): Promise<AttendanceSummary> {
     try {
-      const { getAttendanceRecords } = await import('./database');
-      const records = await getAttendanceRecords(employeeId, startDate, endDate);
+      // Fetch attendance records from API
+      const response = await fetch(`/api/attendance/records?employeeId=${employeeId}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch attendance records');
+      }
+      const data = await response.json();
+      const records = data.data;
       const transformedRecords = records.map(record => ({
         id: record._id.toString(),
         employeeId: record.employeeId.toString(),
-        date: record.date,
-        punchInTime: record.punchInTime,
-        punchOutTime: record.punchOutTime,
+        date: new Date(record.date),
+        punchInTime: record.punchInTime ? new Date(record.punchInTime) : undefined,
+        punchOutTime: record.punchOutTime ? new Date(record.punchOutTime) : undefined,
         totalWorkingHours: record.totalWorkingHours,
         totalBreakTime: record.totalBreakTime,
         status: record.status,
-        createdAt: record.createdAt,
-        updatedAt: record.updatedAt
+        createdAt: new Date(record.createdAt),
+        updatedAt: new Date(record.updatedAt)
       }));
       
       const workingDays = this.calculateWorkingDays(startDate, endDate, employeeId);
@@ -376,13 +397,54 @@ class AttendanceTrackingService {
    */
   private async getAttendanceSettings(employeeId: string): Promise<AttendanceSettings | null> {
     try {
-      const { getAttendanceSettings } = await import('./database');
-      const settings = await getAttendanceSettings(employeeId);
-      if (!settings) return null;
+      // Fetch attendance settings from API
+      const response = await fetch(`/api/attendance/settings?employeeId=${employeeId}`);
+      if (!response.ok) {
+        return null;
+      }
+      const data = await response.json();
+      let settings = data.data;
+      
+      // If no settings found, create default settings
+      if (!settings) {
+        const defaultSettings = {
+          workStartTime: '09:00',
+          workEndTime: '17:00',
+          breakDuration: 60, // 1 hour
+          lateThreshold: 15, // 15 minutes
+          earlyLeaveThreshold: 15, // 15 minutes
+          overtimeThreshold: 8, // 8 hours
+          workingDays: [1, 2, 3, 4, 5], // Monday to Friday
+          timezone: 'America/New_York',
+          requireLocation: false,
+          allowRemoteWork: true,
+          autoPunchOut: false,
+        };
+
+        // Create default settings via API
+        const createResponse = await fetch('/api/attendance/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            employeeId,
+            ...defaultSettings
+          }),
+        });
+
+        if (createResponse.ok) {
+          const createData = await createResponse.json();
+          settings = createData.data;
+        } else {
+          console.error('Failed to create default attendance settings');
+          return null;
+        }
+      }
       
       // Transform IAttendanceSettings to AttendanceSettings
       return {
-        id: settings._id.toString(),
+        id: settings._id ? settings._id.toString() : settings.id,
         employeeId: settings.employeeId.toString(),
         workStartTime: settings.workStartTime,
         workEndTime: settings.workEndTime,
@@ -409,23 +471,35 @@ class AttendanceTrackingService {
    */
   private async createAttendanceRecord(employeeId: string, date: Date): Promise<AttendanceRecord> {
     try {
-      const { createAttendanceRecord } = await import('./database');
-      const { Types } = await import('mongoose');
-      const record = await createAttendanceRecord({
-        employeeId: new Types.ObjectId(employeeId),
-        date,
-        totalWorkingHours: 0,
-        totalBreakTime: 0,
-        status: 'absent' as const,
-      } as Omit<IAttendanceRecord, '_id' | 'createdAt' | 'updatedAt'>); // Type assertion to bypass the complex Mongoose Document interface
+      // Create attendance record via API
+      const response = await fetch('/api/attendance/records', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          employeeId,
+          date,
+          totalWorkingHours: 0,
+          totalBreakTime: 0,
+          status: 'absent',
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create attendance record');
+      }
+      
+      const data = await response.json();
+      const record = data.data;
       
       // Transform database record to AttendanceRecord interface
       return {
         id: record.id,
         employeeId: record.employeeId.toString(),
-        date: record.date,
-        punchInTime: record.punchInTime,
-        punchOutTime: record.punchOutTime,
+        date: new Date(record.date),
+        punchInTime: record.punchInTime ? new Date(record.punchInTime) : undefined,
+        punchOutTime: record.punchOutTime ? new Date(record.punchOutTime) : undefined,
         totalWorkingHours: record.totalWorkingHours,
         totalBreakTime: record.totalBreakTime,
         status: record.status,
@@ -433,8 +507,8 @@ class AttendanceTrackingService {
         earlyLeaveMinutes: record.earlyLeaveMinutes,
         overtimeHours: record.overtimeHours,
         notes: record.notes,
-        createdAt: record.createdAt,
-        updatedAt: record.updatedAt,
+        createdAt: new Date(record.createdAt),
+        updatedAt: new Date(record.updatedAt),
       };
     } catch (error) {
       console.error('Failed to create attendance record:', error);

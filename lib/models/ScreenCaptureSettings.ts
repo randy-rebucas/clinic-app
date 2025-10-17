@@ -90,4 +90,4 @@ const ScreenCaptureSettingsSchema = new Schema<IScreenCaptureSettings>({
 // Indexes
 ScreenCaptureSettingsSchema.index({ employeeId: 1 }, { unique: true });
 
-export const ScreenCaptureSettings = mongoose.models && mongoose.models.ScreenCaptureSettings || mongoose.model<IScreenCaptureSettings>('ScreenCaptureSettings', ScreenCaptureSettingsSchema);
+export const ScreenCaptureSettings = (mongoose.models && mongoose.models.ScreenCaptureSettings) || mongoose.model<IScreenCaptureSettings>('ScreenCaptureSettings', ScreenCaptureSettingsSchema);

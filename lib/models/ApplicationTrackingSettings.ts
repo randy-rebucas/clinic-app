@@ -65,4 +65,4 @@ const ApplicationTrackingSettingsSchema = new Schema<IApplicationTrackingSetting
 // Indexes
 ApplicationTrackingSettingsSchema.index({ employeeId: 1 }, { unique: true });
 
-export const ApplicationTrackingSettings = mongoose.models && mongoose.models.ApplicationTrackingSettings || mongoose.model<IApplicationTrackingSettings>('ApplicationTrackingSettings', ApplicationTrackingSettingsSchema);
+export const ApplicationTrackingSettings = (mongoose.models && mongoose.models.ApplicationTrackingSettings) || mongoose.model<IApplicationTrackingSettings>('ApplicationTrackingSettings', ApplicationTrackingSettingsSchema);
