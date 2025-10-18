@@ -7,7 +7,8 @@
     "build": "node scripts/generate-sw.js && next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "generate-sw": "node scripts/generate-sw.js"
+    "generate-sw": "node scripts/generate-sw.js",
+    "generate-employee-ids": "npx tsx scripts/generate-employee-ids.ts"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",

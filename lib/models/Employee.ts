@@ -5,9 +5,11 @@ export interface IEmployee extends Document {
   name: string;
   email: string;
   password: string;
+  employeeId?: string;
   role: 'employee' | 'admin';
   department?: string;
   position?: string;
+  profilePicture?: string;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -44,6 +46,16 @@ const EmployeeSchema = new Schema<IEmployee>({
     type: String,
     trim: true,
   },
+  employeeId: {
+    type: String,
+    unique: true,
+    sparse: true, // Allows null values but ensures uniqueness when present
+    trim: true,
+  },
+  profilePicture: {
+    type: String,
+    trim: true,
+  },
 }, {
   timestamps: true,
 });
@@ -52,6 +64,7 @@ const EmployeeSchema = new Schema<IEmployee>({
 EmployeeSchema.index({ email: 1 });
 EmployeeSchema.index({ role: 1 });
 EmployeeSchema.index({ department: 1 });
+EmployeeSchema.index({ employeeId: 1 });
 
 // Hash password before saving
 EmployeeSchema.pre('save', async function(next) {

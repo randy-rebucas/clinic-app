@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* 3D Card Flip Animation */
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
 :root {
   /* Light theme colors */
   --background: #fafbfc;

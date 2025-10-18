@@ -77,6 +77,14 @@ export const getEmployeeByEmail = async (email: string): Promise<IEmployee | nul
   return employee;
 };
 
+export const getEmployeeByEmployeeId = async (employeeId: string): Promise<IEmployee | null> => {
+  await connectDB();
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const employee = await (Employee as any).findOne({ employeeId });
+  return employee;
+};
+
 export const getAllEmployees = async (
   skip: number = 0, 
   limit: number = 50, 

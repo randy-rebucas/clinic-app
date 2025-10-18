@@ -2,9 +2,11 @@ export interface Employee {
   id: string;
   name: string;
   email: string;
+  employeeId?: string;
   role: 'employee' | 'admin';
   department?: string;
   position?: string;
+  profilePicture?: string;
   createdAt: Date;
   updatedAt: Date;
 }
