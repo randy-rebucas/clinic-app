@@ -32,6 +32,11 @@ export default function NavBar() {
               Dashboard
             </Link>
             
+            {/* Theme Navigation - More prominent */}
+            <div className="flex items-center space-x-1">
+              <ThemeToggle />
+            </div>
+            
             {isAdmin && (
               <>
                 <Link
@@ -52,7 +57,6 @@ export default function NavBar() {
             )}
             
             <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">
-              <ThemeToggle />
               
               <Link
               href="/profile"

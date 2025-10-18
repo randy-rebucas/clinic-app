@@ -501,7 +501,7 @@ export default function TimeTrackerDashboard() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
         <NavBar />
 
-        <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4">
         {/* Hero Section - Current Status & Time */}
         <div className="mb-6">
           <div className="card p-4 sm:p-6">
