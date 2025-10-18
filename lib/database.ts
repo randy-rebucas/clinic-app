@@ -6,6 +6,7 @@ import {
   BreakSession, IBreakSession,
   DailySummary, IDailySummary,
   WeeklySummary, IWeeklySummary,
+  AttendanceSettings, IAttendanceSettings,
   IdleSettings, IIdleSettings,
   ApplicationTrackingSettings, IApplicationTrackingSettings,
   WebsiteTrackingSettings, IWebsiteTrackingSettings,
@@ -310,6 +311,40 @@ export const getWeeklySummary = async (employeeId: string, weekStart: string): P
   return weeklySummary;
 };
 
+// Attendance Settings Management
+export const createAttendanceSettings = async (attendanceSettingsData: Omit<IAttendanceSettings, '_id' | 'createdAt' | 'updatedAt'>) => {
+  await connectDB();
+  
+  const attendanceSettings = new AttendanceSettings(attendanceSettingsData);
+  const savedAttendanceSettings = await attendanceSettings.save();
+  return savedAttendanceSettings._id.toString();
+};
+
+export const updateAttendanceSettings = async (settingsId: string, updates: Partial<IAttendanceSettings>) => {
+  await connectDB();
+  
+  if (!Types.ObjectId.isValid(settingsId)) {
+    throw new Error('Invalid settings ID');
+  }
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (AttendanceSettings as any).findByIdAndUpdate(settingsId, updates, { new: true });
+};
+
+export const getAttendanceSettings = async (employeeId: string): Promise<IAttendanceSettings | null> => {
+  await connectDB();
+  
+  if (!Types.ObjectId.isValid(employeeId)) {
+    return null;
+  }
+  
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const attendanceSettings = await (AttendanceSettings as any).findOne({
+    employeeId: new Types.ObjectId(employeeId)
+  });
+  
+  return attendanceSettings;
+};
 
 // Idle Settings Management
 export const createIdleSettings = async (idleSettingsData: Omit<IIdleSettings, '_id' | 'createdAt' | 'updatedAt'>) => {

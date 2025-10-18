@@ -8,6 +8,7 @@ export { WeeklySummary } from './WeeklySummary';
 
 // Settings Models
 export { NotificationSettings } from './NotificationSettings';
+export { AttendanceSettings } from './AttendanceSettings';
 export { IdleSettings } from './IdleSettings';
 export { IdleSession } from './IdleSession';
 
@@ -30,6 +31,7 @@ export type { IBreakSession } from './BreakSession';
 export type { IDailySummary } from './DailySummary';
 export type { IWeeklySummary } from './WeeklySummary';
 export type { INotificationSettings } from './NotificationSettings';
+export type { IAttendanceSettings } from './AttendanceSettings';
 export type { IIdleSettings } from './IdleSettings';
 export type { IIdleSession } from './IdleSession';
 export type { IApplicationActivity } from './ApplicationActivity';
