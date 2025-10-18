@@ -113,7 +113,7 @@ Generated on: ${new Date().toLocaleDateString()}
                   </div>
                   <div className="flex flex-col">
                     <span className="text-white font-bold text-xs">LOCALPRO</span>
-                    <span className="text-blue-300 text-[10px]">TIME TRACKER</span>
+                    <span className="text-blue-300 text-[10px]">Your Trusted Local Pros</span>
                   </div>
                 </div>
               </div>
