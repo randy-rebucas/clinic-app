@@ -64,7 +64,7 @@ IdleSessionSchema.index({ startTime: -1 });
 const getModel = () => {
   try {
     return mongoose.models.IdleSession || mongoose.model<IIdleSession>('IdleSession', IdleSessionSchema);
-  } catch (error) {
+  } catch {
     return mongoose.model<IIdleSession>('IdleSession', IdleSessionSchema);
   }
 };

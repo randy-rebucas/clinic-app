@@ -388,7 +388,7 @@ export default function TimeTrackerDashboard() {
     setError('');
 
     try {
-      const result = await ClientTimeTrackingService.startBreak({
+      await ClientTimeTrackingService.startBreak({
         workSessionId: workSession.id,
         notes: notes.trim() || undefined,
       });

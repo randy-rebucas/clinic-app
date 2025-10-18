@@ -21,7 +21,7 @@ export default function DailySummaryComponent({ employeeId, date }: DailySummary
   // Memoize the date to prevent infinite re-renders
   const memoizedDate = useMemo(() => {
     return date || getTodayDate();
-  }, [date?.getTime()]); // Use getTime() to compare actual date values, not object references
+  }, [date]); // Use date directly for proper dependency tracking
   const [summary, setSummary] = useState<DailySummary | null>(null);
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [loading, setLoading] = useState(true);

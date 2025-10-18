@@ -68,7 +68,7 @@ WorkSessionSchema.index({ status: 1 });
 const getWorkSessionModel = () => {
   try {
     return mongoose.models.WorkSession || mongoose.model<IWorkSession>('WorkSession', WorkSessionSchema);
-  } catch (error) {
+  } catch {
     return mongoose.model<IWorkSession>('WorkSession', WorkSessionSchema);
   }
 };

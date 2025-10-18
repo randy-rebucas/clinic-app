@@ -77,7 +77,7 @@ EmployeeSchema.methods.comparePassword = async function(candidatePassword: strin
 const getEmployeeModel = () => {
   try {
     return mongoose.models.Employee || mongoose.model<IEmployee>('Employee', EmployeeSchema);
-  } catch (error) {
+  } catch {
     return mongoose.model<IEmployee>('Employee', EmployeeSchema);
   }
 };

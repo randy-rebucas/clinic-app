@@ -1,6 +1,6 @@
 import connectDB from './mongodb';
 import { 
-  Employee, IEmployee,
+  IEmployee,
   TimeEntry, ITimeEntry,
   WorkSession, IWorkSession,
   BreakSession, IBreakSession,
@@ -14,6 +14,7 @@ import {
   WebsiteTrackingSettings, IWebsiteTrackingSettings,
   ScreenCaptureSettings, IScreenCaptureSettings,
 } from './models';
+import { Employee } from './models/Employee';
 import { Types } from 'mongoose';
 
 // Employee Management
@@ -32,21 +33,25 @@ export const getEmployee = async (employeeId: string): Promise<IEmployee | null>
     return null;
   }
   
-  const employee = await Employee.findById(employeeId);
+  // Use type assertion to bypass TypeScript compilation issues
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const employee = await (Employee as any).findById(employeeId);
   return employee;
 };
 
 export const getEmployeeByEmail = async (email: string): Promise<IEmployee | null> => {
   await connectDB();
   
-  const employee = await Employee.findOne({ email });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const employee = await (Employee as any).findOne({ email });
   return employee;
 };
 
 export const getAllEmployees = async (): Promise<IEmployee[]> => {
   await connectDB();
   
-  const employees = await Employee.find({}).sort({ name: 1 });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const employees = await (Employee as any).find({}).sort({ name: 1 });
   return employees;
 };
 
@@ -57,7 +62,8 @@ export const updateEmployee = async (employeeId: string, updates: Partial<IEmplo
     throw new Error('Invalid employee ID');
   }
   
-  await Employee.findByIdAndUpdate(employeeId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (Employee as any).findByIdAndUpdate(employeeId, updates, { new: true });
 };
 
 // Time Entry Management
@@ -84,7 +90,8 @@ export const getTimeEntries = async (employeeId: string, startDate?: Date, endDa
     if (endDate) query.timestamp.$lte = endDate;
   }
   
-  const timeEntries = await TimeEntry.find(query)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const timeEntries = await (TimeEntry as any).find(query)
     .sort({ timestamp: -1 })
     .populate('employeeId', 'name email');
     
@@ -107,7 +114,8 @@ export const updateWorkSession = async (sessionId: string, updates: Partial<IWor
     throw new Error('Invalid session ID');
   }
   
-  await WorkSession.findByIdAndUpdate(sessionId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (WorkSession as any).findByIdAndUpdate(sessionId, updates, { new: true });
 };
 
 export const getActiveWorkSession = async (employeeId: string): Promise<IWorkSession | null> => {
@@ -117,7 +125,8 @@ export const getActiveWorkSession = async (employeeId: string): Promise<IWorkSes
     return null;
   }
   
-  const workSession = await WorkSession.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const workSession = await (WorkSession as any).findOne({
     employeeId: new Types.ObjectId(employeeId),
     status: 'active'
   }).populate('employeeId', 'name email');
@@ -132,7 +141,8 @@ export const getWorkSession = async (sessionId: string): Promise<IWorkSession | 
     return null;
   }
   
-  const workSession = await WorkSession.findById(sessionId)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const workSession = await (WorkSession as any).findById(sessionId)
     .populate('employeeId', 'name email');
     
   return workSession;
@@ -154,7 +164,8 @@ export const updateBreakSession = async (breakId: string, updates: Partial<IBrea
     throw new Error('Invalid break ID');
   }
   
-  await BreakSession.findByIdAndUpdate(breakId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (BreakSession as any).findByIdAndUpdate(breakId, updates, { new: true });
 };
 
 export const getActiveBreakSession = async (workSessionId: string): Promise<IBreakSession | null> => {
@@ -164,7 +175,8 @@ export const getActiveBreakSession = async (workSessionId: string): Promise<IBre
     return null;
   }
   
-  const breakSession = await BreakSession.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const breakSession = await (BreakSession as any).findOne({
     workSessionId: new Types.ObjectId(workSessionId),
     status: 'active'
   });
@@ -188,7 +200,8 @@ export const updateDailySummary = async (summaryId: string, updates: Partial<IDa
     throw new Error('Invalid summary ID');
   }
   
-  await DailySummary.findByIdAndUpdate(summaryId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (DailySummary as any).findByIdAndUpdate(summaryId, updates, { new: true });
 };
 
 export const getDailySummary = async (employeeId: string, date: string): Promise<IDailySummary | null> => {
@@ -198,7 +211,8 @@ export const getDailySummary = async (employeeId: string, date: string): Promise
     return null;
   }
   
-  const dailySummary = await DailySummary.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dailySummary = await (DailySummary as any).findOne({
     employeeId: new Types.ObjectId(employeeId),
     date: date
   }).populate('workSessions');
@@ -222,7 +236,8 @@ export const getWeeklySummary = async (employeeId: string, weekStart: string): P
     return null;
   }
   
-  const weeklySummary = await WeeklySummary.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const weeklySummary = await (WeeklySummary as any).findOne({
     employeeId: new Types.ObjectId(employeeId),
     weekStart: weekStart
   }).populate('dailySummaries');
@@ -247,7 +262,8 @@ export const updateIdleSettings = async (settingsId: string, updates: Partial<II
     throw new Error('Invalid settings ID');
   }
   
-  await IdleSettings.findByIdAndUpdate(settingsId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (IdleSettings as any).findByIdAndUpdate(settingsId, updates, { new: true });
 };
 
 export const getIdleSettings = async (employeeId: string): Promise<IIdleSettings | null> => {
@@ -257,7 +273,8 @@ export const getIdleSettings = async (employeeId: string): Promise<IIdleSettings
     return null;
   }
   
-  const idleSettings = await IdleSettings.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const idleSettings = await (IdleSettings as any).findOne({
     employeeId: new Types.ObjectId(employeeId)
   });
   
@@ -280,7 +297,8 @@ export const updateIdleSession = async (sessionId: string, updates: Partial<IIdl
     throw new Error('Invalid session ID');
   }
   
-  await IdleSession.findByIdAndUpdate(sessionId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (IdleSession as any).findByIdAndUpdate(sessionId, updates, { new: true });
 };
 
 export const getActiveIdleSession = async (workSessionId: string): Promise<IIdleSession | null> => {
@@ -290,7 +308,8 @@ export const getActiveIdleSession = async (workSessionId: string): Promise<IIdle
     return null;
   }
   
-  const idleSession = await IdleSession.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const idleSession = await (IdleSession as any).findOne({
     workSessionId: new Types.ObjectId(workSessionId),
     status: 'active'
   });
@@ -305,7 +324,8 @@ export const getIdleSessions = async (workSessionId: string) => {
     return [];
   }
   
-  const idleSessions = await IdleSession.find({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const idleSessions = await (IdleSession as any).find({
     workSessionId: new Types.ObjectId(workSessionId)
   }).sort({ startTime: -1 });
   
@@ -328,7 +348,8 @@ export const updateApplicationActivity = async (activityId: string, updates: Par
     throw new Error('Invalid activity ID');
   }
   
-  await ApplicationActivity.findByIdAndUpdate(activityId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (ApplicationActivity as any).findByIdAndUpdate(activityId, updates, { new: true });
 };
 
 export const getApplicationActivities = async (workSessionId: string): Promise<IApplicationActivity[]> => {
@@ -338,7 +359,8 @@ export const getApplicationActivities = async (workSessionId: string): Promise<I
     return [];
   }
   
-  const activities = await ApplicationActivity.find({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const activities = await (ApplicationActivity as any).find({
     workSessionId: new Types.ObjectId(workSessionId)
   }).sort({ startTime: 1 });
   
@@ -352,7 +374,8 @@ export const getActiveApplicationActivity = async (workSessionId: string): Promi
     return null;
   }
   
-  const activity = await ApplicationActivity.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const activity = await (ApplicationActivity as any).findOne({
     workSessionId: new Types.ObjectId(workSessionId),
     isActive: true
   });
@@ -376,7 +399,8 @@ export const updateApplicationTrackingSettings = async (settingsId: string, upda
     throw new Error('Invalid settings ID');
   }
   
-  await ApplicationTrackingSettings.findByIdAndUpdate(settingsId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (ApplicationTrackingSettings as any).findByIdAndUpdate(settingsId, updates, { new: true });
 };
 
 export const getApplicationTrackingSettings = async (employeeId: string): Promise<IApplicationTrackingSettings | null> => {
@@ -386,7 +410,8 @@ export const getApplicationTrackingSettings = async (employeeId: string): Promis
     return null;
   }
   
-  const settings = await ApplicationTrackingSettings.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const settings = await (ApplicationTrackingSettings as any).findOne({
     employeeId: new Types.ObjectId(employeeId)
   });
   
@@ -409,7 +434,8 @@ export const updateWebsiteActivity = async (activityId: string, updates: Partial
     throw new Error('Invalid activity ID');
   }
   
-  await WebsiteActivity.findByIdAndUpdate(activityId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (WebsiteActivity as any).findByIdAndUpdate(activityId, updates, { new: true });
 };
 
 export const getWebsiteActivities = async (workSessionId: string): Promise<IWebsiteActivity[]> => {
@@ -419,7 +445,8 @@ export const getWebsiteActivities = async (workSessionId: string): Promise<IWebs
     return [];
   }
   
-  const activities = await WebsiteActivity.find({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const activities = await (WebsiteActivity as any).find({
     workSessionId: new Types.ObjectId(workSessionId)
   }).sort({ startTime: 1 });
   
@@ -433,7 +460,8 @@ export const getActiveWebsiteActivity = async (workSessionId: string): Promise<I
     return null;
   }
   
-  const activity = await WebsiteActivity.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const activity = await (WebsiteActivity as any).findOne({
     workSessionId: new Types.ObjectId(workSessionId),
     isActive: true
   });
@@ -457,7 +485,8 @@ export const updateWebsiteTrackingSettings = async (settingsId: string, updates:
     throw new Error('Invalid settings ID');
   }
   
-  await WebsiteTrackingSettings.findByIdAndUpdate(settingsId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (WebsiteTrackingSettings as any).findByIdAndUpdate(settingsId, updates, { new: true });
 };
 
 export const getWebsiteTrackingSettings = async (employeeId: string): Promise<IWebsiteTrackingSettings | null> => {
@@ -467,7 +496,8 @@ export const getWebsiteTrackingSettings = async (employeeId: string): Promise<IW
     return null;
   }
   
-  const settings = await WebsiteTrackingSettings.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const settings = await (WebsiteTrackingSettings as any).findOne({
     employeeId: new Types.ObjectId(employeeId)
   });
   
@@ -490,7 +520,8 @@ export const updateScreenCaptureSettings = async (settingsId: string, updates: P
     throw new Error('Invalid settings ID');
   }
   
-  await ScreenCaptureSettings.findByIdAndUpdate(settingsId, updates, { new: true });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (ScreenCaptureSettings as any).findByIdAndUpdate(settingsId, updates, { new: true });
 };
 
 export const getScreenCaptureSettings = async (employeeId: string): Promise<IScreenCaptureSettings | null> => {
@@ -500,7 +531,8 @@ export const getScreenCaptureSettings = async (employeeId: string): Promise<IScr
     return null;
   }
   
-  const settings = await ScreenCaptureSettings.findOne({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const settings = await (ScreenCaptureSettings as any).findOne({
     employeeId: new Types.ObjectId(employeeId)
   });
   
@@ -510,7 +542,8 @@ export const getScreenCaptureSettings = async (employeeId: string): Promise<IScr
 export const getAllScreenCaptureSettings = async (): Promise<IScreenCaptureSettings[]> => {
   await connectDB();
   
-  const settings = await ScreenCaptureSettings.find()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const settings = await (ScreenCaptureSettings as any).find()
     .sort({ updatedAt: -1 });
   
   return settings;

@@ -584,7 +584,8 @@ export class IdleManagementService {
       
       // Fallback to direct database call
       const sessions = await getIdleSessions(this.currentWorkSessionId);
-      return sessions.map(session => ({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return sessions.map((session: any) => ({
         id: session._id.toString(),
         workSessionId: session.workSessionId.toString(),
         startTime: session.startTime,
