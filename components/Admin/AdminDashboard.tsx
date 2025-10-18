@@ -49,30 +49,125 @@ const ScreenCaptureManagement = dynamic(() => import('./ScreenCaptureManagement'
   )
 });
 
+const ReportsDashboard = dynamic(() => import('./ReportsDashboard'), {
+  loading: () => (
+    <div className="card p-6">
+      <div className="animate-pulse">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+});
+
+const AdminSettings = dynamic(() => import('./AdminSettings'), {
+  loading: () => (
+    <div className="card p-6">
+      <div className="animate-pulse">
+        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+        <div className="space-y-3">
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+        </div>
+      </div>
+    </div>
+  )
+});
+
+interface DashboardStats {
+  totalEmployees: number;
+  activeEmployees: number;
+  totalWorkHours: number;
+  averageWorkHours: number;
+  totalTimeEntries: number;
+  lastUpdated: string;
+}
+
+interface RecentActivity {
+  id: string;
+  type: string;
+  employeeName: string;
+  employeeId: string;
+  timestamp: string;
+  description: string;
+  icon: string;
+  color: string;
+}
+
 export default function AdminDashboard() {
   const { employee, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     totalEmployees: 0,
     activeEmployees: 0,
     totalWorkHours: 0,
     averageWorkHours: 0,
+    totalTimeEntries: 0,
+    lastUpdated: '',
   });
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load dashboard statistics
-    loadDashboardStats();
+    // Load dashboard statistics and recent activity
+    loadDashboardData();
   }, []);
 
-  const loadDashboardStats = async () => {
-    // This would fetch real data from the database
-    // For now, using mock data
-    setStats({
-      totalEmployees: 25,
-      activeEmployees: 18,
-      totalWorkHours: 142.5,
-      averageWorkHours: 8.0,
-    });
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch stats and recent activity in parallel
+      const [statsResponse, activityResponse] = await Promise.all([
+        fetch('/api/admin/stats'),
+        fetch('/api/admin/recent-activity?limit=10')
+      ]);
+
+      if (!statsResponse.ok) {
+        throw new Error('Failed to fetch dashboard statistics');
+      }
+
+      if (!activityResponse.ok) {
+        throw new Error('Failed to fetch recent activity');
+      }
+
+      const [statsData, activityData] = await Promise.all([
+        statsResponse.json(),
+        activityResponse.json()
+      ]);
+
+      if (statsData.success) {
+        setStats(statsData.data);
+      }
+
+      if (activityData.success) {
+        setRecentActivity(activityData.data);
+      }
+
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+      
+      // Fallback to empty data on error
+      setStats({
+        totalEmployees: 0,
+        activeEmployees: 0,
+        totalWorkHours: 0,
+        averageWorkHours: 0,
+        totalTimeEntries: 0,
+        lastUpdated: new Date().toISOString(),
+      });
+      setRecentActivity([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const tabs = [
@@ -86,17 +181,33 @@ export default function AdminDashboard() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
-        return <OverviewTab stats={stats} />;
+        return (
+          <OverviewTab 
+            stats={stats} 
+            recentActivity={recentActivity}
+            loading={loading}
+            error={error}
+            onRefresh={loadDashboardData}
+          />
+        );
       case 'employees':
         return <EmployeeManagement />;
       case 'screen-captures':
         return <ScreenCaptureManagement />;
       case 'reports':
-        return <div className="p-6 text-center text-gray-500">Reports functionality coming soon</div>;
+        return <ReportsDashboard />;
       case 'settings':
-        return <SettingsTab />;
+        return <AdminSettings />;
       default:
-        return <OverviewTab stats={stats} />;
+        return (
+          <OverviewTab 
+            stats={stats} 
+            recentActivity={recentActivity}
+            loading={loading}
+            error={error}
+            onRefresh={loadDashboardData}
+          />
+        );
     }
   };
 
@@ -173,7 +284,110 @@ export default function AdminDashboard() {
   );
 }
 
-function OverviewTab({ stats }: { stats: { totalEmployees: number; activeEmployees: number; totalWorkHours: number; averageWorkHours: number } }) {
+interface OverviewTabProps {
+  stats: DashboardStats;
+  recentActivity: RecentActivity[];
+  loading: boolean;
+  error: string | null;
+  onRefresh: () => void;
+}
+
+function OverviewTab({ stats, recentActivity, loading, error, onRefresh }: OverviewTabProps) {
+  const getActivityIcon = (iconName: string) => {
+    switch (iconName) {
+      case 'CheckCircle':
+        return <CheckCircle className="h-4 w-4" />;
+      case 'XCircle':
+        return <XCircle className="h-4 w-4" />;
+      case 'Clock':
+        return <Clock className="h-4 w-4" />;
+      case 'AlertTriangle':
+        return <AlertTriangle className="h-4 w-4" />;
+      default:
+        return <Clock className="h-4 w-4" />;
+    }
+  };
+
+  const getTimeAgo = (timestamp: string): string => {
+    const now = new Date();
+    const activityTime = new Date(timestamp);
+    const diffInSeconds = Math.floor((now.getTime() - activityTime.getTime()) / 1000);
+
+    if (diffInSeconds < 60) {
+      return `${diffInSeconds}s ago`;
+    } else if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes}m ago`;
+    } else if (diffInSeconds < 86400) {
+      const hours = Math.floor(diffInSeconds / 3600);
+      return `${hours}h ago`;
+    } else {
+      const days = Math.floor(diffInSeconds / 86400);
+      return `${days}d ago`;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        {/* Loading skeleton for stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="card p-4">
+              <div className="animate-pulse">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                  </div>
+                  <div className="ml-3">
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-20 mb-2"></div>
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Loading skeleton for recent activity */}
+        <div className="card p-4">
+          <div className="animate-pulse">
+            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-3"></div>
+            <div className="space-y-2">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-48"></div>
+                  </div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-12"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <div className="card p-6 text-center">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Error Loading Data</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+          <button
+            onClick={onRefresh}
+            className="btn-primary px-4 py-2 text-sm"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {/* Stats Grid */}
@@ -215,7 +429,7 @@ function OverviewTab({ stats }: { stats: { totalEmployees: number; activeEmploye
             </div>
             <div className="ml-3">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Average Hours</p>
-              <p className="text-xl font-semibold text-gray-900 dark:text-white">{stats.averageWorkHours}</p>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">{stats.averageWorkHours.toFixed(1)}</p>
             </div>
           </div>
         </div>
@@ -229,7 +443,7 @@ function OverviewTab({ stats }: { stats: { totalEmployees: number; activeEmploye
             </div>
             <div className="ml-3">
               <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Hours Today</p>
-              <p className="text-xl font-semibold text-gray-900 dark:text-white">{stats.totalWorkHours}</p>
+              <p className="text-xl font-semibold text-gray-900 dark:text-white">{stats.totalWorkHours.toFixed(1)}</p>
             </div>
           </div>
         </div>
@@ -237,74 +451,48 @@ function OverviewTab({ stats }: { stats: { totalEmployees: number; activeEmploye
 
       {/* Recent Activity */}
       <div className="card p-4">
-        <h3 className="text-base font-medium text-gray-900 dark:text-white mb-3">Recent Activity</h3>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">John Doe clocked in at 9:00 AM</span>
-            </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">2m ago</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4 text-yellow-500" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Jane Smith started a break at 10:30 AM</span>
-            </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">15m ago</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <AlertTriangle className="h-4 w-4 text-orange-500" />
-              <span className="text-sm text-gray-700 dark:text-gray-300">Mike Johnson is 15 minutes late</span>
-            </div>
-            <span className="text-xs text-gray-500 dark:text-gray-400">30m ago</span>
-          </div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-base font-medium text-gray-900 dark:text-white">Recent Activity</h3>
+          <button
+            onClick={onRefresh}
+            className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+          >
+            Refresh
+          </button>
         </div>
+        
+        {recentActivity.length === 0 ? (
+          <div className="text-center py-8">
+            <Clock className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">No recent activity</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {recentActivity.map((activity) => (
+              <div key={activity.id} className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className={activity.color}>
+                    {getActivityIcon(activity.icon)}
+                  </div>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{activity.description}</span>
+                </div>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {getTimeAgo(activity.timestamp)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {stats.lastUpdated && (
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Last updated: {new Date(stats.lastUpdated).toLocaleTimeString()}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function SettingsTab() {
-  return (
-    <div className="card p-4">
-      <h3 className="text-base font-medium text-gray-900 dark:text-white mb-3">System Settings</h3>
-      <div className="space-y-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Default Work Hours per Day
-          </label>
-          <input
-            type="number"
-            defaultValue={8}
-            className="input-field"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Break Reminder Interval (minutes)
-          </label>
-          <input
-            type="number"
-            defaultValue={30}
-            className="input-field"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Overtime Threshold (hours)
-          </label>
-          <input
-            type="number"
-            defaultValue={40}
-            className="input-field"
-          />
-        </div>
-        <button className="btn-primary px-3 py-2 text-sm">
-          Save Settings
-        </button>
-      </div>
-    </div>
-  );
-}

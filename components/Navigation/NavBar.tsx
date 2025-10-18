@@ -3,7 +3,7 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRoleCheck } from '@/components/Auth/RoleChecker';
-import { Clock, Settings, LogOut, User } from 'lucide-react';
+import { Clock, Settings, LogOut, User, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import ThemeToggle from '@/components/Theme/ThemeToggle';
 
@@ -33,13 +33,22 @@ export default function NavBar() {
             </Link>
             
             {isAdmin && (
-              <Link
-                href="/admin"
-                className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md flex items-center transition-colors"
-              >
-                <Settings className="h-4 w-4 mr-1" />
-                Admin
-              </Link>
+              <>
+                <Link
+                  href="/admin"
+                  className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md flex items-center transition-colors"
+                >
+                  <Settings className="h-4 w-4 mr-1" />
+                  Admin
+                </Link>
+                <Link
+                  href="/reports"
+                  className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md flex items-center transition-colors"
+                >
+                  <BarChart3 className="h-4 w-4 mr-1" />
+                  Reports
+                </Link>
+              </>
             )}
             
             <div className="flex items-center space-x-4 border-l border-gray-200 dark:border-gray-700 pl-4">

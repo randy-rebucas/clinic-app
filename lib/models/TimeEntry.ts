@@ -46,4 +46,13 @@ TimeEntrySchema.index({ employeeId: 1, timestamp: -1 });
 TimeEntrySchema.index({ type: 1 });
 TimeEntrySchema.index({ timestamp: -1 });
 
-export const TimeEntry = (mongoose.models && mongoose.models.TimeEntry) || mongoose.model<ITimeEntry>('TimeEntry', TimeEntrySchema);
+// Use a function to get the model to avoid issues with mongoose.models during module evaluation
+const getTimeEntryModel = () => {
+  try {
+    return mongoose.models?.TimeEntry || mongoose.model<ITimeEntry>('TimeEntry', TimeEntrySchema);
+  } catch {
+    return mongoose.model<ITimeEntry>('TimeEntry', TimeEntrySchema);
+  }
+};
+
+export const TimeEntry = getTimeEntryModel();

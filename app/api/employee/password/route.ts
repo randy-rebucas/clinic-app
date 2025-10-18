@@ -1,54 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployee, updateEmployee } from '@/lib/database';
-import { comparePassword, hashPassword, validatePassword } from '@/lib/auth';
+import connectDB from '@/lib/mongodb';
+import { Employee } from '@/lib/models/Employee';
+import { apiRateLimiter } from '@/lib/rateLimiter';
+import bcrypt from 'bcryptjs';
 
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { currentPassword, newPassword, employeeId } = body;
-
-    // Get employee ID from request body (passed from frontend)
-    if (!employeeId) {
-      return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 });
+    // Rate limiting
+    const rateLimitResult = apiRateLimiter(request);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests' },
+        { status: 429 }
+      );
     }
 
-    // Validate required fields
-    if (!currentPassword || !newPassword) {
-      return NextResponse.json({ error: 'Current password and new password are required' }, { status: 400 });
+    const { employeeId, newPassword } = await request.json();
+
+    if (!employeeId || !newPassword) {
+      return NextResponse.json(
+        { success: false, error: 'Employee ID and new password are required' },
+        { status: 400 }
+      );
     }
 
-    // Validate new password strength
-    const passwordValidation = validatePassword(newPassword);
-    if (!passwordValidation.isValid) {
-      return NextResponse.json({ 
-        error: 'Password validation failed', 
-        details: passwordValidation.errors 
-      }, { status: 400 });
+    if (newPassword.length < 8) {
+      return NextResponse.json(
+        { success: false, error: 'Password must be at least 8 characters long' },
+        { status: 400 }
+      );
     }
 
-    // Get employee
-    const employee = await getEmployee(employeeId);
+    await connectDB();
+
+    // Find the employee
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const employee = await (Employee as any).findOne({ _id: employeeId });
     if (!employee) {
-      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: 'Employee not found' },
+        { status: 404 }
+      );
     }
 
-    // Verify current password
-    const isCurrentPasswordValid = await comparePassword(currentPassword, employee.password);
-    if (!isCurrentPasswordValid) {
-      return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
-    }
+    // Hash the new password
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // Hash new password
-    const hashedNewPassword = await hashPassword(newPassword);
-
-    // Update password
-    await updateEmployee(employeeId, { password: hashedNewPassword });
+    // Update the employee's password
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (Employee as any).updateOne(
+      { _id: employeeId },
+      { 
+        $set: { 
+          password: hashedPassword,
+          updatedAt: new Date()
+        }
+      }
+    );
 
     return NextResponse.json({
+      success: true,
       message: 'Password updated successfully'
     });
+
   } catch (error) {
     console.error('Error updating password:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: 'Failed to update password' },
+      { status: 500 }
+    );
   }
 }

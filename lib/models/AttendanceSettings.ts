@@ -96,5 +96,13 @@ const AttendanceSettingsSchema = new Schema<IAttendanceSettings>({
 // Index for efficient queries
 AttendanceSettingsSchema.index({ employeeId: 1 });
 
-export const AttendanceSettings = mongoose.models.AttendanceSettings || 
-  mongoose.model<IAttendanceSettings>('AttendanceSettings', AttendanceSettingsSchema);
+// Use a function to get the model to avoid issues with mongoose.models during module evaluation
+const getAttendanceSettingsModel = () => {
+  try {
+    return mongoose.models?.AttendanceSettings || mongoose.model<IAttendanceSettings>('AttendanceSettings', AttendanceSettingsSchema);
+  } catch {
+    return mongoose.model<IAttendanceSettings>('AttendanceSettings', AttendanceSettingsSchema);
+  }
+};
+
+export const AttendanceSettings = getAttendanceSettingsModel();

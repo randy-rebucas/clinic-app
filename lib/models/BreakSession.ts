@@ -54,4 +54,13 @@ BreakSessionSchema.set('toJSON', {
 BreakSessionSchema.index({ workSessionId: 1, status: 1 });
 BreakSessionSchema.index({ startTime: -1 });
 
-export const BreakSession = (mongoose.models && mongoose.models.BreakSession) || mongoose.model<IBreakSession>('BreakSession', BreakSessionSchema);
+// Use a function to get the model to avoid issues with mongoose.models during module evaluation
+const getBreakSessionModel = () => {
+  try {
+    return mongoose.models?.BreakSession || mongoose.model<IBreakSession>('BreakSession', BreakSessionSchema);
+  } catch {
+    return mongoose.model<IBreakSession>('BreakSession', BreakSessionSchema);
+  }
+};
+
+export const BreakSession = getBreakSessionModel();

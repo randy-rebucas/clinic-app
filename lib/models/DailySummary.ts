@@ -72,4 +72,13 @@ DailySummarySchema.index({ employeeId: 1, date: 1 }, { unique: true });
 DailySummarySchema.index({ date: -1 });
 DailySummarySchema.index({ status: 1 });
 
-export const DailySummary = (mongoose.models && mongoose.models.DailySummary) || mongoose.model<IDailySummary>('DailySummary', DailySummarySchema);
+// Use a function to get the model to avoid issues with mongoose.models during module evaluation
+const getDailySummaryModel = () => {
+  try {
+    return mongoose.models?.DailySummary || mongoose.model<IDailySummary>('DailySummary', DailySummarySchema);
+  } catch {
+    return mongoose.model<IDailySummary>('DailySummary', DailySummarySchema);
+  }
+};
+
+export const DailySummary = getDailySummaryModel();

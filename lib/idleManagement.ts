@@ -525,6 +525,13 @@ export class IdleManagementService {
   }
 
   /**
+   * Get current settings
+   */
+  getSettings(): IdleSettings | null {
+    return this.settings;
+  }
+
+  /**
    * Get current state
    */
   getCurrentState(): IdleManagementState {

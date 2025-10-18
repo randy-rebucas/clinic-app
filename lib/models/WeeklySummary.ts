@@ -70,4 +70,13 @@ WeeklySummarySchema.set('toJSON', {
 WeeklySummarySchema.index({ employeeId: 1, weekStart: 1 }, { unique: true });
 WeeklySummarySchema.index({ weekStart: -1 });
 
-export const WeeklySummary = (mongoose.models && mongoose.models.WeeklySummary) || mongoose.model<IWeeklySummary>('WeeklySummary', WeeklySummarySchema);
+// Use a function to get the model to avoid issues with mongoose.models during module evaluation
+const getWeeklySummaryModel = () => {
+  try {
+    return mongoose.models?.WeeklySummary || mongoose.model<IWeeklySummary>('WeeklySummary', WeeklySummarySchema);
+  } catch {
+    return mongoose.model<IWeeklySummary>('WeeklySummary', WeeklySummarySchema);
+  }
+};
+
+export const WeeklySummary = getWeeklySummaryModel();
