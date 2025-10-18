@@ -127,25 +127,25 @@ Generated on: ${new Date().toLocaleDateString()}
 
               {/* Employee Photo - Left Side */}
               <div className="absolute top-12 left-3 z-10">
-                <div className="w-12 h-12 bg-white rounded shadow-lg flex items-center justify-center border border-white/20 overflow-hidden">
+                <div className="w-24 h-24 bg-white rounded shadow-lg flex items-center justify-center border border-white/20 overflow-hidden">
                   {employee.profilePicture ? (
                     <Image
                       src={employee.profilePicture}
                       alt={`${employee.name} profile`}
-                      width={48}
-                      height={48}
+                      width={96}
+                      height={96}
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                      <User className="w-6 h-6 text-blue-600" />
+                      <User className="w-12 h-12 text-blue-600" />
                     </div>
                   )}
                 </div>
               </div>
 
               {/* Employee Information - Right Side */}
-              <div className="absolute top-12 right-3 left-20 z-10">
+              <div className="absolute top-12 right-3 left-32 z-10">
                 <div className="space-y-1">
                   {/* Department Badge */}
                   <div className="inline-block">
