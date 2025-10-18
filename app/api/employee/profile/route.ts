@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...employeeData } = employee.toObject();
     
-    return NextResponse.json(employeeData);
+    return NextResponse.json({ employee: employeeData });
   } catch (error) {
     console.error('Error fetching employee profile:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
