@@ -6,6 +6,7 @@ import {
   Plus, Edit, Trash2, User, Mail, Building, Shield, RefreshCw, AlertTriangle, 
   Search, Filter, Eye, Calendar, SortAsc, SortDesc, X, Lock
 } from 'lucide-react';
+
 // import VirtualScroll from '@/components/VirtualScroll/VirtualScroll';
 
 export default function EmployeeManagement() {
@@ -160,7 +161,7 @@ export default function EmployeeManagement() {
         body: JSON.stringify({
         name: employeeData.name,
         email: employeeData.email,
-          password: 'TempPassword123!', // Default password, should be changed on first login
+        password: 'TempPassword123!', // Default password, should be changed on first login
         role: employeeData.role,
         department: employeeData.department,
         position: employeeData.position

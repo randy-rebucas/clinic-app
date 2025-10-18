@@ -357,12 +357,34 @@ export const createIdleSettings = async (idleSettingsData: Omit<IIdleSettings, '
       throw new Error(`Invalid employeeId: ${idleSettingsData.employeeId}`);
     }
     
+    // Check if settings already exist for this employee
+    const existingSettings = await IdleSettings.findOne({ employeeId: idleSettingsData.employeeId });
+    if (existingSettings) {
+      console.log('Idle settings already exist for employee, returning existing ID:', existingSettings._id);
+      return existingSettings._id.toString();
+    }
+    
     const idleSettings = new IdleSettings(idleSettingsData);
     const savedIdleSettings = await idleSettings.save();
     console.log('Idle settings saved successfully:', savedIdleSettings._id);
     return savedIdleSettings._id.toString();
   } catch (error) {
     console.error('Error in createIdleSettings:', error);
+    
+    // If it's a duplicate key error, try to find and return the existing settings
+    if (error instanceof Error && error.message.includes('E11000 duplicate key error')) {
+      console.log('Duplicate key error detected, attempting to find existing settings...');
+      try {
+        const existingSettings = await IdleSettings.findOne({ employeeId: idleSettingsData.employeeId });
+        if (existingSettings) {
+          console.log('Found existing idle settings:', existingSettings._id);
+          return existingSettings._id.toString();
+        }
+      } catch (findError) {
+        console.error('Error finding existing settings:', findError);
+      }
+    }
+    
     throw error;
   }
 };

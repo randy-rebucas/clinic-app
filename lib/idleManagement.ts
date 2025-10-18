@@ -136,58 +136,108 @@ export class IdleManagementService {
           autoResumeOnActivity: true,
         };
 
-        // Create idle settings via API
-        console.log('Making API request to create idle settings for employee:', employeeId);
-        const requestBody = {
-          employeeId,
-          ...defaultSettings
-        };
-        console.log('Request body:', requestBody);
-        
-        // First, test if the API route is accessible with a simple GET request
+        // First, check if settings already exist to avoid duplicate key error
+        console.log('Checking if idle settings already exist for employee:', employeeId);
+        let existingSettings = null;
         try {
-          const testResponse = await fetch('/api/idle/settings?employeeId=test');
-          console.log('Test GET request status:', testResponse.status);
-        } catch (testError) {
-          console.error('Test GET request failed:', testError);
-        }
-        
-        const createResponse = await fetch('/api/idle/settings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        });
-        
-        console.log('API response status:', createResponse.status);
-        console.log('API response ok:', createResponse.ok);
-        console.log('API response headers:', Object.fromEntries(createResponse.headers.entries()));
-        
-        if (createResponse.ok) {
-          const createData = await createResponse.json();
-          console.log('Idle settings creation response:', createData);
-          this.settingsId = createData.data.id;
-        } else {
-          try {
-            await createResponse.json();
-          } catch {
-            // Ignore parse error
-          }
-
+          const checkResponse = await fetch(`/api/idle/settings?employeeId=${encodeURIComponent(employeeId)}`);
+          console.log('Check existing settings response status:', checkResponse.status);
           
-          // Fallback: Use default settings without database storage
-          console.log('Using fallback: storing idle settings in memory only');
-          this.settingsId = `fallback-${Date.now()}`;
+          if (checkResponse.ok) {
+            const checkData = await checkResponse.json();
+            if (checkData.success && checkData.data) {
+              console.log('Idle settings already exist, using existing settings:', checkData.data);
+              existingSettings = checkData.data;
+            }
+          }
+        } catch (checkError) {
+          console.error('Error checking existing idle settings:', checkError);
+          // Continue with creation attempt
         }
-        this.settings = {
-          enabled: defaultSettings.enabled,
-          idleThresholdMinutes: defaultSettings.idleThresholdMinutes,
-          pauseTimerOnIdle: defaultSettings.pauseTimerOnIdle,
-          showIdleWarning: defaultSettings.showIdleWarning,
-          warningTimeMinutes: defaultSettings.warningTimeMinutes,
-          autoResumeOnActivity: defaultSettings.autoResumeOnActivity,
-        };
+
+        if (existingSettings) {
+          // Use existing settings
+          this.settingsId = existingSettings._id || existingSettings.id;
+          this.settings = {
+            enabled: existingSettings.enabled,
+            idleThresholdMinutes: existingSettings.idleThresholdMinutes,
+            pauseTimerOnIdle: existingSettings.pauseTimerOnIdle,
+            showIdleWarning: existingSettings.showIdleWarning,
+            warningTimeMinutes: existingSettings.warningTimeMinutes,
+            autoResumeOnActivity: existingSettings.autoResumeOnActivity,
+          };
+        } else {
+          // Create new idle settings via API
+          console.log('Creating new idle settings for employee:', employeeId);
+          const requestBody = {
+            employeeId,
+            ...defaultSettings
+          };
+          console.log('Request body:', requestBody);
+          
+          const createResponse = await fetch('/api/idle/settings', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+          });
+          
+          console.log('API response status:', createResponse.status);
+          console.log('API response ok:', createResponse.ok);
+          console.log('API response headers:', Object.fromEntries(createResponse.headers.entries()));
+          
+          if (createResponse.ok) {
+            const createData = await createResponse.json();
+            console.log('Idle settings creation response:', createData);
+            this.settingsId = createData.data.id;
+          } else {
+            const errorData = await createResponse.json().catch(() => ({}));
+            console.error('Failed to create idle settings:', errorData);
+            
+            // If it's a duplicate key error, try to fetch the existing settings
+            if (errorData.details && errorData.details.includes('E11000 duplicate key error')) {
+              console.log('Duplicate key error detected, attempting to fetch existing settings...');
+              try {
+                const fetchResponse = await fetch(`/api/idle/settings?employeeId=${encodeURIComponent(employeeId)}`);
+                if (fetchResponse.ok) {
+                  const fetchData = await fetchResponse.json();
+                  if (fetchData.success && fetchData.data) {
+                    console.log('Successfully fetched existing idle settings:', fetchData.data);
+                    this.settingsId = fetchData.data._id || fetchData.data.id;
+                    this.settings = {
+                      enabled: fetchData.data.enabled,
+                      idleThresholdMinutes: fetchData.data.idleThresholdMinutes,
+                      pauseTimerOnIdle: fetchData.data.pauseTimerOnIdle,
+                      showIdleWarning: fetchData.data.showIdleWarning,
+                      warningTimeMinutes: fetchData.data.warningTimeMinutes,
+                      autoResumeOnActivity: fetchData.data.autoResumeOnActivity,
+                    };
+                    return; // Exit early since we found existing settings
+                  }
+                }
+              } catch (fetchError) {
+                console.error('Error fetching existing settings after duplicate key error:', fetchError);
+              }
+            }
+            
+            // Fallback: Use default settings without database storage
+            console.log('Using fallback: storing idle settings in memory only');
+            this.settingsId = `fallback-${Date.now()}`;
+          }
+        }
+        
+        // Set default settings if we haven't set them already
+        if (!this.settings) {
+          this.settings = {
+            enabled: defaultSettings.enabled,
+            idleThresholdMinutes: defaultSettings.idleThresholdMinutes,
+            pauseTimerOnIdle: defaultSettings.pauseTimerOnIdle,
+            showIdleWarning: defaultSettings.showIdleWarning,
+            warningTimeMinutes: defaultSettings.warningTimeMinutes,
+            autoResumeOnActivity: defaultSettings.autoResumeOnActivity,
+          };
+        }
       }
     } catch (error) {
       console.error('Failed to load idle settings:', error);

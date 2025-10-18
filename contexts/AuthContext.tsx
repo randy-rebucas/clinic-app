@@ -35,6 +35,16 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+    
+    // Handle rate limiting specifically
+    if (response.status === 429) {
+      const retryAfter = response.headers.get('Retry-After');
+      const retrySeconds = retryAfter ? parseInt(retryAfter) : 900; // Default to 15 minutes
+      const retryMinutes = Math.ceil(retrySeconds / 60);
+      
+      throw new Error(`Too many login attempts. Please wait ${retryMinutes} minute${retryMinutes !== 1 ? 's' : ''} before trying again.`);
+    }
+    
     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
   }
 

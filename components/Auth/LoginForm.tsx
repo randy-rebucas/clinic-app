@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Clock, User, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import ThemeToggle from '@/components/Theme/ThemeToggle';
+import RateLimitReset from '@/components/Dev/RateLimitReset';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -220,6 +221,9 @@ export default function LoginForm() {
           </p>
         </div>
       </div>
+      
+      {/* Development Rate Limit Reset Component */}
+      <RateLimitReset />
     </div>
   );
 }

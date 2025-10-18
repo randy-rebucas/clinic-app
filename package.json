@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "generate-sw": "node scripts/generate-sw.js",
-    "generate-employee-ids": "npx tsx scripts/generate-employee-ids.ts"
+    "generate-employee-ids": "npx tsx scripts/generate-employee-ids.ts",
+    "reset-rate-limits": "npx tsx scripts/reset-rate-limits.ts",
+    "cleanup-duplicate-idle-settings": "npx tsx scripts/cleanup-duplicate-idle-settings.ts"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
