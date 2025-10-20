@@ -68,3 +68,12 @@ async function connectDB() {
 }
 
 export default connectDB;
+
+// Export as connectToDatabase for backward compatibility
+export const connectToDatabase = async () => {
+  const connection = await connectDB();
+  if (!connection) {
+    throw new Error('Failed to connect to database');
+  }
+  return { db: connection.connection.db };
+};

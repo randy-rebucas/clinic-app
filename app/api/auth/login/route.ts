@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByEmail } from '@/lib/database';
 import { authRateLimiter } from '@/lib/rateLimiter';
+import { generateToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   let email = 'unknown';
@@ -63,6 +64,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
+    // Generate JWT token
+    const token = generateToken({
+      userId: user._id.toString(),
+      email: user.email,
+      role: user.role,
+      type: 'staff'
+    });
+
     // Return user data (excluding password)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _password, _id, ...userWithoutPassword } = user.toObject();
@@ -76,7 +85,11 @@ export async function POST(request: NextRequest) {
     // Log successful login (without sensitive data)
     console.log(`Successful login for user: ${email}`);
     
-    return NextResponse.json(userData, {
+    return NextResponse.json({
+      success: true,
+      token,
+      user: userData
+    }, {
       headers: {
         'X-RateLimit-Limit': '5',
         'X-RateLimit-Remaining': rateLimit.remaining.toString(),

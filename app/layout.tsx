@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LocalPro Time Tracker",
-  description: "Employee time tracking and productivity management system",
+  title: "Clinic App",
+  description: "Clinic management system",
 };
 
 export default function RootLayout({

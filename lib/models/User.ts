@@ -6,10 +6,13 @@ export interface IUser extends Document {
   email: string;
   password: string;
   employeeId?: string;
-  role: 'employee' | 'admin';
+  role: 'admin' | 'doctor' | 'receptionist' | 'medrep' | 'patient' | 'employee';
   department?: string;
   position?: string;
   profilePicture?: string;
+  specialization?: string; // For doctors
+  licenseNumber?: string; // For doctors
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
@@ -35,7 +38,7 @@ const UserSchema = new Schema<IUser>({
   },
   role: {
     type: String,
-    enum: ['employee', 'admin'],
+    enum: ['admin', 'doctor', 'receptionist', 'medrep', 'patient', 'employee'],
     default: 'employee',
   },
   department: {
@@ -55,6 +58,18 @@ const UserSchema = new Schema<IUser>({
   profilePicture: {
     type: String,
     trim: true,
+  },
+  specialization: {
+    type: String,
+    trim: true,
+  },
+  licenseNumber: {
+    type: String,
+    trim: true,
+  },
+  isActive: {
+    type: Boolean,
+    default: true,
   },
 }, {
   timestamps: true,

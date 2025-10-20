@@ -3,104 +3,188 @@ export interface User {
   name: string;
   email: string;
   employeeId?: string;
-  role: 'employee' | 'admin';
+  role: 'admin' | 'doctor' | 'receptionist' | 'medrep' | 'patient' | 'employee';
   department?: string;
   position?: string;
   profilePicture?: string;
+  specialization?: string;
+  licenseNumber?: string;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface TimeEntry {
+// Clinic-specific interfaces
+export interface Patient {
   id: string;
-  employeeId: string;
-  type: 'clock_in' | 'clock_out' | 'break_start' | 'break_end';
-  timestamp: Date;
-  notes?: string;
-  location?: string;
-  ipAddress?: string;
-}
-
-export interface WorkSession {
-  id: string;
-  employeeId: string;
-  clockInTime: Date;
-  clockOutTime?: Date;
-  totalBreakTime: number; // in minutes
-  totalWorkTime: number; // in minutes
-  notes?: string;
-  status: 'active' | 'completed';
+  patientId: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  dateOfBirth: Date;
+  gender: 'male' | 'female' | 'other';
+  address?: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  emergencyContact?: {
+    name: string;
+    relationship: string;
+    phone: string;
+  };
+  medicalHistory?: string[];
+  allergies?: string[];
+  medications?: string[];
+  insurance?: {
+    provider: string;
+    policyNumber: string;
+    groupNumber?: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface BreakSession {
+export interface Appointment {
   id: string;
-  workSessionId: string;
+  appointmentId: string;
+  patientId: string;
+  doctorId: string;
+  appointmentDate: Date;
   startTime: Date;
-  endTime?: Date;
-  duration?: number; // in minutes
+  endTime: Date;
+  type: 'consultation' | 'follow-up' | 'emergency' | 'routine';
+  status: 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled' | 'no-show';
+  reason: string;
   notes?: string;
-  status: 'active' | 'completed';
-}
-
-export interface DailySummary {
-  id: string;
-  employeeId: string;
-  date: string; // YYYY-MM-DD format
-  totalWorkTime: number; // in minutes
-  totalBreakTime: number; // in minutes
-  clockInTime?: Date;
-  clockOutTime?: Date;
-  workSessions: string[]; // array of work session IDs
-  status: 'incomplete' | 'complete';
-  overtime?: number; // in minutes
-}
-
-export interface WeeklySummary {
-  id: string;
-  employeeId: string;
-  weekStart: string; // YYYY-MM-DD format
-  weekEnd: string; // YYYY-MM-DD format
-  totalWorkTime: number; // in minutes
-  totalBreakTime: number; // in minutes
-  dailySummaries: string[]; // array of daily summary IDs
-  averageWorkTime: number; // in minutes
-  overtime: number; // in minutes
-}
-
-
-export interface NotificationSettings {
-  id: string;
-  employeeId: string;
-  clockInReminder: boolean;
-  clockOutReminder: boolean;
-  breakReminder: boolean;
-  overtimeAlert: boolean;
-  reminderTime: number; // minutes before end of workday
-  breakReminderTime: number; // minutes for break reminders
-}
-
-export interface IdleSettings {
-  id: string;
-  employeeId: string;
-  enabled: boolean;
-  idleThresholdMinutes: number; // Minutes of inactivity before considered idle
-  pauseTimerOnIdle: boolean; // Whether to pause timer when idle
-  showIdleWarning: boolean; // Whether to show warning before going idle
-  warningTimeMinutes: number; // Minutes before idle to show warning
-  autoResumeOnActivity: boolean; // Whether to auto-resume timer when activity detected
+  vitals?: {
+    bloodPressure?: string;
+    heartRate?: number;
+    temperature?: number;
+    weight?: number;
+    height?: number;
+    oxygenSaturation?: number;
+  };
+  diagnosis?: string;
+  treatment?: string;
+  followUpRequired?: boolean;
+  followUpDate?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface IdleSession {
+export interface Prescription {
   id: string;
-  workSessionId: string;
-  startTime: Date;
-  endTime?: Date;
-  duration?: number; // in minutes
-  reason: 'inactivity' | 'manual' | 'system';
+  prescriptionId: string;
+  patientId: string;
+  doctorId: string;
+  appointmentId?: string;
+  medications: {
+    name: string;
+    dosage: string;
+    frequency: string;
+    duration: string;
+    instructions?: string;
+    quantity: number;
+  }[];
+  diagnosis: string;
   notes?: string;
-  status: 'active' | 'completed';
+  status: 'pending' | 'approved' | 'dispensed' | 'delivered' | 'cancelled';
+  prescribedDate: Date;
+  validUntil: Date;
+  deliveredBy?: string;
+  deliveredDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Queue {
+  id: string;
+  queueId: string;
+  patientId: string;
+  appointmentId?: string;
+  priority: 'low' | 'normal' | 'high' | 'emergency';
+  type: 'consultation' | 'follow-up' | 'emergency' | 'routine';
+  reason: string;
+  assignedDoctorId?: string;
+  status: 'waiting' | 'in-progress' | 'completed' | 'cancelled';
+  estimatedWaitTime?: number;
+  actualWaitTime?: number;
+  calledAt?: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceId: string;
+  patientId: string;
+  appointmentId?: string;
+  prescriptionId?: string;
+  items: {
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+    category: 'consultation' | 'medication' | 'lab-test' | 'procedure' | 'other';
+  }[];
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  dueDate: Date;
+  paidDate?: Date;
+  paymentMethod?: 'cash' | 'card' | 'insurance' | 'bank-transfer';
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Payment {
+  id: string;
+  paymentId: string;
+  invoiceId: string;
+  patientId: string;
+  amount: number;
+  paymentMethod: 'cash' | 'card' | 'insurance' | 'bank-transfer';
+  paymentDate: Date;
+  reference?: string;
+  notes?: string;
+  processedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface LabOrder {
+  id: string;
+  labOrderId: string;
+  patientId: string;
+  doctorId: string;
+  appointmentId?: string;
+  tests: {
+    testName: string;
+    testCode: string;
+    normalRange?: string;
+    unit?: string;
+    value?: string | number;
+    status: 'pending' | 'normal' | 'abnormal' | 'critical';
+    notes?: string;
+  }[];
+  status: 'ordered' | 'in-progress' | 'completed' | 'cancelled';
+  orderedDate: Date;
+  completedDate?: Date;
+  labTechnician?: string;
+  notes?: string;
+  followUpRequired?: boolean;
+  followUpDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }

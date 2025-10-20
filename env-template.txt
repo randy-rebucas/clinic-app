@@ -1,0 +1,54 @@
+# ===========================================
+# CLINIC MANAGEMENT SYSTEM - ENVIRONMENT VARIABLES
+# Copy this file to .env.local and update the values
+# ===========================================
+
+# Database Configuration
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/clinic-app?retryWrites=true&w=majority
+
+# JWT Configuration
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+JWT_EXPIRES_IN=7d
+
+# Email Configuration (Optional - for notifications)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_FROM=your-email@gmail.com
+
+# SMS Configuration (Optional - for notifications)
+TWILIO_ACCOUNT_SID=your-twilio-account-sid
+TWILIO_AUTH_TOKEN=your-twilio-auth-token
+TWILIO_PHONE_NUMBER=your-twilio-phone-number
+
+# Clinic Information
+CLINIC_NAME=Clinic Management System
+CLINIC_ADDRESS=123 Medical Center Dr, City, State 12345
+CLINIC_PHONE=(555) 123-4567
+CLINIC_EMAIL=info@clinic.com
+
+# Application Configuration
+NODE_ENV=development
+PORT=3000
+NEXTAUTH_URL=http://localhost:3000
+
+# Socket.IO Configuration
+NEXT_PUBLIC_SOCKET_URL=http://localhost:3000
+
+# File Upload Configuration
+MAX_FILE_SIZE=5242880
+UPLOAD_DIR=./public/uploads
+
+# PDF Generation (Optional)
+PDF_SERVICE_API_KEY=your-pdf-service-api-key
+
+# ===========================================
+# NOTES:
+# ===========================================
+# 1. MONGODB_URI is required - update with your MongoDB connection string
+# 2. JWT_SECRET should be changed to a secure random string in production
+# 3. Email/SMS configurations are optional but recommended for notifications
+# 4. Update clinic information to match your actual clinic details
+# 5. For production, set NODE_ENV=production and update URLs accordingly
+# 6. PDF_SERVICE_API_KEY is optional - only needed if using external PDF services

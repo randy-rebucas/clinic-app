@@ -17,8 +17,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isAdmin: boolean;
   isEmployee: boolean;
-  hasRole: (role: 'admin' | 'employee') => boolean;
-  getCurrentRole: () => 'admin' | 'employee' | null;
+  hasRole: (role: 'admin' | 'doctor' | 'receptionist' | 'medrep' | 'patient' | 'employee') => boolean;
+  getCurrentRole: () => 'admin' | 'doctor' | 'receptionist' | 'medrep' | 'patient' | 'employee' | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -187,6 +187,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role: userData.role,
         department: userData.department,
         position: userData.position,
+        isActive: true,
       };
       
       const userId = await createUser(newUserData);
@@ -203,6 +204,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role: userData.role,
         department: userData.department,
         position: userData.position,
+        isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -230,11 +232,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAdmin = employee?.role === 'admin';
   const isEmployee = employee?.role === 'employee';
   
-  const hasRole = (role: 'admin' | 'employee'): boolean => {
+  const hasRole = (role: 'admin' | 'doctor' | 'receptionist' | 'medrep' | 'patient' | 'employee'): boolean => {
     return employee?.role === role;
   };
   
-  const getCurrentRole = (): 'admin' | 'employee' | null => {
+  const getCurrentRole = (): 'admin' | 'doctor' | 'receptionist' | 'medrep' | 'patient' | 'employee' | null => {
     return employee?.role || null;
   };
 
