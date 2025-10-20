@@ -3,6 +3,8 @@
 import { useAuth } from '@/contexts/AuthContext';
 import LoginForm from '@/components/Auth/LoginForm';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { 
   Users, 
   Calendar, 
@@ -13,16 +15,68 @@ import {
   UserCheck,
   ClipboardList,
   TestTube,
-  Bell
+  Bell,
+  Loader
 } from 'lucide-react';
+
+interface InstallationStatus {
+  needsInstallation: boolean;
+  hasUsers: boolean;
+  userCount: number;
+  isSetup: boolean;
+  hasAdmin: boolean;
+  hasSettings: boolean;
+}
 
 export default function Home() {
   const { user, employee, loading, logout } = useAuth();
+  const router = useRouter();
+  const [installationStatus, setInstallationStatus] = useState<InstallationStatus | null>(null);
+  const [checkingInstallation, setCheckingInstallation] = useState(true);
+
+  // Check installation status
+  useEffect(() => {
+    const checkInstallationStatus = async () => {
+      try {
+        const response = await fetch('/api/setup');
+        if (response.ok) {
+          const data = await response.json();
+          setInstallationStatus(data.data);
+          
+          // If no users exist, redirect to installation
+          if (data.data.needsInstallation) {
+            router.push('/install');
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error checking installation status:', error);
+      } finally {
+        setCheckingInstallation(false);
+      }
+    };
+
+    checkInstallationStatus();
+  }, [router]);
+
+  if (checkingInstallation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="text-gray-600 font-medium">Checking system status...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="text-gray-600 font-medium">Loading your dashboard...</div>
+        </div>
       </div>
     );
   }
@@ -32,37 +86,43 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="max-w-md mx-auto px-4 py-8">
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <Stethoscope className="h-8 w-8 text-blue-600" />
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl shadow-lg">
+                <Stethoscope className="h-10 w-10 text-blue-600" />
               </div>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Clinic Management System
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              MediNext
             </h1>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-3 text-gray-600 text-lg">
               Access your clinic portal or patient portal
             </p>
           </div>
           
-          <div className="space-y-4">
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Staff Portal</h2>
+          <div className="space-y-6">
+            <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-white/20">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+                Staff Portal
+              </h2>
               <LoginForm />
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Patient Portal</h2>
-              <div className="space-y-3">
+            <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-white/20">
+              <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+                Patient Portal
+              </h2>
+              <div className="space-y-4">
                 <Link
                   href="/patient/login"
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center block"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 text-center block font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
                   Patient Login
                 </Link>
                 <Link
                   href="/patient/register"
-                  className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition-colors text-center block"
+                  className="w-full bg-white/60 text-gray-700 py-3 px-6 rounded-xl hover:bg-white/80 transition-all duration-200 text-center block font-medium border border-gray-200 hover:border-gray-300 shadow-md hover:shadow-lg"
                 >
                   New Patient Registration
                 </Link>
@@ -132,22 +192,31 @@ export default function Home() {
   const menuItems = getRoleBasedMenu();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-white/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <Stethoscope className="h-8 w-8 text-blue-600 mr-3" />
-              <h1 className="text-2xl font-bold text-gray-900">Clinic Management System</h1>
+              <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl mr-4">
+                <Stethoscope className="h-8 w-8 text-blue-600" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  MediNext
+                </h1>
+                <p className="text-sm text-gray-500">Healthcare Management Platform</p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                Welcome, {employee?.name} ({employee?.role})
-              </span>
+              <div className="text-right">
+                <p className="text-sm font-medium text-gray-900">{employee?.name}</p>
+                <p className="text-xs text-gray-500 capitalize">{employee?.role}</p>
+              </div>
               <button 
                 onClick={logout} 
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2 rounded-xl hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                aria-label="Logout from the system"
               >
                 Logout
               </button>
@@ -158,90 +227,177 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h2>
-          <p className="text-gray-600">Welcome to the clinic management system. Select a module to get started.</p>
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 mb-3">Dashboard</h2>
+              <p className="text-gray-600 text-lg">Welcome to MediNext. Select a module to get started.</p>
+            </div>
+            <div className="hidden md:block">
+              <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-white/20">
+                <p className="text-sm text-gray-500">Last login</p>
+                <p className="text-sm font-medium text-gray-900">{new Date().toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Navigation Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {menuItems.map((item) => {
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {menuItems.map((item, index) => {
             const Icon = item.icon;
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`group relative bg-white p-6 rounded-lg shadow-sm border-2 transition-all duration-200 hover:shadow-md hover:border-blue-300 ${
-                  item.current ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                className={`group relative bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                  item.current 
+                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-blue-100' 
+                    : 'border-white/20 hover:border-blue-300 hover:bg-white/90'
                 }`}
+                style={{ animationDelay: `${index * 100}ms` }}
+                aria-label={`Navigate to ${item.name}`}
+                role="button"
+                tabIndex={0}
               >
                 <div className="flex items-center">
-                  <div className={`flex-shrink-0 p-3 rounded-lg ${
-                    item.current ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600'
+                  <div className={`flex-shrink-0 p-4 rounded-xl transition-all duration-300 ${
+                    item.current 
+                      ? 'bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600 shadow-lg' 
+                      : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600 group-hover:from-blue-100 group-hover:to-indigo-100 group-hover:text-blue-600 group-hover:shadow-lg'
                   }`}>
-                    <Icon className="h-6 w-6" />
+                    <Icon className="h-7 w-7" />
                   </div>
-                  <div className="ml-4">
-                    <h3 className={`text-lg font-medium ${
-                      item.current ? 'text-blue-900' : 'text-gray-900 group-hover:text-blue-900'
+                  <div className="ml-4 flex-1">
+                    <h3 className={`text-lg font-semibold transition-colors duration-300 ${
+                      item.current 
+                        ? 'text-blue-900' 
+                        : 'text-gray-900 group-hover:text-blue-900'
                     }`}>
                       {item.name}
                     </h3>
-                    <p className={`text-sm ${
-                      item.current ? 'text-blue-700' : 'text-gray-500 group-hover:text-blue-700'
+                    <p className={`text-sm transition-colors duration-300 ${
+                      item.current 
+                        ? 'text-blue-700' 
+                        : 'text-gray-500 group-hover:text-blue-700'
                     }`}>
                       {item.current ? 'Current page' : 'Click to access'}
                     </p>
                   </div>
                 </div>
+                {item.current && (
+                  <div className="absolute top-3 right-3">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                  </div>
+                )}
               </Link>
             );
           })}
         </div>
 
         {/* Quick Stats */}
-        <div className="mt-12">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6">Quick Overview</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="flex items-center">
-                <Users className="h-8 w-8 text-blue-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Patients</p>
-                  <p className="text-2xl font-bold text-gray-900">-</p>
+        <div className="mt-16">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700">Quick Overview</h3>
+            <div className="hidden md:block">
+              <div className="bg-white/60 backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20">
+                <span className="text-sm text-gray-500">Real-time data</span>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 group">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300">
+                    <Users className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Total Patients</p>
+                    <p className="text-2xl font-bold text-gray-900">-</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="flex items-center">
-                <Calendar className="h-8 w-8 text-green-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Today&apos;s Appointments</p>
-                  <p className="text-2xl font-bold text-gray-900">-</p>
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 group">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-xl group-hover:from-green-200 group-hover:to-green-300 transition-all duration-300">
+                    <Calendar className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Today&apos;s Appointments</p>
+                    <p className="text-2xl font-bold text-gray-900">-</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="flex items-center">
-                <ClipboardList className="h-8 w-8 text-yellow-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Queue Length</p>
-                  <p className="text-2xl font-bold text-gray-900">-</p>
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 group">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="p-3 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl group-hover:from-yellow-200 group-hover:to-yellow-300 transition-all duration-300">
+                    <ClipboardList className="h-6 w-6 text-yellow-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Queue Length</p>
+                    <p className="text-2xl font-bold text-gray-900">-</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
-              <div className="flex items-center">
-                <CreditCard className="h-8 w-8 text-purple-600" />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Pending Payments</p>
-                  <p className="text-2xl font-bold text-gray-900">-</p>
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 group">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl group-hover:from-purple-200 group-hover:to-purple-300 transition-all duration-300">
+                    <CreditCard className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Pending Payments</p>
+                    <p className="text-2xl font-bold text-gray-900">-</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-white/60 backdrop-blur-sm border-t border-white/20 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center mb-4 md:mb-0">
+              <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg mr-3">
+                <Stethoscope className="h-6 w-6 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">MediNext</p>
+                <p className="text-xs text-gray-500">Healthcare Management Platform</p>
+              </div>
+            </div>
+            <div className="text-center md:text-right">
+              <p className="text-sm text-gray-500">
+                © {new Date().getFullYear()} MediNext. All rights reserved.
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Secure • Reliable • Efficient
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -41,6 +41,30 @@ export async function setupApplication(options: {
   adminName?: string;
   includeSeedData?: boolean;
   resetExisting?: boolean;
+  clinicSettings?: {
+    clinicName: string;
+    clinicAddress: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+    clinicPhone: string;
+    clinicEmail: string;
+    clinicWebsite?: string;
+    businessHours: {
+      monday: { open: string; close: string; isOpen: boolean };
+      tuesday: { open: string; close: string; isOpen: boolean };
+      wednesday: { open: string; close: string; isOpen: boolean };
+      thursday: { open: string; close: string; isOpen: boolean };
+      friday: { open: string; close: string; isOpen: boolean };
+      saturday: { open: string; close: string; isOpen: boolean };
+      sunday: { open: string; close: string; isOpen: boolean };
+    };
+    timezone: string;
+    currency: string;
+  };
 } = {}): Promise<SetupResult> {
   const errors: string[] = [];
   const result: SetupResult = {
@@ -79,8 +103,8 @@ export async function setupApplication(options: {
     result.data!.adminUserId = adminUserId;
     console.log('Admin user created:', adminUserId);
 
-    // Initialize application settings
-    const settings = await initializeApplicationSettings(adminUserId);
+    // Initialize application settings with custom clinic settings if provided
+    const settings = await initializeApplicationSettings(adminUserId, options.clinicSettings);
     result.data!.settingsId = settings._id.toString();
     console.log('Application settings initialized');
 

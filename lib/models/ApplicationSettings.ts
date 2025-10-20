@@ -117,14 +117,14 @@ const ApplicationSettingsSchema = new Schema<IApplicationSettings>({
   clinicName: {
     type: String,
     required: true,
-    default: 'Clinic Management System'
+    default: 'MediNext'
   },
   clinicAddress: {
     street: { type: String, required: true },
     city: { type: String, required: true },
     state: { type: String, required: true },
     zipCode: { type: String, required: true },
-    country: { type: String, required: true, default: 'USA' }
+    country: { type: String, required: true, default: 'PH' }
   },
   clinicPhone: {
     type: String,
@@ -156,7 +156,7 @@ const ApplicationSettingsSchema = new Schema<IApplicationSettings>({
     reminderHours: [{ type: Number }]
   },
   billingSettings: {
-    currency: { type: String, default: 'USD' },
+    currency: { type: String, default: 'PHP' },
     taxRate: { type: Number, default: 0.08 },
     defaultPaymentTerms: { type: Number, default: 30 },
     lateFeeRate: { type: Number, default: 0.02 },
@@ -172,7 +172,7 @@ const ApplicationSettingsSchema = new Schema<IApplicationSettings>({
     prescriptionReadyNotifications: { type: Boolean, default: true }
   },
   systemSettings: {
-    timezone: { type: String, default: 'America/New_York' },
+    timezone: { type: String, default: 'Asia/Beijing' },
     dateFormat: { type: String, default: 'MM/DD/YYYY' },
     timeFormat: { type: String, enum: ['12h', '24h'], default: '12h' },
     language: { type: String, default: 'en' },

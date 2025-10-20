@@ -553,21 +553,48 @@ export const updateApplicationSettings = async (settingsData: Partial<IApplicati
   return settings;
 };
 
-export const initializeApplicationSettings = async (updatedBy: string): Promise<IApplicationSettings> => {
+export const initializeApplicationSettings = async (
+  updatedBy: string, 
+  customSettings?: {
+    clinicName: string;
+    clinicAddress: {
+      street: string;
+      city: string;
+      state: string;
+      zipCode: string;
+      country: string;
+    };
+    clinicPhone: string;
+    clinicEmail: string;
+    clinicWebsite?: string;
+    businessHours: {
+      monday: { open: string; close: string; isOpen: boolean };
+      tuesday: { open: string; close: string; isOpen: boolean };
+      wednesday: { open: string; close: string; isOpen: boolean };
+      thursday: { open: string; close: string; isOpen: boolean };
+      friday: { open: string; close: string; isOpen: boolean };
+      saturday: { open: string; close: string; isOpen: boolean };
+      sunday: { open: string; close: string; isOpen: boolean };
+    };
+    timezone: string;
+    currency: string;
+  }
+): Promise<IApplicationSettings> => {
   await connectDB();
   
   const defaultSettings = {
-    clinicName: 'Clinic Management System',
-    clinicAddress: {
-      street: '123 Medical Center Dr',
-      city: 'Medical City',
-      state: 'MC',
-      zipCode: '12345',
-      country: 'USA'
+    clinicName: customSettings?.clinicName || 'MediNext',
+    clinicAddress: customSettings?.clinicAddress || {
+      street: '123 Medical Center Ave',
+      city: 'Manila',
+      state: 'NCR',
+      zipCode: '1000',
+      country: 'PH'
     },
-    clinicPhone: '(555) 123-4567',
-    clinicEmail: 'info@clinic.com',
-    businessHours: {
+    clinicPhone: customSettings?.clinicPhone || '+63 2 1234 5678',
+    clinicEmail: customSettings?.clinicEmail || 'info@clinic.com',
+    clinicWebsite: customSettings?.clinicWebsite,
+    businessHours: customSettings?.businessHours || {
       monday: { open: '08:00', close: '17:00', isOpen: true },
       tuesday: { open: '08:00', close: '17:00', isOpen: true },
       wednesday: { open: '08:00', close: '17:00', isOpen: true },
@@ -586,8 +613,8 @@ export const initializeApplicationSettings = async (updatedBy: string): Promise<
       reminderHours: [24, 2]
     },
     billingSettings: {
-      currency: 'USD',
-      taxRate: 0.08,
+      currency: customSettings?.currency || 'PHP',
+      taxRate: 0.12,
       defaultPaymentTerms: 30,
       lateFeeRate: 0.02,
       allowPartialPayments: true,
@@ -602,7 +629,7 @@ export const initializeApplicationSettings = async (updatedBy: string): Promise<
       prescriptionReadyNotifications: true
     },
     systemSettings: {
-      timezone: 'America/New_York',
+      timezone: customSettings?.timezone || 'Asia/Beijing',
       dateFormat: 'MM/DD/YYYY',
       timeFormat: '12h' as const,
       language: 'en',

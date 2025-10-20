@@ -1,6 +1,6 @@
-# Clinic Management System - Setup Guide
+# MediNext - Setup Guide
 
-This guide will help you set up the Clinic Management System with an admin user, initial application settings, and sample data.
+This guide will help you set up the MediNext with an admin user, initial application settings, and sample data.
 
 ## Prerequisites
 

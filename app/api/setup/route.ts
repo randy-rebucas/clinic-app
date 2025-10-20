@@ -1,16 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { setupApplication, resetApplication, isApplicationSetup, getSetupStatus } from '@/lib/setup';
+import { User } from '@/lib/models/User';
+import connectDB from '@/lib/mongodb';
 
 /**
  * GET /api/setup - Check setup status
  */
 export async function GET() {
   try {
+    await connectDB();
+    
+    // Check if any users exist in the system
+    const userCount = await User.countDocuments();
+    const hasUsers = userCount > 0;
+    
     const status = await getSetupStatus();
     
     return NextResponse.json({
       success: true,
-      data: status
+      data: {
+        ...status,
+        hasUsers,
+        userCount,
+        needsInstallation: !hasUsers
+      }
     });
   } catch (error) {
     console.error('Error checking setup status:', error);
@@ -37,7 +50,8 @@ export async function POST(request: NextRequest) {
       adminName, 
       includeSeedData = true, 
       resetExisting = false,
-      action = 'setup'
+      action = 'setup',
+      clinicSettings
     } = body;
 
     // Validate required fields for setup
@@ -60,7 +74,8 @@ export async function POST(request: NextRequest) {
           adminPassword,
           adminName,
           includeSeedData,
-          resetExisting
+          resetExisting,
+          clinicSettings
         });
         break;
         

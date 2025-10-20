@@ -107,7 +107,7 @@ export const seedData = {
         city: 'Springfield',
         state: 'IL',
         zipCode: '62701',
-        country: 'USA'
+        country: 'PH'
       },
       emergencyContact: {
         name: 'Jane Doe',
@@ -136,7 +136,7 @@ export const seedData = {
         city: 'Springfield',
         state: 'IL',
         zipCode: '62702',
-        country: 'USA'
+        country: 'PH'
       },
       emergencyContact: {
         name: 'Robert Smith',
@@ -165,7 +165,7 @@ export const seedData = {
         city: 'Springfield',
         state: 'IL',
         zipCode: '62703',
-        country: 'USA'
+        country: 'PH'
       },
       emergencyContact: {
         name: 'Susan Johnson',

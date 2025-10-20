@@ -36,7 +36,7 @@ export default function NewPatientPage() {
       city: '',
       state: '',
       zipCode: '',
-      country: 'USA'
+      country: 'PH'
     },
     emergencyContact: {
       name: '',

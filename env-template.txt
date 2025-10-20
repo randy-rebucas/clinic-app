@@ -1,5 +1,5 @@
 # ===========================================
-# CLINIC MANAGEMENT SYSTEM - ENVIRONMENT VARIABLES
+# MEDINEXT - ENVIRONMENT VARIABLES
 # Copy this file to .env.local and update the values
 # ===========================================
 
@@ -23,7 +23,7 @@ TWILIO_AUTH_TOKEN=your-twilio-auth-token
 TWILIO_PHONE_NUMBER=your-twilio-phone-number
 
 # Clinic Information
-CLINIC_NAME=Clinic Management System
+CLINIC_NAME=MediNext
 CLINIC_ADDRESS=123 Medical Center Dr, City, State 12345
 CLINIC_PHONE=(555) 123-4567
 CLINIC_EMAIL=info@clinic.com

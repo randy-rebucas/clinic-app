@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * CLI Setup Script for Clinic Management System
+ * CLI Setup Script for MediNext
  * 
  * Usage:
  *   node scripts/setup.js
@@ -54,7 +54,7 @@ const rl = readline.createInterface({
 
 function showHelp() {
   console.log(`
-Clinic Management System Setup Script
+MediNext Setup Script
 
 Usage:
   node scripts/setup.js [options]
@@ -106,7 +106,7 @@ async function getSetupOptions() {
 
 async function main() {
   try {
-    console.log('🏥 Clinic Management System Setup\n');
+    console.log('🏥 MediNext Setup\n');
 
     if (options.check) {
       console.log('Checking setup status...');

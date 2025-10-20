@@ -149,7 +149,7 @@ export const generateInvoicePDF = async (data: PDFInvoiceData): Promise<Buffer> 
     </head>
     <body>
       <div class="header">
-        <div class="clinic-name">Clinic Management System</div>
+        <div class="clinic-name">MediNext</div>
         <div class="clinic-address">
           123 Medical Center Drive<br>
           Healthcare City, HC 12345<br>
@@ -361,7 +361,7 @@ export const generateReceiptPDF = async (payment: IPayment, invoice: IInvoice, p
     </head>
     <body>
       <div class="header">
-        <div class="clinic-name">Clinic Management System</div>
+        <div class="clinic-name">MediNext</div>
         <div style="font-size: 14px; color: #666;">
           123 Medical Center Drive<br>
           Healthcare City, HC 12345<br>

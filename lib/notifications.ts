@@ -1,4 +1,4 @@
-// Notification service for clinic management system
+// Notification service for MediNext
 // This handles email, SMS, and in-app notifications
 
 export interface NotificationTemplate {

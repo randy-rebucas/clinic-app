@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, Phone, MapPin, Heart, AlertCircle, CheckCircle, CreditCard } from 'lucide-react';
+import { User, Phone, MapPin, Heart, AlertCircle, CheckCircle, CreditCard, Eye, EyeOff } from 'lucide-react';
+import { validatePatientForm, ValidationError, PatientFormData, sanitizeInput, formatPhoneNumber } from '@/lib/validation/patientValidation';
 
 export default function PatientRegisterPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<PatientFormData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -16,7 +17,7 @@ export default function PatientRegisterPage() {
     city: '',
     state: '',
     zipCode: '',
-    country: 'USA',
+    country: 'PH',
     emergencyContactName: '',
     emergencyContactRelationship: '',
     emergencyContactPhone: '',
@@ -31,20 +32,181 @@ export default function PatientRegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const [formProgress, setFormProgress] = useState(0);
+  const [isValidating, setIsValidating] = useState(false);
   const router = useRouter();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const totalSteps = 5;
+
+  // Form persistence
+  useEffect(() => {
+    const savedFormData = localStorage.getItem('patientRegistrationForm');
+    if (savedFormData) {
+      try {
+        const parsed = JSON.parse(savedFormData);
+        setFormData(parsed);
+      } catch (error) {
+        console.error('Error parsing saved form data:', error);
+      }
+    }
+  }, []);
+
+  // Save form data to localStorage on change
+  useEffect(() => {
+    localStorage.setItem('patientRegistrationForm', JSON.stringify(formData));
+  }, [formData]);
+
+  // Calculate form progress
+  useEffect(() => {
+    const requiredFields = ['firstName', 'lastName', 'dateOfBirth', 'gender'];
+    const completedRequired = requiredFields.filter(field => formData[field as keyof PatientFormData]?.trim()).length;
+    const progress = (completedRequired / requiredFields.length) * 100;
+    setFormProgress(progress);
+  }, [formData]);
+
+  // Clear form data on successful registration
+  useEffect(() => {
+    if (success) {
+      localStorage.removeItem('patientRegistrationForm');
+    }
+  }, [success]);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    const sanitizedValue = sanitizeInput(value);
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: sanitizedValue
     }));
-  };
+
+    // Clear validation error for this field
+    setValidationErrors(prev => prev.filter(error => error.field !== name));
+  }, []);
+
+  const handlePhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    const cleaned = value.replace(/\D/g, '');
+    
+    if (cleaned.length <= 10) {
+      setFormData(prev => ({
+        ...prev,
+        [name]: cleaned
+      }));
+    }
+  }, []);
+
+  const validateCurrentStep = useCallback(() => {
+    const errors = validatePatientForm(formData);
+    setValidationErrors(errors);
+    return errors.length === 0;
+  }, [formData]);
+
+  const validateStep = useCallback((step: number) => {
+    const stepErrors: ValidationError[] = [];
+    
+    switch (step) {
+      case 1: // Personal Information
+        if (!formData.firstName.trim()) stepErrors.push({ field: 'firstName', message: 'First name is required' });
+        if (!formData.lastName.trim()) stepErrors.push({ field: 'lastName', message: 'Last name is required' });
+        if (!formData.dateOfBirth) stepErrors.push({ field: 'dateOfBirth', message: 'Date of birth is required' });
+        if (!formData.gender) stepErrors.push({ field: 'gender', message: 'Gender is required' });
+        if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+          stepErrors.push({ field: 'email', message: 'Please enter a valid email address' });
+        }
+        if (formData.phone && !/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
+          stepErrors.push({ field: 'phone', message: 'Please enter a valid 10-digit phone number' });
+        }
+        break;
+      case 2: // Address Information
+        // Address fields are optional, no validation needed
+        break;
+      case 3: // Emergency Contact
+        // Emergency contact fields are optional, no validation needed
+        break;
+      case 4: // Medical Information
+        // Medical fields are optional, no validation needed
+        break;
+      case 5: // Insurance Information
+        // Insurance fields are optional, no validation needed
+        break;
+    }
+    
+    return stepErrors;
+  }, [formData]);
+
+  const canProceedToNextStep = useCallback((step: number) => {
+    const stepErrors = validateStep(step);
+    return stepErrors.length === 0;
+  }, [validateStep]);
+
+  const handleNextStep = useCallback(() => {
+    if (canProceedToNextStep(currentStep)) {
+      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+    }
+  }, [currentStep, canProceedToNextStep]);
+
+  const handlePreviousStep = useCallback(() => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  }, []);
+
+  // Debounced validation for current step
+  useEffect(() => {
+    setIsValidating(true);
+    const timeoutId = setTimeout(() => {
+      const stepErrors = validateStep(currentStep);
+      setValidationErrors(stepErrors);
+      setIsValidating(false);
+    }, 500);
+
+    return () => {
+      clearTimeout(timeoutId);
+      setIsValidating(false);
+    };
+  }, [formData, currentStep, validateStep]);
+
+  const getFieldError = useCallback((fieldName: string) => {
+    return validationErrors.find(error => error.field === fieldName)?.message;
+  }, [validationErrors]);
+
+  // Keyboard navigation support
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+      const form = e.currentTarget.closest('form');
+      if (form) {
+        const inputs = Array.from(form.querySelectorAll('input, select, textarea')) as HTMLElement[];
+        const currentIndex = inputs.indexOf(e.target);
+        const nextInput = inputs[currentIndex + 1];
+        
+        if (nextInput) {
+          e.preventDefault();
+          nextInput.focus();
+        }
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setValidationErrors([]);
+
+    // Validate all steps before submission
+    const allErrors: ValidationError[] = [];
+    for (let step = 1; step <= totalSteps; step++) {
+      const stepErrors = validateStep(step);
+      allErrors.push(...stepErrors);
+    }
+    
+    if (allErrors.length > 0) {
+      setValidationErrors(allErrors);
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('/api/auth/patient/register', {
@@ -100,6 +262,14 @@ export default function PatientRegisterPage() {
     }
   };
 
+  const steps = [
+    { id: 1, name: 'Personal Info', icon: User },
+    { id: 2, name: 'Address', icon: MapPin },
+    { id: 3, name: 'Emergency Contact', icon: Phone },
+    { id: 4, name: 'Medical Info', icon: Heart },
+    { id: 5, name: 'Insurance', icon: CreditCard }
+  ];
+
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
@@ -133,15 +303,66 @@ export default function PatientRegisterPage() {
           <p className="mt-2 text-gray-600">Create your patient account to access your medical records</p>
         </div>
 
+        {/* Progress Indicator */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              const isActive = currentStep === step.id;
+              const isCompleted = currentStep > step.id;
+              
+              return (
+                <div key={step.id} className="flex flex-col items-center">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                    isCompleted 
+                      ? 'bg-green-500 border-green-500 text-white' 
+                      : isActive 
+                        ? 'bg-blue-500 border-blue-500 text-white' 
+                        : 'bg-white border-gray-300 text-gray-400'
+                  }`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <span className={`mt-2 text-xs font-medium ${
+                    isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-400'
+                  }`}>
+                    {step.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div 
+              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / totalSteps) * 100}%` }}
+            />
+          </div>
+          
+          <div className="flex justify-between mt-2 text-sm text-gray-500">
+            <span>Step {currentStep} of {totalSteps}</span>
+            <span>{Math.round((currentStep / totalSteps) * 100)}% Complete</span>
+          </div>
+        </div>
+
         <div className="bg-white rounded-lg shadow-sm border p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Personal Information */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <User className="h-5 w-5 mr-2" />
-                Personal Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form 
+            onSubmit={handleSubmit} 
+            onKeyDown={handleKeyDown}
+            className="space-y-6"
+            role="form"
+            aria-label="Patient Registration Form"
+            noValidate
+          >
+            {/* Step 1: Personal Information */}
+            {currentStep === 1 && (
+              <fieldset>
+                <legend className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <User className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Personal Information
+                </legend>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                     First Name *
@@ -153,8 +374,18 @@ export default function PatientRegisterPage() {
                     required
                     value={formData.firstName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    aria-describedby={getFieldError('firstName') ? 'firstName-error' : undefined}
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      getFieldError('firstName') 
+                        ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-300'
+                    }`}
                   />
+                  {getFieldError('firstName') && (
+                    <p id="firstName-error" className="mt-1 text-sm text-red-600" role="alert">
+                      {getFieldError('firstName')}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
@@ -192,9 +423,20 @@ export default function PatientRegisterPage() {
                     id="phone"
                     name="phone"
                     value={formData.phone}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    onChange={handlePhoneChange}
+                    placeholder="(555) 123-4567"
+                    aria-describedby={getFieldError('phone') ? 'phone-error' : undefined}
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      getFieldError('phone') 
+                        ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-300'
+                    }`}
                   />
+                  {getFieldError('phone') && (
+                    <p id="phone-error" className="mt-1 text-sm text-red-600" role="alert">
+                      {getFieldError('phone')}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
@@ -229,14 +471,16 @@ export default function PatientRegisterPage() {
                   </select>
                 </div>
               </div>
-            </div>
+            </fieldset>
+            )}
 
-            {/* Address Information */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <MapPin className="h-5 w-5 mr-2" />
-                Address Information
-              </h3>
+            {/* Step 2: Address Information */}
+            {currentStep === 2 && (
+              <fieldset>
+                <legend className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <MapPin className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Address Information
+                </legend>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label htmlFor="street" className="block text-sm font-medium text-gray-700">
@@ -304,14 +548,16 @@ export default function PatientRegisterPage() {
                   />
                 </div>
               </div>
-            </div>
+            </fieldset>
+            )}
 
-            {/* Emergency Contact */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <Phone className="h-5 w-5 mr-2" />
-                Emergency Contact
-              </h3>
+            {/* Step 3: Emergency Contact */}
+            {currentStep === 3 && (
+              <fieldset>
+                <legend className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <Phone className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Emergency Contact
+                </legend>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="emergencyContactName" className="block text-sm font-medium text-gray-700">
@@ -353,14 +599,16 @@ export default function PatientRegisterPage() {
                   />
                 </div>
               </div>
-            </div>
+            </fieldset>
+            )}
 
-            {/* Medical Information */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <Heart className="h-5 w-5 mr-2" />
-                Medical Information
-              </h3>
+            {/* Step 4: Medical Information */}
+            {currentStep === 4 && (
+              <fieldset>
+                <legend className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <Heart className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Medical Information
+                </legend>
               <div className="space-y-4">
                 <div>
                   <label htmlFor="medicalHistory" className="block text-sm font-medium text-gray-700">
@@ -405,14 +653,16 @@ export default function PatientRegisterPage() {
                   />
                 </div>
               </div>
-            </div>
+            </fieldset>
+            )}
 
-            {/* Insurance Information */}
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <CreditCard className="h-5 w-5 mr-2" />
-                Insurance Information
-              </h3>
+            {/* Step 5: Insurance Information */}
+            {currentStep === 5 && (
+              <fieldset>
+                <legend className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                  <CreditCard className="h-5 w-5 mr-2" aria-hidden="true" />
+                  Insurance Information
+                </legend>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="insuranceProvider" className="block text-sm font-medium text-gray-700">
@@ -454,7 +704,8 @@ export default function PatientRegisterPage() {
                   />
                 </div>
               </div>
-            </div>
+            </fieldset>
+            )}
 
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
@@ -463,21 +714,73 @@ export default function PatientRegisterPage() {
               </div>
             )}
 
-            <div className="flex justify-between">
-              <button
-                type="button"
-                onClick={() => router.push('/patient/login')}
-                className="bg-gray-100 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-200 transition-colors"
-              >
-                Back to Login
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Registering...' : 'Register'}
-              </button>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-4">
+                {currentStep > 1 && (
+                  <button
+                    type="button"
+                    onClick={handlePreviousStep}
+                    className="bg-gray-100 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  >
+                    Previous
+                  </button>
+                )}
+                
+                <button
+                  type="button"
+                  onClick={() => router.push('/patient/login')}
+                  className="bg-gray-100 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                  Back to Login
+                </button>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                {isValidating && (
+                  <div className="text-sm text-blue-600 flex items-center">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                    Validating...
+                  </div>
+                )}
+                {!isValidating && validationErrors.length > 0 && (
+                  <div className="text-sm text-red-600 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" />
+                    {validationErrors.length} error{validationErrors.length > 1 ? 's' : ''} found
+                  </div>
+                )}
+                {!isValidating && validationErrors.length === 0 && formData.firstName && formData.lastName && formData.dateOfBirth && formData.gender && (
+                  <div className="text-sm text-green-600 flex items-center">
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    Step is valid
+                  </div>
+                )}
+                
+                {currentStep < totalSteps ? (
+                  <button
+                    type="button"
+                    onClick={handleNextStep}
+                    disabled={!canProceedToNextStep(currentStep)}
+                    className="bg-blue-600 text-white px-8 py-2 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    Next Step
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={loading || validationErrors.length > 0}
+                    className="bg-green-600 text-white px-8 py-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 flex items-center"
+                  >
+                    {loading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Registering...
+                      </>
+                    ) : (
+                      'Complete Registration'
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           </form>
         </div>

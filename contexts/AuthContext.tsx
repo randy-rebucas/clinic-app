@@ -69,12 +69,18 @@ const getUserByEmail = async (email: string): Promise<AppUser | null> => {
   }
 };
 
-const loginUser = async (email: string, password: string): Promise<AppUser | null> => {
+const loginUser = async (email: string, password: string): Promise<{ user: AppUser; token: string } | null> => {
   try {
-    return await apiCall('/api/auth/login', {
+    const response = await apiCall('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+    
+    // Extract user data and token from the response
+    return {
+      user: response.user || null,
+      token: response.token || null
+    };
   } catch (error) {
     console.error('Error during login:', error);
     throw error;
@@ -107,13 +113,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkStoredAuth = async () => {
       try {
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+        const storedToken = localStorage.getItem('token');
+        
+        if (storedUser && storedToken) {
           const userData = JSON.parse(storedUser);
           
           // Validate that we have a valid user ID
           if (!userData.id || !userData.email) {
             console.warn('Invalid stored user data, clearing localStorage');
             localStorage.removeItem('user');
+            localStorage.removeItem('token');
             setLoading(false);
             return;
           }
@@ -130,6 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } else {
             console.warn('Failed to fetch user data, clearing stored auth');
             localStorage.removeItem('user');
+            localStorage.removeItem('token');
             setUser(null);
             setEmployee(null);
           }
@@ -137,6 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error('Error checking stored auth:', error);
         localStorage.removeItem('user');
+        localStorage.removeItem('token');
         setUser(null);
         setEmployee(null);
       } finally {
@@ -150,10 +161,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       // Use proper password verification
-      const userData = await loginUser(email, password);
-      if (!userData) {
+      const loginResponse = await loginUser(email, password);
+      if (!loginResponse || !loginResponse.user) {
         throw new Error('Invalid email or password');
       }
+      
+      const { user: userData, token } = loginResponse;
       
       // Ensure we have a valid ID
       if (!userData.id) {
@@ -166,6 +179,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // Store in localStorage for persistence
       localStorage.setItem('user', JSON.stringify(localUserData));
+      localStorage.setItem('token', token);
       
       console.log('User signed in successfully:', { id: localUserData.id, email: localUserData.email });
     } catch (error) {
@@ -222,6 +236,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setEmployee(null);
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

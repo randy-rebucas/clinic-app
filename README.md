@@ -1,6 +1,6 @@
-# 🏥 Clinic Management System
+# 🏥 MediNext
 
-A comprehensive, production-ready clinic management system built with Next.js 15, TypeScript, MongoDB, and Socket.IO. This system provides complete patient management, appointment scheduling, prescription management, billing, lab orders, real-time notifications, and more.
+A comprehensive, production-ready medical management system built with Next.js 15, TypeScript, MongoDB, and Socket.IO. MediNext provides complete patient management, appointment scheduling, prescription management, billing, lab orders, real-time notifications, and more.
 
 ## ✨ Features
 

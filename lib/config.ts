@@ -16,7 +16,7 @@ export const config = {
 
   // Clinic Information
   clinic: {
-    name: process.env.CLINIC_NAME || 'Clinic Management System',
+    name: process.env.CLINIC_NAME || 'MediNext',
     address: process.env.CLINIC_ADDRESS || '123 Medical Center Dr, City, State 12345',
     phone: process.env.CLINIC_PHONE || '(555) 123-4567',
     email: process.env.CLINIC_EMAIL || 'info@clinic.com',

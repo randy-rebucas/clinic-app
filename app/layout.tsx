@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Clinic App",
-  description: "Clinic management system",
+  title: "MediNext",
+  description: "MediNext - Medical Management System",
 };
 
 export default function RootLayout({
