@@ -2,83 +2,29 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import LoginForm from '@/components/Auth/LoginForm';
-import dynamic from 'next/dynamic';
-import { Clock } from 'lucide-react';
-import ErrorBoundary from '@/components/ErrorBoundary/ErrorBoundary';
-
-// Lazy load the main dashboard components
-const TimeTrackerDashboard = dynamic(() => import('@/components/TimeTracker/TimeTrackerDashboard'), {
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="card p-8 max-w-md w-full mx-4">
-        <div className="empty-state">
-          <div className="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-            <Clock className="h-8 w-8 text-white animate-pulse" />
-          </div>
-          <div className="empty-state-title">Loading Dashboard</div>
-          <div className="empty-state-description">Please wait while we load your dashboard</div>
-          <div className="flex justify-center">
-            <div className="spinner spinner-md"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  ),
-});
-
-const AdminDashboard = dynamic(() => import('@/components/Admin/AdminDashboard'), {
-  loading: () => (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      <div className="card p-8 max-w-md w-full mx-4">
-        <div className="empty-state">
-          <div className="mx-auto h-16 w-16 bg-purple-600 rounded-full flex items-center justify-center mb-4">
-            <Clock className="h-8 w-8 text-white animate-pulse" />
-          </div>
-          <div className="empty-state-title">Loading Admin Dashboard</div>
-          <div className="empty-state-description">Please wait while we load the admin panel</div>
-          <div className="flex justify-center">
-            <div className="spinner spinner-md"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  ),
-});
 
 export default function Home() {
-  const { user, loading, isAdmin } = useAuth();
+  const { user, loading, logout } = useAuth();
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-        <div className="card p-8 max-w-md w-full mx-4">
-          <div className="empty-state">
-            <div className="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-              <Clock className="h-8 w-8 text-white animate-pulse" />
-            </div>
-            <div className="empty-state-title">Loading Dashboard</div>
-            <div className="empty-state-description">Please wait while we load your dashboard</div>
-            <div className="flex justify-center">
-              <div className="spinner spinner-md"></div>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-gray-600">Loading...</div>
       </div>
     );
   }
 
   if (!user) {
-    return (
-      <ErrorBoundary level="page" showDetails={process.env.NODE_ENV === 'development'}>
-        <LoginForm />
-      </ErrorBoundary>
-    );
+    return <LoginForm />;
   }
 
-  // Show admin dashboard for admin users, time tracker for regular employees
-  if (isAdmin) {
-    return <AdminDashboard />;
-  }
-
-  return <TimeTrackerDashboard />;
+  return (
+    <main className="min-h-screen flex items-center justify-center">
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <p className="text-gray-600">You are signed in.</p>
+        <button onClick={logout} className="btn-primary px-4 py-2 rounded">Logout</button>
+      </div>
+    </main>
+  );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Employee } from '@/types';
+import { User as AppUser } from '@/types';
 
 interface LocalUser {
   id: string;
@@ -10,10 +10,10 @@ interface LocalUser {
 
 interface AuthContextType {
   user: LocalUser | null;
-  employee: Employee | null;
+  employee: AppUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, employeeData: Omit<Employee, 'id' | 'email' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  signUp: (email: string, password: string, employeeData: Omit<AppUser, 'id' | 'email' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   logout: () => Promise<void>;
   isAdmin: boolean;
   isEmployee: boolean;
@@ -51,25 +51,25 @@ const apiCall = async (url: string, options: RequestInit = {}) => {
   return response.json();
 };
 
-const getEmployee = async (id: string): Promise<Employee | null> => {
+const getUser = async (id: string): Promise<AppUser | null> => {
   try {
     return await apiCall(`/api/auth/employee?id=${encodeURIComponent(id)}`);
   } catch (error) {
-    console.error('Error fetching employee:', error);
+    console.error('Error fetching user:', error);
     return null;
   }
 };
 
-const getEmployeeByEmail = async (email: string): Promise<Employee | null> => {
+const getUserByEmail = async (email: string): Promise<AppUser | null> => {
   try {
     return await apiCall(`/api/auth/employee?email=${encodeURIComponent(email)}`);
   } catch (error) {
-    console.error('Error fetching employee by email:', error);
+    console.error('Error fetching user by email:', error);
     return null;
   }
 };
 
-const loginEmployee = async (email: string, password: string): Promise<Employee | null> => {
+const loginUser = async (email: string, password: string): Promise<AppUser | null> => {
   try {
     return await apiCall('/api/auth/login', {
       method: 'POST',
@@ -81,10 +81,10 @@ const loginEmployee = async (email: string, password: string): Promise<Employee 
   }
 };
 
-const createEmployee = async (employeeData: Omit<Employee, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
+const createUser = async (userData: Omit<AppUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> => {
   const response = await apiCall('/api/auth/employee', {
     method: 'POST',
-    body: JSON.stringify(employeeData),
+    body: JSON.stringify(userData),
   });
   return response.id;
 };
@@ -99,7 +99,7 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<LocalUser | null>(null);
-  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [employee, setEmployee] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -121,14 +121,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(userData);
           console.log('Restored user from localStorage:', userData);
           
-          // Fetch employee data from API
+          // Fetch user data from API
           const response = await fetch(`/api/auth/employee?id=${userData.id}`);
           if (response.ok) {
             const data = await response.json();
             setEmployee(data);
-            console.log('Fetched employee data:', data);
+            console.log('Fetched user data:', data);
           } else {
-            console.warn('Failed to fetch employee data, clearing stored auth');
+            console.warn('Failed to fetch user data, clearing stored auth');
             localStorage.removeItem('user');
             setUser(null);
             setEmployee(null);
@@ -150,24 +150,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       // Use proper password verification
-      const employeeData = await loginEmployee(email, password);
-      if (!employeeData) {
+      const userData = await loginUser(email, password);
+      if (!userData) {
         throw new Error('Invalid email or password');
       }
       
       // Ensure we have a valid ID
-      if (!employeeData.id) {
-        throw new Error('Invalid employee data received');
+      if (!userData.id) {
+        throw new Error('Invalid user data received');
       }
       
-      const userData = { id: employeeData.id, email: employeeData.email };
-      setUser(userData);
-      setEmployee(employeeData);
+      const localUserData = { id: userData.id, email: userData.email };
+      setUser(localUserData);
+      setEmployee(userData);
       
       // Store in localStorage for persistence
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('user', JSON.stringify(localUserData));
       
-      console.log('User signed in successfully:', { id: userData.id, email: userData.email });
+      console.log('User signed in successfully:', { id: localUserData.id, email: localUserData.email });
     } catch (error) {
       console.error('Sign in error:', error);
       throw error;
@@ -177,38 +177,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (
     email: string,
     password: string, 
-    employeeData: Omit<Employee, 'id' | 'email' | 'createdAt' | 'updatedAt'>
+    userData: Omit<AppUser, 'id' | 'email' | 'createdAt' | 'updatedAt'>
   ) => {
     try {
-      const newEmployeeData = {
-        name: employeeData.name,
+      const newUserData = {
+        name: userData.name,
         email,
         password,
-        role: employeeData.role,
-        department: employeeData.department,
-        position: employeeData.position,
+        role: userData.role,
+        department: userData.department,
+        position: userData.position,
       };
       
-      const employeeId = await createEmployee(newEmployeeData);
+      const userId = await createUser(newUserData);
       
       // Auto-login after signup
-      const userData = { id: employeeId, email };
-      setUser(userData);
+      const localUserData = { id: userId, email };
+      setUser(localUserData);
       
-      // Create a mock Employee object for the state
-      const mockEmployee: Employee = {
-        id: employeeId,
-        name: employeeData.name,
+      // Create a mock User object for the state
+      const mockUser: AppUser = {
+        id: userId,
+        name: userData.name,
         email,
-        role: employeeData.role,
-        department: employeeData.department,
-        position: employeeData.position,
+        role: userData.role,
+        department: userData.department,
+        position: userData.position,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
       
-      setEmployee(mockEmployee);
-      localStorage.setItem('user', JSON.stringify(userData));
+      setEmployee(mockUser);
+      localStorage.setItem('user', JSON.stringify(localUserData));
     } catch (error) {
       console.error('Sign up error:', error);
       throw error;

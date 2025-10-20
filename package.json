@@ -1,28 +1,23 @@
 {
-  "name": "localpro-time-tracker",
+  "name": "clinic-app",
   "version": "0.1.0",
   "private": true,
+  "description": "Clinic authentication app with user management",
   "scripts": {
-    "dev": "node scripts/generate-sw.js && next dev --turbopack",
-    "build": "node scripts/generate-sw.js && next build --turbopack",
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint",
-    "generate-sw": "node scripts/generate-sw.js",
-    "generate-employee-ids": "npx tsx scripts/generate-employee-ids.ts",
-    "reset-rate-limits": "npx tsx scripts/reset-rate-limits.ts",
-    "cleanup-duplicate-idle-settings": "npx tsx scripts/cleanup-duplicate-idle-settings.ts"
+    "lint": "eslint"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.2",
-    "date-fns": "^4.1.0",
     "lucide-react": "^0.545.0",
     "mongodb": "^4.17.2",
     "mongoose": "^7.6.3",
     "next": "15.5.5",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "recharts": "^3.2.1"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

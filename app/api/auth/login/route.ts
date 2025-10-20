@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getEmployeeByEmail } from '@/lib/database';
+import { getUserByEmail } from '@/lib/database';
 import { authRateLimiter } from '@/lib/rateLimiter';
 
 export async function POST(request: NextRequest) {
@@ -45,38 +45,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
     }
 
-    // Get employee by email using the proper database function
-    const employee = await getEmployeeByEmail(email);
+    // Get user by email using the proper database function
+    const user = await getUserByEmail(email);
     
-    if (!employee) {
+    if (!user) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    // Check if employee has a password
-    if (!employee.password) {
+    // Check if user has a password
+    if (!user.password) {
       return NextResponse.json({ error: 'Account needs password setup. Please contact administrator.' }, { status: 401 });
     }
 
     // Compare password
-    const isPasswordValid = await employee.comparePassword(password);
+    const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401 });
     }
 
-    // Return employee data (excluding password)
+    // Return user data (excluding password)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _password, _id, ...employeeWithoutPassword } = employee.toObject();
+    const { password: _password, _id, ...userWithoutPassword } = user.toObject();
     
     // Transform _id to id for frontend compatibility
-    const employeeData = {
-      ...employeeWithoutPassword,
+    const userData = {
+      ...userWithoutPassword,
       id: _id.toString()
     };
     
     // Log successful login (without sensitive data)
     console.log(`Successful login for user: ${email}`);
     
-    return NextResponse.json(employeeData, {
+    return NextResponse.json(userData, {
       headers: {
         'X-RateLimit-Limit': '5',
         'X-RateLimit-Remaining': rateLimit.remaining.toString(),

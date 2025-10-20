@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Clock, User, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
-import ThemeToggle from '@/components/Theme/ThemeToggle';
-import RateLimitReset from '@/components/Dev/RateLimitReset';
+import { User, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
+// ThemeToggle and RateLimitReset removed for minimal reset
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -71,21 +70,15 @@ export default function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Theme Toggle - Top Right */}
-      <div className="absolute top-4 right-4">
-        <ThemeToggle />
-      </div>
+      {/* Minimal UI - no theme toggle */}
       
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
-            <Clock className="h-8 w-8 text-white" />
-          </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900 dark:text-white">
-            LocalPro Time Tracker
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Clinic App
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Sign in to your employee account
+            Sign in to your account
           </p>
         </div>
 
@@ -222,8 +215,7 @@ export default function LoginForm() {
         </div>
       </div>
       
-      {/* Development Rate Limit Reset Component */}
-      <RateLimitReset />
+      {/* Minimal UI - no dev widgets */}
     </div>
   );
 }
