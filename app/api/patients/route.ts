@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createPatient, searchPatients } from '@/lib/database';
+import { createPatient, searchPatients, getAllPatients } from '@/lib/database';
 // import { v4 as uuidv4 } from 'uuid'; // Unused for now
 
 export async function GET(request: NextRequest) {
@@ -12,10 +12,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(patients);
     }
 
-    return NextResponse.json({ error: 'Search query is required' }, { status: 400 });
+    // If no search query, return all patients
+    const patients = await getAllPatients();
+    return NextResponse.json(patients);
   } catch (error) {
-    console.error('Error searching patients:', error);
-    return NextResponse.json({ error: 'Failed to search patients' }, { status: 500 });
+    console.error('Error fetching patients:', error);
+    return NextResponse.json({ error: 'Failed to fetch patients' }, { status: 500 });
   }
 }
 

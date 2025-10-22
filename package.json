@@ -12,7 +12,9 @@
     "lint": "eslint",
     "setup": "node scripts/setup.js",
     "setup:check": "node scripts/setup.js --check",
-    "setup:reset": "node scripts/setup.js --reset"
+    "setup:reset": "node scripts/setup.js --reset",
+    "test:reset": "node scripts/test-reset.js",
+    "test:reset:esm": "node scripts/test-reset-simple.mjs"
   },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",

@@ -122,7 +122,7 @@ export default function Home() {
                 </Link>
                 <Link
                   href="/patient/register"
-                  className="w-full bg-white/60 text-gray-700 py-3 px-6 rounded-xl hover:bg-white/80 transition-all duration-200 text-center block font-medium border border-gray-200 hover:border-gray-300 shadow-md hover:shadow-lg"
+                  className="w-full bg-white/60 text-gray-700 py-3 px-6 rounded-xl hover:bg-white/80 transition-all duration-200 text-center block font-medium shadow-md shadow-gray-200/50 hover:shadow-lg hover:shadow-gray-300/50"
                 >
                   New Patient Registration
                 </Link>
@@ -194,7 +194,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-white/20 sticky top-0 z-50">
+      <header className="bg-white/80 backdrop-blur-sm shadow-lg shadow-gray-200/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
@@ -234,7 +234,7 @@ export default function Home() {
               <p className="text-gray-600 text-lg">Welcome to MediNext. Select a module to get started.</p>
             </div>
             <div className="hidden md:block">
-              <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-white/20">
+              <div className="bg-white/60 backdrop-blur-sm p-4 rounded-xl shadow-lg shadow-gray-200/50">
                 <p className="text-sm text-gray-500">Last login</p>
                 <p className="text-sm font-medium text-gray-900">{new Date().toLocaleDateString()}</p>
               </div>
@@ -250,10 +250,10 @@ export default function Home() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`group relative bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                className={`group relative bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                   item.current 
-                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-blue-100' 
-                    : 'border-white/20 hover:border-blue-300 hover:bg-white/90'
+                    ? 'bg-gradient-to-br from-blue-50 to-indigo-50 shadow-blue-100 shadow-blue-200/50' 
+                    : 'shadow-gray-200/50 hover:shadow-blue-300/50 hover:bg-white/90'
                 }`}
                 style={{ animationDelay: `${index * 100}ms` }}
                 aria-label={`Navigate to ${item.name}`}
@@ -306,7 +306,7 @@ export default function Home() {
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 group">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg shadow-gray-200/50 hover:shadow-xl hover:shadow-gray-300/50 transition-all duration-300 group">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300">
@@ -322,7 +322,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 group">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg shadow-gray-200/50 hover:shadow-xl hover:shadow-gray-300/50 transition-all duration-300 group">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="p-3 bg-gradient-to-br from-green-100 to-green-200 rounded-xl group-hover:from-green-200 group-hover:to-green-300 transition-all duration-300">
@@ -338,7 +338,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 group">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg shadow-gray-200/50 hover:shadow-xl hover:shadow-gray-300/50 transition-all duration-300 group">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="p-3 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl group-hover:from-yellow-200 group-hover:to-yellow-300 transition-all duration-300">
@@ -354,7 +354,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 group">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg shadow-gray-200/50 hover:shadow-xl hover:shadow-gray-300/50 transition-all duration-300 group">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl group-hover:from-purple-200 group-hover:to-purple-300 transition-all duration-300">
@@ -375,7 +375,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/60 backdrop-blur-sm border-t border-white/20 mt-16">
+      <footer className="bg-white/60 backdrop-blur-sm shadow-lg shadow-gray-200/50 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-4 md:mb-0">

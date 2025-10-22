@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Plus, User, Phone, Mail, Calendar, Edit, Trash2, Eye, Filter, Download, RefreshCw } from 'lucide-react';
+import { Search, Plus, User, Phone, Mail, Calendar, Edit, Trash2, Eye, Filter, Download, RefreshCw, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 interface Patient {
@@ -56,7 +56,7 @@ export default function PatientsPage() {
   });
 
   useEffect(() => {
-    if (user && employee?.role === 'admin') {
+    if (user) {
       fetchAllPatients();
     }
   }, [user, employee]);
@@ -251,10 +251,17 @@ export default function PatientsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm shadow-gray-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
+              <Link
+                href="/"
+                className="mr-4 p-2 rounded-md hover:bg-gray-100 transition-colors"
+                title="Go back to dashboard"
+              >
+                <ArrowLeft className="h-6 w-6 text-gray-600" />
+              </Link>
               <User className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Patient Management</h1>
             </div>
@@ -290,7 +297,7 @@ export default function PatientsPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters Section */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Search Patients</h2>
           <form onSubmit={handleSearch} className="space-y-4">
             <div className="flex gap-4">
@@ -301,7 +308,7 @@ export default function PatientsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name, patient ID, email, or phone..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                 />
               </div>
               <button
@@ -318,7 +325,7 @@ export default function PatientsPage() {
                 <select
                   value={filters.gender}
                   onChange={(e) => setFilters(prev => ({ ...prev, gender: e.target.value }))}
-                  className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                 >
                   <option value="">All Genders</option>
                   <option value="male">Male</option>
@@ -328,7 +335,7 @@ export default function PatientsPage() {
                 <select
                   value={filters.isActive}
                   onChange={(e) => setFilters(prev => ({ ...prev, isActive: e.target.value }))}
-                  className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                 >
                   <option value="">All Status</option>
                   <option value="active">Active</option>
@@ -336,7 +343,7 @@ export default function PatientsPage() {
                 </select>
                 <button
                   onClick={() => setFilters({ gender: '', ageRange: '', isActive: '' })}
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+                  className="px-4 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center shadow-sm shadow-gray-200/50 hover:shadow-gray-300/50"
                 >
                   <Filter className="h-4 w-4 mr-2" />
                   Clear Filters
@@ -348,15 +355,15 @@ export default function PatientsPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+          <div className="bg-red-50 text-red-700 px-4 py-3 rounded-md mb-6 shadow-sm shadow-red-200/50">
             {error}
           </div>
         )}
 
         {/* Results */}
         {filteredPatients.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="px-6 py-4 border-b border-gray-200">
+          <div className="bg-white rounded-lg shadow-sm shadow-gray-200/50">
+            <div className="px-6 py-4 shadow-sm shadow-gray-200/30">
               <h3 className="text-lg font-medium text-gray-900">
                 Patients ({filteredPatients.length} found)
               </h3>
@@ -386,8 +393,8 @@ export default function PatientsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredPatients.map((patient) => (
-                    <tr key={patient.id} className="hover:bg-gray-50">
+                  {filteredPatients.map((patient, index) => (
+                    <tr key={patient.id || `patient-${index}`} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
@@ -510,7 +517,7 @@ export default function PatientsPage() {
 
         {/* No Results */}
         {searchQuery && patients.length === 0 && !loading && (
-          <div className="bg-white p-8 rounded-lg shadow-sm border text-center">
+          <div className="bg-white p-8 rounded-lg shadow-sm shadow-gray-200/50 text-center">
             <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No patients found</h3>
             <p className="text-gray-500 mb-4">
@@ -526,13 +533,13 @@ export default function PatientsPage() {
           </div>
         )}
 
-        {/* Initial State */}
-        {!searchQuery && (
-          <div className="bg-white p-8 rounded-lg shadow-sm border text-center">
+        {/* Initial State - Only show when there are no patients at all */}
+        {!searchQuery && patients.length === 0 && !loading && (
+          <div className="bg-white p-8 rounded-lg shadow-sm shadow-gray-200/50 text-center">
             <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Search for Patients</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No patients found</h3>
             <p className="text-gray-500 mb-4">
-              Use the search bar above to find existing patients by name, ID, email, or phone number.
+              There are no patients in the system yet. Add your first patient to get started.
             </p>
             <Link
               href="/patients/new"
@@ -548,7 +555,7 @@ export default function PatientsPage() {
       {/* Patient Details Modal */}
       {showDetails && selectedPatient && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 w-11/12 md:w-3/4 lg:w-1/2 shadow-lg shadow-gray-200/50 rounded-md bg-white">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Patient Details</h3>
@@ -642,7 +649,7 @@ export default function PatientsPage() {
       {/* Edit Patient Modal */}
       {showEditModal && selectedPatient && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 w-11/12 md:w-3/4 lg:w-1/2 shadow-lg shadow-gray-200/50 rounded-md bg-white">
             <div className="mt-3">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Edit Patient</h3>
@@ -662,7 +669,7 @@ export default function PatientsPage() {
                       type="text"
                       value={editForm.firstName}
                       onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     />
                   </div>
                   <div>
@@ -671,7 +678,7 @@ export default function PatientsPage() {
                       type="text"
                       value={editForm.lastName}
                       onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     />
                   </div>
                   <div>
@@ -680,7 +687,7 @@ export default function PatientsPage() {
                       type="email"
                       value={editForm.email}
                       onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     />
                   </div>
                   <div>
@@ -689,7 +696,7 @@ export default function PatientsPage() {
                       type="tel"
                       value={editForm.phone}
                       onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     />
                   </div>
                   <div>
@@ -698,7 +705,7 @@ export default function PatientsPage() {
                       type="date"
                       value={editForm.dateOfBirth}
                       onChange={(e) => setEditForm(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     />
                   </div>
                   <div>
@@ -706,7 +713,7 @@ export default function PatientsPage() {
                     <select
                       value={editForm.gender}
                       onChange={(e) => setEditForm(prev => ({ ...prev, gender: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     >
                       <option value="male">Male</option>
                       <option value="female">Female</option>
@@ -719,7 +726,7 @@ export default function PatientsPage() {
                       type="text"
                       value={editForm.address}
                       onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     />
                   </div>
                   <div>
@@ -728,7 +735,7 @@ export default function PatientsPage() {
                       type="text"
                       value={editForm.emergencyContact}
                       onChange={(e) => setEditForm(prev => ({ ...prev, emergencyContact: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     />
                   </div>
                   <div>
@@ -737,7 +744,7 @@ export default function PatientsPage() {
                       type="text"
                       value={editForm.insuranceProvider}
                       onChange={(e) => setEditForm(prev => ({ ...prev, insuranceProvider: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     />
                   </div>
                   <div>
@@ -746,7 +753,7 @@ export default function PatientsPage() {
                       type="text"
                       value={editForm.insuranceNumber}
                       onChange={(e) => setEditForm(prev => ({ ...prev, insuranceNumber: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
                     />
                   </div>
                 </div>
@@ -785,7 +792,7 @@ export default function PatientsPage() {
               <div className="flex justify-end space-x-3 mt-6">
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 rounded-md text-gray-700 hover:bg-gray-50 shadow-sm shadow-gray-200/50 hover:shadow-gray-300/50"
                 >
                   Cancel
                 </button>

@@ -171,8 +171,8 @@ html.dark {
   background: var(--card-bg);
   backdrop-filter: blur(12px);
   border-radius: 1rem;
-  box-shadow: var(--card-shadow);
-  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border: none;
   transition: all 0.3s ease;
 }
 
@@ -185,8 +185,8 @@ html.dark {
   background: var(--card-bg);
   backdrop-filter: blur(8px);
   border-radius: 0.75rem;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--card-border);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  border: none;
   transition: all 0.2s ease;
 }
 
@@ -512,74 +512,76 @@ html.dark {
 .input-field {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
+  border: none;
   background: linear-gradient(135deg, #ffffff, #f8fafc);
   color: #1e293b;
   border-radius: 0.75rem;
   font-size: 0.875rem;
   transition: all 0.3s ease;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
 .input-field-with-icon {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 3rem;
-  border: 1px solid #e2e8f0;
+  border: none;
   background: linear-gradient(135deg, #ffffff, #f8fafc);
   color: #1e293b;
   border-radius: 0.75rem;
   font-size: 0.875rem;
   transition: all 0.3s ease;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.08);
 }
 
 .dark .input-field {
-  border-color: #4b5563;
+  border: none;
   background: linear-gradient(135deg, #374151, #4b5563);
   color: #f1f5f9;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .dark .input-field-with-icon {
-  border-color: #4b5563;
+  border: none;
   background: linear-gradient(135deg, #374151, #4b5563);
   color: #f1f5f9;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .input-field:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(59, 130, 246, 0.3);
   transform: translateY(-1px);
 }
 
 .input-field-with-icon:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(59, 130, 246, 0.3);
   transform: translateY(-1px);
 }
 
 .dark .input-field:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(59, 130, 246, 0.4);
 }
 
 .dark .input-field-with-icon:focus {
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(59, 130, 246, 0.4);
 }
 
 .input-field-error {
-  border-color: #fca5a5;
+  border: none;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(252, 165, 165, 0.5);
 }
 
 .dark .input-field-error {
-  border-color: #dc2626;
+  border: none;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(220, 38, 38, 0.5);
 }
 
 .input-field-error:focus {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5);
+  border: none;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5), 0 0 0 1px rgba(239, 68, 68, 0.8);
 }
 
 .text-gradient {
@@ -592,14 +594,14 @@ html.dark {
 .glass-effect {
   backdrop-filter: blur(12px);
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.8));
-  border: 1px solid rgba(229, 231, 235, 0.6);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  border: none;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .dark .glass-effect {
   background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.8));
-  border: 1px solid rgba(71, 85, 105, 0.6);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  border: none;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* Loading and Empty States */
@@ -617,8 +619,8 @@ html.dark {
   background-color: var(--card-bg);
   backdrop-filter: blur(8px);
   border-radius: 0.75rem;
-  box-shadow: var(--card-shadow);
-  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border: none;
   padding: 1.5rem;
 }
 

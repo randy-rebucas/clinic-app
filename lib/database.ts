@@ -98,6 +98,13 @@ export const getPatientByPatientId = async (patientId: string): Promise<IPatient
   return patient;
 };
 
+export const getAllPatients = async (): Promise<IPatient[]> => {
+  await connectDB();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const patients = await (Patient as any).find({}).sort({ createdAt: -1 });
+  return patients;
+};
+
 export const searchPatients = async (query: string): Promise<IPatient[]> => {
   await connectDB();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -767,5 +774,190 @@ export const deleteDelivery = async (deliveryId: string): Promise<boolean> => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = await (Delivery as any).findByIdAndDelete(deliveryId);
   return !!result;
+};
+
+// Database Reset Functions
+export const resetDatabase = async (): Promise<{
+  success: boolean;
+  message: string;
+  deletedCounts: Record<string, number>;
+  errors?: string[];
+}> => {
+  const errors: string[] = [];
+  const deletedCounts: Record<string, number> = {};
+  
+  try {
+    await connectDB();
+    console.log('Starting database reset...');
+    
+    // Delete all collections in the correct order (respecting foreign key relationships)
+    const collections = [
+      { name: 'deliveries', model: Delivery },
+      { name: 'payments', model: Payment },
+      { name: 'invoices', model: Invoice },
+      { name: 'laborders', model: LabOrder },
+      { name: 'prescriptions', model: Prescription },
+      { name: 'appointments', model: Appointment },
+      { name: 'queues', model: Queue },
+      { name: 'patients', model: Patient },
+      { name: 'users', model: User },
+      { name: 'applicationsettings', model: ApplicationSettings },
+      { name: 'auditlogs', model: require('./models/AuditLog').AuditLog }
+    ];
+    
+    for (const collection of collections) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const result = await (collection.model as any).deleteMany({});
+        deletedCounts[collection.name] = result.deletedCount || 0;
+        console.log(`Deleted ${result.deletedCount || 0} documents from ${collection.name}`);
+      } catch (error) {
+        const errorMsg = `Failed to delete ${collection.name}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        console.error(errorMsg);
+        errors.push(errorMsg);
+      }
+    }
+    
+    // Clear any cached data or indexes
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const db = (global as any).mongoose?.conn?.connection?.db;
+      if (db) {
+        // Drop all indexes to ensure clean state
+        const collections = await db.listCollections().toArray();
+        for (const collection of collections) {
+          try {
+            await db.collection(collection.name).dropIndexes();
+          } catch (error) {
+            // Ignore errors for dropping indexes
+            console.log(`Could not drop indexes for ${collection.name}: ${error}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.log('Could not clear indexes:', error);
+    }
+    
+    const totalDeleted = Object.values(deletedCounts).reduce((sum, count) => sum + count, 0);
+    
+    return {
+      success: errors.length === 0,
+      message: `Database reset completed. Deleted ${totalDeleted} documents across ${Object.keys(deletedCounts).length} collections.`,
+      deletedCounts,
+      errors: errors.length > 0 ? errors : undefined
+    };
+    
+  } catch (error) {
+    const errorMsg = `Database reset failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
+    console.error(errorMsg);
+    return {
+      success: false,
+      message: errorMsg,
+      deletedCounts,
+      errors: [errorMsg]
+    };
+  }
+};
+
+export const resetSpecificCollection = async (collectionName: string): Promise<{
+  success: boolean;
+  message: string;
+  deletedCount: number;
+  error?: string;
+}> => {
+  try {
+    await connectDB();
+    
+    const collectionMap: Record<string, any> = {
+      'users': User,
+      'patients': Patient,
+      'appointments': Appointment,
+      'prescriptions': Prescription,
+      'queues': Queue,
+      'invoices': Invoice,
+      'payments': Payment,
+      'laborders': LabOrder,
+      'deliveries': Delivery,
+      'applicationsettings': ApplicationSettings,
+      'auditlogs': require('./models/AuditLog').AuditLog
+    };
+    
+    const Model = collectionMap[collectionName.toLowerCase()];
+    if (!Model) {
+      return {
+        success: false,
+        message: `Unknown collection: ${collectionName}`,
+        deletedCount: 0,
+        error: `Collection ${collectionName} not found`
+      };
+    }
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (Model as any).deleteMany({});
+    const deletedCount = result.deletedCount || 0;
+    
+    return {
+      success: true,
+      message: `Successfully deleted ${deletedCount} documents from ${collectionName}`,
+      deletedCount
+    };
+    
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    return {
+      success: false,
+      message: `Failed to reset ${collectionName}`,
+      deletedCount: 0,
+      error: errorMsg
+    };
+  }
+};
+
+export const getDatabaseStats = async (): Promise<{
+  success: boolean;
+  stats: Record<string, number>;
+  error?: string;
+}> => {
+  try {
+    await connectDB();
+    
+    const collections = [
+      { name: 'users', model: User },
+      { name: 'patients', model: Patient },
+      { name: 'appointments', model: Appointment },
+      { name: 'prescriptions', model: Prescription },
+      { name: 'queues', model: Queue },
+      { name: 'invoices', model: Invoice },
+      { name: 'payments', model: Payment },
+      { name: 'laborders', model: LabOrder },
+      { name: 'deliveries', model: Delivery },
+      { name: 'applicationsettings', model: ApplicationSettings }
+    ];
+    
+    const stats: Record<string, number> = {};
+    
+    for (const collection of collections) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const count = await (collection.model as any).countDocuments();
+        stats[collection.name] = count;
+      } catch (error) {
+        console.error(`Failed to get count for ${collection.name}:`, error);
+        stats[collection.name] = -1; // Indicate error
+      }
+    }
+    
+    return {
+      success: true,
+      stats
+    };
+    
+  } catch (error) {
+    return {
+      success: false,
+      stats: {},
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
 };
 

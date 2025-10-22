@@ -95,7 +95,17 @@ export default function SetupPage() {
   };
 
   const handleReset = async () => {
-    if (!confirm('Are you sure you want to reset the application? This will delete all data!')) {
+    // First confirmation
+    if (!confirm('⚠️ WARNING: This will permanently delete ALL data in the database!\n\nThis includes:\n- All users (admin, doctors, patients, etc.)\n- All appointments\n- All patient records\n- All prescriptions\n- All billing data\n- All lab results\n- All queue entries\n\nThis action CANNOT be undone!\n\nAre you absolutely sure you want to continue?')) {
+      return;
+    }
+
+    // Second confirmation with typing requirement
+    const confirmationText = 'DELETE ALL DATA';
+    const userInput = prompt(`To confirm this destructive action, please type exactly: "${confirmationText}"\n\nThis will permanently delete ALL data in the database.`);
+    
+    if (userInput !== confirmationText) {
+      alert('Reset cancelled. The confirmation text did not match.');
       return;
     }
 
@@ -152,7 +162,7 @@ export default function SetupPage() {
                   required
                   value={formData.adminName}
                   onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 shadow-sm shadow-gray-200/50 focus:shadow-indigo-200/50 sm:text-sm"
                 />
               </div>
             </div>
@@ -169,7 +179,7 @@ export default function SetupPage() {
                   required
                   value={formData.adminEmail}
                   onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 shadow-sm shadow-gray-200/50 focus:shadow-indigo-200/50 sm:text-sm"
                 />
               </div>
             </div>
@@ -186,7 +196,7 @@ export default function SetupPage() {
                   required
                   value={formData.adminPassword}
                   onChange={handleInputChange}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 rounded-md placeholder-gray-400 focus:outline-none focus:ring-indigo-500 shadow-sm shadow-gray-200/50 focus:shadow-indigo-200/50 sm:text-sm"
                 />
               </div>
             </div>
@@ -198,7 +208,7 @@ export default function SetupPage() {
                 type="checkbox"
                 checked={formData.includeSeedData}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded shadow-sm shadow-gray-200/50"
               />
               <label htmlFor="includeSeedData" className="ml-2 block text-sm text-gray-900">
                 Include sample data (patients, doctors, appointments)
@@ -212,7 +222,7 @@ export default function SetupPage() {
                 type="checkbox"
                 checked={formData.resetExisting}
                 onChange={handleInputChange}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded shadow-sm shadow-gray-200/50"
               />
               <label htmlFor="resetExisting" className="ml-2 block text-sm text-gray-900">
                 Reset existing data (if admin user exists)
@@ -233,7 +243,7 @@ export default function SetupPage() {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full shadow-sm shadow-gray-200/30" />
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">Or</span>
@@ -244,7 +254,7 @@ export default function SetupPage() {
               <button
                 onClick={handleCheckStatus}
                 disabled={isLoading}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm shadow-gray-200/50 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 hover:shadow-gray-300/50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Check Status
               </button>
@@ -252,9 +262,9 @@ export default function SetupPage() {
               <button
                 onClick={handleReset}
                 disabled={isLoading}
-                className="w-full inline-flex justify-center py-2 px-4 border border-red-300 rounded-md shadow-sm bg-white text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex justify-center py-2 px-4 rounded-md shadow-sm shadow-red-200/50 bg-red-600 text-sm font-medium text-white hover:bg-red-700 hover:shadow-red-300/50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Reset App
+                {isLoading ? 'Resetting...' : '⚠️ Reset Database'}
               </button>
             </div>
           </div>

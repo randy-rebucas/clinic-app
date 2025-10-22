@@ -9,7 +9,9 @@ import {
   createPayment, 
   addToQueue,
   initializeApplicationSettings,
-  getUserByEmail
+  getUserByEmail,
+  resetDatabase,
+  getDatabaseStats
 } from './database';
 import { seedData } from './seedData';
 // import { hashPassword } from './auth';
@@ -281,16 +283,48 @@ export async function resetApplication(): Promise<SetupResult> {
   try {
     await connectDB();
     
-    // Note: In a production environment, you might want to be more selective
-    // about what gets deleted. This is a complete reset.
-    console.log('Resetting application...');
+    console.log('Starting application reset...');
     
-    // This would require implementing delete functions for each model
-    // For now, we'll just recreate the setup
-    return await setupApplication({ 
+    // First, get current database stats for logging
+    const statsBefore = await getDatabaseStats();
+    console.log('Database stats before reset:', statsBefore.stats);
+    
+    // Perform complete database reset
+    const resetResult = await resetDatabase();
+    
+    if (!resetResult.success) {
+      return {
+        success: false,
+        message: 'Database reset failed',
+        errors: resetResult.errors || ['Unknown error during reset']
+      };
+    }
+    
+    console.log('Database reset completed:', resetResult.message);
+    console.log('Deleted counts:', resetResult.deletedCounts);
+    
+    // Now recreate the application with default settings
+    const setupResult = await setupApplication({ 
       includeSeedData: true, 
       resetExisting: true 
     });
+    
+    if (setupResult.success) {
+      return {
+        success: true,
+        message: `Application reset completed successfully. ${resetResult.message} Application has been recreated with fresh data.`,
+        data: {
+          ...setupResult.data,
+          resetStats: resetResult.deletedCounts
+        }
+      };
+    } else {
+      return {
+        success: false,
+        message: `Database was reset but application recreation failed: ${setupResult.message}`,
+        errors: setupResult.errors
+      };
+    }
     
   } catch (error) {
     console.error('Reset failed:', error);
@@ -324,6 +358,7 @@ export async function getSetupStatus(): Promise<{
   hasAdmin: boolean;
   hasSettings: boolean;
   userCount: number;
+  databaseStats: Record<string, number>;
 }> {
   try {
     await connectDB();
@@ -331,14 +366,16 @@ export async function getSetupStatus(): Promise<{
     const adminUser = await getUserByEmail(seedData.adminUser.email);
     const hasAdmin = !!adminUser;
     
-    // You would need to implement getUserCount function
-    // const userCount = await getUserCount();
+    // Get database statistics
+    const statsResult = await getDatabaseStats();
+    const databaseStats = statsResult.success ? statsResult.stats : {};
     
     return {
       isSetup: hasAdmin,
       hasAdmin,
       hasSettings: false, // You would check for settings here
-      userCount: 0 // You would get actual count here
+      userCount: databaseStats.users || 0,
+      databaseStats
     };
     
   } catch (error) {
@@ -347,7 +384,60 @@ export async function getSetupStatus(): Promise<{
       isSetup: false,
       hasAdmin: false,
       hasSettings: false,
-      userCount: 0
+      userCount: 0,
+      databaseStats: {}
+    };
+  }
+}
+
+/**
+ * Reset specific collections only
+ */
+export async function resetSpecificCollections(collections: string[]): Promise<SetupResult> {
+  try {
+    await connectDB();
+    
+    console.log('Starting selective reset for collections:', collections);
+    
+    const results: Record<string, any> = {};
+    const errors: string[] = [];
+    
+    for (const collection of collections) {
+      try {
+        const { resetSpecificCollection } = await import('./database');
+        const result = await resetSpecificCollection(collection);
+        results[collection] = result;
+        
+        if (!result.success) {
+          errors.push(`Failed to reset ${collection}: ${result.error}`);
+        }
+      } catch (error) {
+        const errorMsg = `Error resetting ${collection}: ${error instanceof Error ? error.message : 'Unknown error'}`;
+        errors.push(errorMsg);
+        results[collection] = { success: false, error: errorMsg };
+      }
+    }
+    
+    const successCount = Object.values(results).filter((r: any) => r.success).length;
+    const totalCount = collections.length;
+    
+    return {
+      success: errors.length === 0,
+      message: `Selective reset completed. Successfully reset ${successCount}/${totalCount} collections.`,
+      data: {
+        resetResults: results,
+        successCount,
+        totalCount
+      },
+      errors: errors.length > 0 ? errors : undefined
+    };
+    
+  } catch (error) {
+    console.error('Selective reset failed:', error);
+    return {
+      success: false,
+      message: 'Selective reset failed',
+      errors: [error instanceof Error ? error.message : 'Unknown error occurred']
     };
   }
 }

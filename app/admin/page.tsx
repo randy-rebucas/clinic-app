@@ -249,7 +249,7 @@ export default function AdminDashboard() {
           )}
           {!loading && (
             <>
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
                 <div className="flex items-center">
                   <Users className="h-8 w-8 text-blue-600" />
                   <div className="ml-4">
@@ -258,7 +258,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
                 <div className="flex items-center">
                   <Calendar className="h-8 w-8 text-green-600" />
                   <div className="ml-4">
@@ -267,7 +267,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
                 <div className="flex items-center">
                   <DollarSign className="h-8 w-8 text-yellow-600" />
                   <div className="ml-4">
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-sm border">
+              <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
                 <div className="flex items-center">
                   <Activity className="h-8 w-8 text-purple-600" />
                   <div className="ml-4">
@@ -294,7 +294,7 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Patient Management */}
           <Link href="/patients" className="group">
-            <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <Users className="h-8 w-8 text-blue-600" />
                 <h3 className="text-lg font-semibold text-gray-900 ml-3">Patient Management</h3>
@@ -309,7 +309,7 @@ export default function AdminDashboard() {
 
           {/* Appointment Management */}
           <Link href="/appointments" className="group">
-            <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <Calendar className="h-8 w-8 text-green-600" />
                 <h3 className="text-lg font-semibold text-gray-900 ml-3">Appointments</h3>
@@ -324,7 +324,7 @@ export default function AdminDashboard() {
 
           {/* Billing Management */}
           <Link href="/billing" className="group">
-            <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <CreditCard className="h-8 w-8 text-yellow-600" />
                 <h3 className="text-lg font-semibold text-gray-900 ml-3">Billing & Payments</h3>
@@ -339,7 +339,7 @@ export default function AdminDashboard() {
 
           {/* Prescription Management */}
           <Link href="/prescriptions" className="group">
-            <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <FileText className="h-8 w-8 text-purple-600" />
                 <h3 className="text-lg font-semibold text-gray-900 ml-3">Prescriptions</h3>
@@ -354,7 +354,7 @@ export default function AdminDashboard() {
 
           {/* Lab Management */}
           <Link href="/lab-orders" className="group">
-            <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <FlaskConical className="h-8 w-8 text-red-600" />
                 <h3 className="text-lg font-semibold text-gray-900 ml-3">Lab Orders</h3>
@@ -369,7 +369,7 @@ export default function AdminDashboard() {
 
           {/* Queue Management */}
           <Link href="/queue" className="group">
-            <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <Clock className="h-8 w-8 text-orange-600" />
                 <h3 className="text-lg font-semibold text-gray-900 ml-3">Queue Management</h3>
@@ -384,7 +384,7 @@ export default function AdminDashboard() {
 
           {/* Reports & Analytics */}
           <Link href="/reports" className="group">
-            <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <BarChart3 className="h-8 w-8 text-indigo-600" />
                 <h3 className="text-lg font-semibold text-gray-900 ml-3">Reports & Analytics</h3>
@@ -399,7 +399,7 @@ export default function AdminDashboard() {
 
           {/* User Management */}
           <Link href="/admin/users" className="group">
-            <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+            <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <UserCheck className="h-8 w-8 text-teal-600" />
                 <h3 className="text-lg font-semibold text-gray-900 ml-3">User Management</h3>
@@ -415,7 +415,7 @@ export default function AdminDashboard() {
           {/* System Administration */}
           <div className="grid grid-cols-1 gap-4">
             <Link href="/admin/audit-logs" className="group">
-              <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+              <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
                 <div className="flex items-center mb-4">
                   <Shield className="h-8 w-8 text-gray-600" />
                   <h3 className="text-lg font-semibold text-gray-900 ml-3">Audit Logs</h3>
@@ -429,7 +429,7 @@ export default function AdminDashboard() {
             </Link>
 
             <Link href="/admin/backup" className="group">
-              <div className="bg-white p-6 rounded-lg shadow-sm border hover:shadow-md transition-shadow">
+              <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
                 <div className="flex items-center mb-4">
                   <Database className="h-8 w-8 text-gray-600" />
                   <h3 className="text-lg font-semibold text-gray-900 ml-3">Backup Management</h3>
