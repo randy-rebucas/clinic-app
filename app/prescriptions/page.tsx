@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { FileText, Plus, Search, Clock, User, CheckCircle, AlertCircle } from 'lucide-react';
+import { FileText, Plus, Search, Clock, User, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 interface Prescription {
@@ -106,10 +106,17 @@ export default function PrescriptionsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
+              <Link
+                href="/"
+                className="mr-4 p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title="Go back to dashboard"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
               <FileText className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Prescription Management</h1>
             </div>
@@ -127,7 +134,7 @@ export default function PrescriptionsPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -152,14 +159,14 @@ export default function PrescriptionsPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+          <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <Clock className="h-8 w-8 text-yellow-600" />
               <div className="ml-4">
@@ -168,7 +175,7 @@ export default function PrescriptionsPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <CheckCircle className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
@@ -177,7 +184,7 @@ export default function PrescriptionsPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <FileText className="h-8 w-8 text-green-600" />
               <div className="ml-4">
@@ -186,7 +193,7 @@ export default function PrescriptionsPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <User className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
@@ -198,8 +205,8 @@ export default function PrescriptionsPage() {
         </div>
 
         {/* Prescriptions List */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-md">
+          <div className="px-6 py-4">
             <h3 className="text-lg font-medium text-gray-900">Prescriptions</h3>
           </div>
           
@@ -219,9 +226,9 @@ export default function PrescriptionsPage() {
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="space-y-1">
               {filteredPrescriptions.map((prescription) => (
-                <div key={prescription.id} className="p-6 hover:bg-gray-50">
+                <div key={prescription.id} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
@@ -234,12 +241,12 @@ export default function PrescriptionsPage() {
                           <h4 className="text-lg font-medium text-gray-900">
                             Prescription {prescription.prescriptionId}
                           </h4>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(prescription.status)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm ${getStatusColor(prescription.status)}`}>
                             {getStatusIcon(prescription.status)}
                             <span className="ml-1">{prescription.status}</span>
                           </span>
                           {isExpired(prescription.validUntil) && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm bg-red-100 text-red-800">
                               Expired
                             </span>
                           )}

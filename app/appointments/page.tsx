@@ -155,7 +155,7 @@ export default function AppointmentsPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters and Search */}
-        <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -187,14 +187,14 @@ export default function AppointmentsPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 text-red-700 px-4 py-3 rounded-md mb-6 shadow-sm shadow-red-200/50">
+          <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <Calendar className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
@@ -203,7 +203,7 @@ export default function AppointmentsPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <Clock className="h-8 w-8 text-green-600" />
               <div className="ml-4">
@@ -212,7 +212,7 @@ export default function AppointmentsPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <User className="h-8 w-8 text-yellow-600" />
               <div className="ml-4">
@@ -221,7 +221,7 @@ export default function AppointmentsPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <MapPin className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
@@ -236,15 +236,15 @@ export default function AppointmentsPage() {
 
         {/* Today's Appointments */}
         {todayAppointments.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm shadow-gray-200/50 mb-6">
-            <div className="px-6 py-4 border-b border-gray-200 bg-blue-50">
+          <div className="bg-white rounded-lg shadow-md mb-6">
+            <div className="px-6 py-4 bg-blue-50">
               <h3 className="text-lg font-medium text-gray-900">
                 Today&apos;s Appointments ({formatDate(selectedDate)})
               </h3>
             </div>
-            <div className="divide-y divide-gray-200">
+            <div className="space-y-1">
               {todayAppointments.map((appointment) => (
-                <div key={appointment.id} className="p-6 hover:bg-gray-50">
+                <div key={appointment.id} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
@@ -257,10 +257,10 @@ export default function AppointmentsPage() {
                           <h4 className="text-lg font-medium text-gray-900">
                             {appointment.patientId}
                           </h4>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm ${getStatusColor(appointment.status)}`}>
                             {appointment.status}
                           </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(appointment.type)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm ${getTypeColor(appointment.type)}`}>
                             {appointment.type}
                           </span>
                         </div>
@@ -297,8 +297,8 @@ export default function AppointmentsPage() {
         )}
 
         {/* All Appointments */}
-        <div className="bg-white rounded-lg shadow-sm shadow-gray-200/50">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-md">
+          <div className="px-6 py-4">
             <h3 className="text-lg font-medium text-gray-900">All Appointments</h3>
           </div>
           
@@ -318,9 +318,9 @@ export default function AppointmentsPage() {
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="space-y-1">
               {filteredAppointments.map((appointment) => (
-                <div key={appointment.id} className="p-6 hover:bg-gray-50">
+                <div key={appointment.id} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
@@ -333,10 +333,10 @@ export default function AppointmentsPage() {
                           <h4 className="text-lg font-medium text-gray-900">
                             {appointment.patientId}
                           </h4>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm ${getStatusColor(appointment.status)}`}>
                             {appointment.status}
                           </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(appointment.type)}`}>
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm ${getTypeColor(appointment.type)}`}>
                             {appointment.type}
                           </span>
                         </div>

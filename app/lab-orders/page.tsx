@@ -13,7 +13,8 @@ import {
   AlertCircle,
   XCircle,
   User,
-  Calendar
+  Calendar,
+  ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -159,10 +160,17 @@ export default function LabOrdersPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
+              <Link
+                href="/"
+                className="mr-4 p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title="Go back to dashboard"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
               <TestTube className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Lab Orders Management</h1>
             </div>
@@ -218,7 +226,7 @@ export default function LabOrdersPage() {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
@@ -237,21 +245,21 @@ export default function LabOrdersPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+          <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
 
         {/* Lab Orders List */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-md">
+          <div className="px-6 py-4">
             <h3 className="text-lg font-medium text-gray-900">
               Lab Orders ({filteredLabOrders.length})
             </h3>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div className="space-y-1">
             {filteredLabOrders.map((order) => (
-              <div key={order.id} className="p-6 hover:bg-gray-50">
+              <div key={order.id} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="flex-shrink-0">
@@ -262,7 +270,7 @@ export default function LabOrdersPage() {
                         <h4 className="text-lg font-medium text-gray-900">
                           {order.labOrderId}
                         </h4>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm ${getStatusColor(order.status)}`}>
                           {order.status}
                         </span>
                       </div>
@@ -293,7 +301,7 @@ export default function LabOrdersPage() {
                         {order.tests.map((test, index) => (
                           <span
                             key={index}
-                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                            className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium shadow-sm bg-gray-100 text-gray-800"
                           >
                             {getTestStatusIcon(test.status)}
                             <span className="ml-1">{test.testName}</span>
@@ -335,7 +343,7 @@ export default function LabOrdersPage() {
 
         {/* Empty State */}
         {!loading && filteredLabOrders.length === 0 && (
-          <div className="bg-white p-8 rounded-lg shadow-sm border text-center">
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
             <TestTube className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No lab orders found</h3>
             <p className="text-gray-500 mb-4">

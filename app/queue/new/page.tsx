@@ -169,7 +169,7 @@ export default function NewQueuePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -190,7 +190,7 @@ export default function NewQueuePage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Patient Selection */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Patient Information</h2>
             
             {selectedPatient ? (
@@ -234,13 +234,13 @@ export default function NewQueuePage() {
                 </div>
                 
                 {showPatientSearch && patients.length > 0 && (
-                  <div className="border border-gray-200 rounded-md max-h-60 overflow-y-auto">
+                  <div className="shadow-sm border border-gray-200 rounded-md max-h-60 overflow-y-auto">
                     {patients.map((patient) => (
                       <button
                         key={patient.id}
                         type="button"
                         onClick={() => handlePatientSelect(patient)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                        className="w-full px-4 py-3 text-left hover:bg-gray-50"
                       >
                         <div className="font-medium text-gray-900">
                           {patient.firstName} {patient.lastName}
@@ -259,7 +259,7 @@ export default function NewQueuePage() {
           </div>
 
           {/* Queue Details */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Queue Details</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -278,7 +278,7 @@ export default function NewQueuePage() {
                   <option value="high">High</option>
                   <option value="emergency">Emergency</option>
                 </select>
-                <div className={`mt-1 px-2 py-1 rounded text-xs border ${getPriorityColor(formData.priority)}`}>
+                <div className={`mt-1 px-2 py-1 rounded text-xs shadow-sm ${getPriorityColor(formData.priority)}`}>
                   {formData.priority === 'emergency' && 'Immediate attention required'}
                   {formData.priority === 'high' && 'Priority treatment needed'}
                   {formData.priority === 'normal' && 'Standard queue position'}
@@ -354,7 +354,7 @@ export default function NewQueuePage() {
           </div>
 
           {/* Reason and Notes */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Visit Information</h2>
             
             <div className="space-y-4">
@@ -389,7 +389,7 @@ export default function NewQueuePage() {
 
           {/* Priority Warning */}
           {formData.priority === 'emergency' && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-red-50 shadow-sm rounded-lg p-4">
               <div className="flex items-center">
                 <AlertTriangle className="h-5 w-5 text-red-600 mr-2" />
                 <div>
@@ -404,13 +404,13 @@ export default function NewQueuePage() {
 
           {/* Error and Success Messages */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+            <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+            <div className="bg-green-50 shadow-sm text-green-700 px-4 py-3 rounded-md">
               {success}
             </div>
           )}
@@ -419,7 +419,7 @@ export default function NewQueuePage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/queue"
-              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 shadow-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </Link>

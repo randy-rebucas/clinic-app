@@ -170,20 +170,20 @@ export default function NewPrescriptionPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
+              <Link
+                href="/prescriptions"
+                className="mr-4 p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title="Go back to prescriptions"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
               <FileText className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Create New Prescription</h1>
             </div>
-            <Link
-              href="/prescriptions"
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors flex items-center"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Prescriptions
-            </Link>
           </div>
         </div>
       </header>
@@ -192,7 +192,7 @@ export default function NewPrescriptionPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Patient Selection */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Patient Selection</h2>
             <div className="space-y-4">
               <div>
@@ -221,7 +221,7 @@ export default function NewPrescriptionPage() {
               </div>
               
               {selectedPatient && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+                <div className="p-4 bg-green-50 shadow-sm rounded-md">
                   <h3 className="text-sm font-medium text-green-800 mb-2">Selected Patient:</h3>
                   <div className="text-sm text-green-700">
                     <p><strong>Name:</strong> {selectedPatient.firstName} {selectedPatient.lastName}</p>
@@ -235,7 +235,7 @@ export default function NewPrescriptionPage() {
           </div>
 
           {/* Prescription Details */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Prescription Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -299,7 +299,7 @@ export default function NewPrescriptionPage() {
           </div>
 
           {/* Medications */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Medications</h2>
               <button
@@ -314,7 +314,7 @@ export default function NewPrescriptionPage() {
             
             <div className="space-y-4">
               {medications.map((medication, index) => (
-                <div key={index} className="grid grid-cols-12 gap-4 items-end p-4 border border-gray-200 rounded-lg">
+                <div key={index} className="grid grid-cols-12 gap-4 items-end p-4 shadow-sm border border-gray-200 rounded-lg">
                   <div className="col-span-3">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Medication Name *
@@ -405,7 +405,7 @@ export default function NewPrescriptionPage() {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+            <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md">
               {error}
             </div>
           )}
@@ -414,7 +414,7 @@ export default function NewPrescriptionPage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/prescriptions"
-              className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
+              className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors shadow-sm"
             >
               Cancel
             </Link>

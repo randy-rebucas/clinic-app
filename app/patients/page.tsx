@@ -297,7 +297,7 @@ export default function PatientsPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filters Section */}
-        <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Search Patients</h2>
           <form onSubmit={handleSearch} className="space-y-4">
             <div className="flex gap-4">
@@ -308,7 +308,7 @@ export default function PatientsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name, patient ID, email, or phone..."
-                  className="w-full pl-10 pr-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <button
@@ -325,7 +325,7 @@ export default function PatientsPage() {
                 <select
                   value={filters.gender}
                   onChange={(e) => setFilters(prev => ({ ...prev, gender: e.target.value }))}
-                  className="px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">All Genders</option>
                   <option value="male">Male</option>
@@ -335,7 +335,7 @@ export default function PatientsPage() {
                 <select
                   value={filters.isActive}
                   onChange={(e) => setFilters(prev => ({ ...prev, isActive: e.target.value }))}
-                  className="px-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">All Status</option>
                   <option value="active">Active</option>
@@ -343,7 +343,7 @@ export default function PatientsPage() {
                 </select>
                 <button
                   onClick={() => setFilters({ gender: '', ageRange: '', isActive: '' })}
-                  className="px-4 py-2 rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center shadow-sm shadow-gray-200/50 hover:shadow-gray-300/50"
+                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"
                 >
                   <Filter className="h-4 w-4 mr-2" />
                   Clear Filters
@@ -355,21 +355,21 @@ export default function PatientsPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 text-red-700 px-4 py-3 rounded-md mb-6 shadow-sm shadow-red-200/50">
+          <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
 
         {/* Results */}
         {filteredPatients.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm shadow-gray-200/50">
-            <div className="px-6 py-4 shadow-sm shadow-gray-200/30">
+          <div className="bg-white rounded-lg shadow-md">
+            <div className="px-6 py-4">
               <h3 className="text-lg font-medium text-gray-900">
                 Patients ({filteredPatients.length} found)
               </h3>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -392,9 +392,9 @@ export default function PatientsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white">
                   {filteredPatients.map((patient, index) => (
-                    <tr key={patient.id || `patient-${index}`} className="hover:bg-gray-50">
+                    <tr key={patient.id || `patient-${index}`} className="hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
@@ -420,11 +420,11 @@ export default function PatientsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {patient.isActive ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm bg-green-100 text-green-800">
                             Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm bg-red-100 text-red-800">
                             Inactive
                           </span>
                         )}

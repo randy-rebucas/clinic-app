@@ -208,15 +208,16 @@ export default function NewLabOrderPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <Link
                 href="/lab-orders"
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="mr-4 p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title="Go back to lab orders"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
               </Link>
               <TestTube className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Create New Lab Order</h1>
@@ -229,11 +230,11 @@ export default function NewLabOrderPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Patient Selection */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Patient Information</h2>
             
             {selectedPatient ? (
-              <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+              <div className="flex items-center justify-between p-4 bg-blue-50 shadow-sm rounded-lg">
                 <div>
                   <h3 className="font-medium text-gray-900">
                     {selectedPatient.firstName} {selectedPatient.lastName}
@@ -273,13 +274,13 @@ export default function NewLabOrderPage() {
                 </div>
                 
                 {showPatientSearch && patients.length > 0 && (
-                  <div className="border border-gray-200 rounded-md max-h-60 overflow-y-auto">
+                  <div className="shadow-sm border border-gray-200 rounded-md max-h-60 overflow-y-auto">
                     {patients.map((patient) => (
                       <button
                         key={patient.id}
                         type="button"
                         onClick={() => handlePatientSelect(patient)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                        className="w-full px-4 py-3 text-left hover:bg-gray-50"
                       >
                         <div className="font-medium text-gray-900">
                           {patient.firstName} {patient.lastName}
@@ -298,7 +299,7 @@ export default function NewLabOrderPage() {
           </div>
 
           {/* Lab Order Details */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Lab Order Details</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -341,7 +342,7 @@ export default function NewLabOrderPage() {
           </div>
 
           {/* Lab Tests */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Lab Tests</h2>
               <button
@@ -363,7 +364,7 @@ export default function NewLabOrderPage() {
                     key={index}
                     type="button"
                     onClick={() => addCommonTest(test)}
-                    className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                    className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors shadow-sm"
                   >
                     {test.testName}
                   </button>
@@ -373,7 +374,7 @@ export default function NewLabOrderPage() {
 
             <div className="space-y-4">
               {tests.map((test, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 border border-gray-200 rounded-lg">
+                <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 shadow-sm border border-gray-200 rounded-lg">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Test Name
@@ -443,7 +444,7 @@ export default function NewLabOrderPage() {
           </div>
 
           {/* Follow-up Settings */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Follow-up Settings</h2>
             
             <div className="space-y-4">
@@ -481,13 +482,13 @@ export default function NewLabOrderPage() {
 
           {/* Error and Success Messages */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+            <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+            <div className="bg-green-50 shadow-sm text-green-700 px-4 py-3 rounded-md">
               {success}
             </div>
           )}
@@ -496,7 +497,7 @@ export default function NewLabOrderPage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/lab-orders"
-              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 shadow-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </Link>

@@ -13,7 +13,8 @@ import {
   XCircle,
   Play,
   UserPlus,
-  Bell
+  Bell,
+  ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -254,10 +255,17 @@ export default function QueuePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
+              <Link
+                href="/"
+                className="mr-4 p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title="Go back to dashboard"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
               <ClipboardList className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Queue Management</h1>
             </div>
@@ -279,7 +287,7 @@ export default function QueuePage() {
         {/* Stats Overview */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center">
                 <ClipboardList className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
@@ -288,7 +296,7 @@ export default function QueuePage() {
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center">
                 <Clock className="h-8 w-8 text-yellow-600" />
                 <div className="ml-4">
@@ -297,7 +305,7 @@ export default function QueuePage() {
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center">
                 <Play className="h-8 w-8 text-blue-600" />
                 <div className="ml-4">
@@ -306,7 +314,7 @@ export default function QueuePage() {
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center">
                 <CheckCircle className="h-8 w-8 text-green-600" />
                 <div className="ml-4">
@@ -354,7 +362,7 @@ export default function QueuePage() {
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
@@ -393,15 +401,15 @@ export default function QueuePage() {
         )}
 
         {/* Queue List */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-md">
+          <div className="px-6 py-4">
             <h3 className="text-lg font-medium text-gray-900">
               Queue ({filteredQueueItems.length})
             </h3>
           </div>
-          <div className="divide-y divide-gray-200">
+          <div className="space-y-1">
             {filteredQueueItems.map((item) => (
-              <div key={item.id} className="p-6 hover:bg-gray-50">
+              <div key={item.id} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="flex-shrink-0">
@@ -415,7 +423,7 @@ export default function QueuePage() {
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(item.status)}`}>
                           {item.status}
                         </span>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getPriorityColor(item.priority)}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium shadow-sm ${getPriorityColor(item.priority)}`}>
                           {item.priority}
                         </span>
                       </div>
@@ -496,7 +504,7 @@ export default function QueuePage() {
 
         {/* Empty State */}
         {!loading && filteredQueueItems.length === 0 && (
-          <div className="bg-white p-8 rounded-lg shadow-sm border text-center">
+          <div className="bg-white p-8 rounded-lg shadow-md text-center">
             <ClipboardList className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No queue items found</h3>
             <p className="text-gray-500 mb-4">

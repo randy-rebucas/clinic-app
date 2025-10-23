@@ -127,15 +127,16 @@ export default function NewPatientPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm shadow-gray-200/50">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <Link
                 href="/patients"
-                className="mr-4 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="mr-4 p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title="Go back to patients"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
               </Link>
               <User className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Register New Patient</h1>
@@ -148,7 +149,7 @@ export default function NewPatientPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
-          <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -160,7 +161,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={formData.firstName}
                   onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
               </div>
@@ -173,7 +174,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={formData.lastName}
                   onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 />
               </div>
@@ -188,7 +189,7 @@ export default function NewPatientPage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -203,7 +204,7 @@ export default function NewPatientPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -218,7 +219,7 @@ export default function NewPatientPage() {
                     type="date"
                     value={formData.dateOfBirth}
                     onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     required
                   />
                 </div>
@@ -231,7 +232,7 @@ export default function NewPatientPage() {
                 <select
                   value={formData.gender}
                   onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value as 'male' | 'female' | 'other' }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   required
                 >
                   <option value="male">Male</option>
@@ -243,7 +244,7 @@ export default function NewPatientPage() {
           </div>
 
           {/* Address Information */}
-          <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <MapPin className="h-5 w-5 mr-2" />
               Address Information
@@ -261,7 +262,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     address: { ...prev.address, street: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               
@@ -277,7 +278,7 @@ export default function NewPatientPage() {
                       ...prev, 
                       address: { ...prev.address, city: e.target.value }
                     }))}
-                    className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 
@@ -292,7 +293,7 @@ export default function NewPatientPage() {
                       ...prev, 
                       address: { ...prev.address, state: e.target.value }
                     }))}
-                    className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 
@@ -307,7 +308,7 @@ export default function NewPatientPage() {
                       ...prev, 
                       address: { ...prev.address, zipCode: e.target.value }
                     }))}
-                    className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -315,7 +316,7 @@ export default function NewPatientPage() {
           </div>
 
           {/* Emergency Contact */}
-          <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Emergency Contact</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -330,7 +331,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     emergencyContact: { ...prev.emergencyContact, name: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               
@@ -345,7 +346,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     emergencyContact: { ...prev.emergencyContact, relationship: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="e.g., Spouse, Parent, Sibling"
                 />
               </div>
@@ -361,14 +362,14 @@ export default function NewPatientPage() {
                     ...prev, 
                     emergencyContact: { ...prev.emergencyContact, phone: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
           </div>
 
           {/* Medical Information */}
-          <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <Heart className="h-5 w-5 mr-2" />
               Medical Information
@@ -384,7 +385,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={newMedicalHistory}
                   onChange={(e) => setNewMedicalHistory(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Add medical condition..."
                 />
                 <button
@@ -427,7 +428,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={newAllergy}
                   onChange={(e) => setNewAllergy(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Add allergy..."
                 />
                 <button
@@ -471,7 +472,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={newMedication}
                   onChange={(e) => setNewMedication(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Add medication..."
                 />
                 <button
@@ -506,7 +507,7 @@ export default function NewPatientPage() {
           </div>
 
           {/* Insurance Information */}
-          <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Insurance Information</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -521,7 +522,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     insurance: { ...prev.insurance, provider: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               
@@ -536,7 +537,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     insurance: { ...prev.insurance, policyNumber: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               
@@ -551,7 +552,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     insurance: { ...prev.insurance, groupNumber: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 rounded-md focus:ring-2 focus:ring-blue-500 shadow-sm shadow-gray-200/50 focus:shadow-blue-200/50"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
@@ -559,13 +560,13 @@ export default function NewPatientPage() {
 
           {/* Error and Success Messages */}
           {error && (
-            <div className="bg-red-50 text-red-700 px-4 py-3 rounded-md shadow-sm shadow-red-200/50">
+            <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-50 text-green-700 px-4 py-3 rounded-md shadow-sm shadow-green-200/50">
+            <div className="bg-green-50 shadow-sm text-green-700 px-4 py-3 rounded-md">
               {success}
             </div>
           )}
@@ -574,7 +575,7 @@ export default function NewPatientPage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/patients"
-              className="px-6 py-2 rounded-md text-gray-700 hover:bg-gray-50 transition-colors shadow-sm shadow-gray-200/50 hover:shadow-gray-300/50"
+              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
             >
               Cancel
             </Link>
