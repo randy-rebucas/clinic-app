@@ -84,15 +84,22 @@ export default function UserManagementPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/auth/user');
+      setError('');
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/auth/user?all=true', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to fetch users');
       }
       const data = await response.json();
       setUsers(data);
     } catch (error) {
       console.error('Error loading users:', error);
-      setError('Failed to load users');
+      setError(error instanceof Error ? error.message : 'Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -100,16 +107,19 @@ export default function UserManagementPage() {
 
   const createUser = async () => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/auth/user/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(createForm),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create user');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create user');
       }
 
       alert('User created successfully!');
@@ -128,7 +138,7 @@ export default function UserManagementPage() {
       fetchUsers();
     } catch (error) {
       console.error('Error creating user:', error);
-      alert('Failed to create user');
+      alert(error instanceof Error ? error.message : 'Failed to create user');
     }
   };
 
@@ -136,16 +146,19 @@ export default function UserManagementPage() {
     if (!selectedUser) return;
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/auth/user/${selectedUser._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(editForm),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update user');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update user');
       }
 
       alert('User updated successfully!');
@@ -154,7 +167,7 @@ export default function UserManagementPage() {
       fetchUsers();
     } catch (error) {
       console.error('Error updating user:', error);
-      alert('Failed to update user');
+      alert(error instanceof Error ? error.message : 'Failed to update user');
     }
   };
 
@@ -164,31 +177,36 @@ export default function UserManagementPage() {
     }
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/auth/user/${userToDelete._id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete user');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete user');
       }
 
       alert('User deleted successfully!');
       fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert('Failed to delete user');
+      alert(error instanceof Error ? error.message : 'Failed to delete user');
     }
   };
 
   const toggleUserStatus = async (userToToggle: User) => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch(`/api/auth/user/${userToToggle._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           isActive: !userToToggle.isActive,
@@ -196,14 +214,15 @@ export default function UserManagementPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update user status');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update user status');
       }
 
       alert(`User ${userToToggle.isActive ? 'deactivated' : 'activated'} successfully!`);
       fetchUsers();
     } catch (error) {
       console.error('Error updating user status:', error);
-      alert('Failed to update user status');
+      alert(error instanceof Error ? error.message : 'Failed to update user status');
     }
   };
 

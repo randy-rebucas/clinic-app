@@ -6,7 +6,8 @@ import { Calendar, Plus, Search, Clock, User, MapPin, ArrowLeft } from 'lucide-r
 import Link from 'next/link';
 
 interface Appointment {
-  id: string;
+  _id?: string;
+  id?: string;
   appointmentId: string;
   patientId: string;
   doctorId: string;
@@ -243,8 +244,8 @@ export default function AppointmentsPage() {
               </h3>
             </div>
             <div className="space-y-1">
-              {todayAppointments.map((appointment) => (
-                <div key={appointment.id} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
+              {todayAppointments.map((appointment, index) => (
+                <div key={appointment._id || appointment.id || appointment.appointmentId || `appt-${index}`} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
@@ -278,7 +279,7 @@ export default function AppointmentsPage() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Link
-                        href={`/appointments/${appointment.id}`}
+                        href={`/appointments/${appointment._id || appointment.id || appointment.appointmentId}`}
                         className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
                       >
                         View Details
@@ -319,8 +320,8 @@ export default function AppointmentsPage() {
             </div>
           ) : (
             <div className="space-y-1">
-              {filteredAppointments.map((appointment) => (
-                <div key={appointment.id} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
+              {filteredAppointments.map((appointment, index) => (
+                <div key={appointment._id || appointment.id || appointment.appointmentId || `appt-${index}`} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
@@ -355,7 +356,7 @@ export default function AppointmentsPage() {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Link
-                        href={`/appointments/${appointment.id}`}
+                        href={`/appointments/${appointment._id || appointment.id || appointment.appointmentId}`}
                         className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
                       >
                         View Details

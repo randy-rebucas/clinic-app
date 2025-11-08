@@ -73,6 +73,8 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       
+      const token = localStorage.getItem('token');
+      
       // Fetch stats from various APIs with error handling
       const [patientsRes, appointmentsRes, billingRes, prescriptionsRes, labRes, queueRes, usersRes] = await Promise.allSettled([
         fetch('/api/patients'),
@@ -81,10 +83,14 @@ export default function AdminDashboard() {
         fetch('/api/prescriptions'),
         fetch('/api/lab-orders'),
         fetch('/api/queue'),
-        fetch('/api/auth/user')
+        fetch('/api/auth/user?all=true', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
       ]);
 
-      const [patients, appointments, billing, prescriptions, labOrders, queue, users] = await Promise.all([
+      const [patients, appointments, billing, prescriptions, labOrders, queue, usersData] = await Promise.all([
         patientsRes.status === 'fulfilled' ? patientsRes.value.json() : Promise.resolve([]),
         appointmentsRes.status === 'fulfilled' ? appointmentsRes.value.json() : Promise.resolve([]),
         billingRes.status === 'fulfilled' ? billingRes.value.json() : Promise.resolve({ totalRevenue: 0 }),
@@ -94,13 +100,16 @@ export default function AdminDashboard() {
         usersRes.status === 'fulfilled' ? usersRes.value.json() : Promise.resolve([])
       ]);
 
+      // Ensure users is always an array
+      const users = Array.isArray(usersData) ? usersData : [];
+
       setStats({
-        totalPatients: patients.length || 0,
-        totalAppointments: appointments.length || 0,
-        totalRevenue: billing.totalRevenue || 0,
-        totalPrescriptions: prescriptions.length || 0,
-        totalLabOrders: labOrders.length || 0,
-        queueLength: queue.length || 0,
+        totalPatients: Array.isArray(patients) ? patients.length : 0,
+        totalAppointments: Array.isArray(appointments) ? appointments.length : 0,
+        totalRevenue: billing?.totalRevenue || 0,
+        totalPrescriptions: Array.isArray(prescriptions) ? prescriptions.length : 0,
+        totalLabOrders: Array.isArray(labOrders) ? labOrders.length : 0,
+        queueLength: Array.isArray(queue) ? queue.length : 0,
         activeUsers: users.filter((u: any) => u.isActive).length || 0,
         systemHealth: 'healthy'
       });
@@ -293,7 +302,7 @@ export default function AdminDashboard() {
         {!loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Patient Management */}
-          <Link href="/patients" className="group">
+          <Link href="/admin/patients" className="group">
             <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <Users className="h-8 w-8 text-blue-600" />
@@ -308,7 +317,7 @@ export default function AdminDashboard() {
           </Link>
 
           {/* Appointment Management */}
-          <Link href="/appointments" className="group">
+          <Link href="/admin/appointments" className="group">
             <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <Calendar className="h-8 w-8 text-green-600" />
@@ -323,7 +332,7 @@ export default function AdminDashboard() {
           </Link>
 
           {/* Billing Management */}
-          <Link href="/billing" className="group">
+          <Link href="/admin/billing" className="group">
             <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <CreditCard className="h-8 w-8 text-yellow-600" />
@@ -338,7 +347,7 @@ export default function AdminDashboard() {
           </Link>
 
           {/* Prescription Management */}
-          <Link href="/prescriptions" className="group">
+          <Link href="/admin/prescriptions" className="group">
             <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <FileText className="h-8 w-8 text-purple-600" />
@@ -353,7 +362,7 @@ export default function AdminDashboard() {
           </Link>
 
           {/* Lab Management */}
-          <Link href="/lab-orders" className="group">
+          <Link href="/admin/lab-orders" className="group">
             <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <FlaskConical className="h-8 w-8 text-red-600" />
@@ -368,7 +377,7 @@ export default function AdminDashboard() {
           </Link>
 
           {/* Queue Management */}
-          <Link href="/queue" className="group">
+          <Link href="/admin/queue" className="group">
             <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <Clock className="h-8 w-8 text-orange-600" />
@@ -383,7 +392,7 @@ export default function AdminDashboard() {
           </Link>
 
           {/* Reports & Analytics */}
-          <Link href="/reports" className="group">
+          <Link href="/admin/reports" className="group">
             <div className="bg-white p-6 rounded-lg shadow-sm shadow-gray-200/50 hover:shadow-md hover:shadow-gray-300/50 transition-shadow">
               <div className="flex items-center mb-4">
                 <BarChart3 className="h-8 w-8 text-indigo-600" />

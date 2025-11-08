@@ -16,6 +16,7 @@ import {
   ClipboardList,
   TestTube,
   Bell,
+  Settings,
   Loader
 } from 'lucide-react';
 
@@ -58,6 +59,36 @@ export default function Home() {
 
     checkInstallationStatus();
   }, [router]);
+
+  // Redirect to role-specific dashboards
+  useEffect(() => {
+    if (user && employee) {
+      const role = employee.role;
+      switch (role) {
+        case 'admin':
+          router.push('/admin');
+          return;
+        case 'doctor':
+          router.push('/doctor');
+          return;
+        case 'receptionist':
+          router.push('/receptionist');
+          return;
+        case 'medrep':
+          router.push('/medrep');
+          return;
+        case 'employee':
+          router.push('/employee');
+          return;
+        case 'patient':
+          // Patients stay on main page or redirect to patient portal
+          // router.push('/patient-portal');
+          break;
+        default:
+          break;
+      }
+    }
+  }, [user, employee, router]);
 
   if (checkingInstallation) {
     return (
@@ -146,36 +177,46 @@ export default function Home() {
     switch (role) {
       case 'admin':
         return [
-          ...commonItems,
-          { name: 'Queue Management', href: '/queue', icon: ClipboardList },
-          { name: 'Prescriptions', href: '/prescriptions', icon: FileText },
-          { name: 'Billing', href: '/billing', icon: CreditCard },
-          { name: 'Lab Orders', href: '/lab-orders', icon: TestTube },
-          { name: 'Reports', href: '/reports', icon: Activity },
-          { name: 'Patient Portal', href: '/patient-portal', icon: UserCheck },
+          { name: 'Admin Dashboard', href: '/admin', icon: Activity, current: true },
+          { name: 'Patients', href: '/admin/patients', icon: Users },
+          { name: 'Appointments', href: '/admin/appointments', icon: Calendar },
+          { name: 'Queue Management', href: '/admin/queue', icon: ClipboardList },
+          { name: 'Prescriptions', href: '/admin/prescriptions', icon: FileText },
+          { name: 'Billing', href: '/admin/billing', icon: CreditCard },
+          { name: 'Lab Orders', href: '/admin/lab-orders', icon: TestTube },
+          { name: 'Reports', href: '/admin/reports', icon: Activity },
+          { name: 'Users', href: '/admin/users', icon: UserCheck },
           { name: 'Notifications', href: '/notifications', icon: Bell },
-          { name: 'Audit Logs', href: '/admin/audit-logs', icon: Bell },
-          { name: 'Backup Management', href: '/admin/backup', icon: UserCheck },
-          { name: 'Settings', href: '/settings', icon: Bell },
+          { name: 'Settings', href: '/settings', icon: Settings },
         ];
       case 'doctor':
         return [
-          ...commonItems,
+          { name: 'Doctor Dashboard', href: '/doctor', icon: Activity, current: true },
+          { name: 'Patients', href: '/patients', icon: Users },
+          { name: 'Appointments', href: '/appointments', icon: Calendar },
           { name: 'My Queue', href: '/queue', icon: ClipboardList },
           { name: 'Prescriptions', href: '/prescriptions', icon: FileText },
           { name: 'Lab Orders', href: '/lab-orders', icon: TestTube },
         ];
       case 'receptionist':
         return [
-          ...commonItems,
+          { name: 'Receptionist Dashboard', href: '/receptionist', icon: Activity, current: true },
+          { name: 'Patients', href: '/patients', icon: Users },
+          { name: 'Appointments', href: '/appointments', icon: Calendar },
           { name: 'Queue Management', href: '/queue', icon: ClipboardList },
           { name: 'Billing', href: '/billing', icon: CreditCard },
         ];
       case 'medrep':
         return [
-          { name: 'MedRep Dashboard', href: '/medrep/dashboard', icon: UserCheck, current: true },
+          { name: 'MedRep Dashboard', href: '/medrep', icon: Activity, current: true },
           { name: 'Prescriptions', href: '/prescriptions', icon: FileText },
           { name: 'Delivery Tracking', href: '/deliveries', icon: UserCheck },
+        ];
+      case 'employee':
+        return [
+          { name: 'Employee Dashboard', href: '/employee', icon: Activity, current: true },
+          { name: 'Patients', href: '/patients', icon: Users },
+          { name: 'Appointments', href: '/appointments', icon: Calendar },
         ];
       case 'patient':
         return [

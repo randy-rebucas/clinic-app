@@ -21,6 +21,9 @@ export const createUser = async (userData: {
   role: 'admin' | 'doctor' | 'receptionist' | 'medrep' | 'patient' | 'employee';
   department?: string;
   position?: string;
+  employeeId?: string;
+  specialization?: string;
+  licenseNumber?: string;
 }) => {
   await connectDB();
   const user = new User(userData);
@@ -43,6 +46,37 @@ export const getUserByEmail = async (email: string): Promise<IUser | null> => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const user = await (User as any).findOne({ email });
   return user;
+};
+
+export const getAllUsers = async (): Promise<IUser[]> => {
+  await connectDB();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const users = await (User as any).find({}).sort({ createdAt: -1 });
+  return users;
+};
+
+export const updateUser = async (userId: string, userData: Partial<IUser>): Promise<IUser | null> => {
+  await connectDB();
+  if (!Types.ObjectId.isValid(userId)) {
+    return null;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const user = await (User as any).findByIdAndUpdate(
+    userId,
+    { ...userData },
+    { new: true, runValidators: true }
+  );
+  return user;
+};
+
+export const deleteUser = async (userId: string): Promise<boolean> => {
+  await connectDB();
+  if (!Types.ObjectId.isValid(userId)) {
+    return false;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const result = await (User as any).findByIdAndDelete(userId);
+  return !!result;
 };
 
 // Patient Management

@@ -237,6 +237,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setEmployee(null);
       localStorage.removeItem('user');
       localStorage.removeItem('token');
+      // Redirect to home page after logout
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
     } catch (error) {
       console.error('Logout error:', error);
       throw error;

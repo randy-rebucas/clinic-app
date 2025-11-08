@@ -204,6 +204,26 @@ async function createSeedData(adminUserId: string) {
       }
     }
 
+    // Create employees
+    for (const employee of seedData.employees) {
+      try {
+        await createUser(employee);
+        createdData.createdUsers++;
+      } catch (error) {
+        console.error('Failed to create employee:', employee.name, error);
+      }
+    }
+
+    // Create patient users (User model with patient role)
+    for (const patientUser of seedData.patientUsers) {
+      try {
+        await createUser(patientUser);
+        createdData.createdUsers++;
+      } catch (error) {
+        console.error('Failed to create patient user:', patientUser.name, error);
+      }
+    }
+
     // Create patients
     const patientIds: string[] = [];
     for (const patient of seedData.patients) {
@@ -255,9 +275,9 @@ async function createSeedData(adminUserId: string) {
       }
     }
 
-    // Create invoices
+    // Create invoices (after prescriptions to link them)
     const invoiceIds: string[] = [];
-    const sampleInvoices = seedData.getSampleInvoices(patientIds, appointmentIds);
+    const sampleInvoices = seedData.getSampleInvoices(patientIds, appointmentIds, prescriptionIds);
     for (const invoice of sampleInvoices) {
       try {
         const invoiceId = await createInvoice(invoice);
