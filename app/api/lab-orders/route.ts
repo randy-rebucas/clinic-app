@@ -5,7 +5,8 @@ import {
   getLabOrdersByPatient, 
   getLabOrdersByStatus, 
   getLabOrdersByDoctor,
-  getLabOrdersRequiringFollowUp 
+  getLabOrdersRequiringFollowUp,
+  getAllLabOrders
 } from '@/lib/database';
 // import { v4 as uuidv4 } from 'uuid'; // Unused for now
 
@@ -46,7 +47,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(labOrders);
     }
 
-    return NextResponse.json({ error: 'Lab order ID, patient ID, status, doctor ID, or followUp parameter is required' }, { status: 400 });
+    // If no specific filter is provided, return all lab orders
+    const labOrders = await getAllLabOrders();
+    return NextResponse.json(labOrders);
   } catch (error) {
     console.error('Error fetching lab orders:', error);
     return NextResponse.json({ error: 'Failed to fetch lab orders' }, { status: 500 });

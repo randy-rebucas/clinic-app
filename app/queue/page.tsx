@@ -180,15 +180,15 @@ export default function QueuePage() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'emergency':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 text-red-800 shadow-sm';
       case 'high':
-        return 'bg-orange-100 text-orange-800 border-orange-200';
+        return 'bg-orange-100 text-orange-800 shadow-sm';
       case 'normal':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 text-blue-800 shadow-sm';
       case 'low':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 shadow-sm';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 shadow-sm';
     }
   };
 
@@ -340,10 +340,10 @@ export default function QueuePage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as 'all' | 'waiting' | 'in-progress' | 'completed')}
-                  className={`flex items-center px-1 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  className={`flex items-center px-1 py-4 text-sm font-medium transition-colors ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'text-blue-600 shadow-[0_-2px_0_0_#3b82f6_inset]'
+                      : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   <Icon className="h-4 w-4 mr-2" />
@@ -372,7 +372,7 @@ export default function QueuePage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by queue ID, patient ID, or reason..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
             </div>
@@ -381,7 +381,7 @@ export default function QueuePage() {
               <select
                 value={selectedDoctor}
                 onChange={(e) => setSelectedDoctor(e.target.value)}
-                className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="shadow-sm rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:shadow-md"
               >
                 <option value="">All Doctors</option>
                 <option value="unassigned">Unassigned</option>
@@ -395,7 +395,7 @@ export default function QueuePage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+          <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
@@ -408,8 +408,8 @@ export default function QueuePage() {
             </h3>
           </div>
           <div className="space-y-1">
-            {filteredQueueItems.map((item) => (
-              <div key={item.id} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
+            {filteredQueueItems.map((item, index) => (
+              <div key={item.id || `queue-item-${index}`} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="flex-shrink-0">

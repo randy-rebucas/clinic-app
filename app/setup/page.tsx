@@ -274,7 +274,7 @@ export default function SetupPage() {
           <div className={`mt-4 p-4 rounded-md ${
             result.success 
               ? 'bg-green-50 border border-green-200' 
-              : 'bg-red-50 border border-red-200'
+              : 'bg-red-50 shadow-sm'
           }`}>
             <div className={`text-sm ${
               result.success ? 'text-green-800' : 'text-red-800'

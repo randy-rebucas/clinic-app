@@ -177,7 +177,7 @@ export default function NewAppointmentPage() {
                       value={patientSearch}
                       onChange={(e) => setPatientSearch(e.target.value)}
                       placeholder="Search by patient ID, name, email, or phone..."
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <button
@@ -219,7 +219,7 @@ export default function NewAppointmentPage() {
                   value={formData.appointmentDate}
                   onChange={handleInputChange}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               <div>
@@ -232,7 +232,7 @@ export default function NewAppointmentPage() {
                   required
                   value={formData.type}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 >
                   <option value="consultation">Consultation</option>
                   <option value="follow-up">Follow-up</option>
@@ -251,7 +251,7 @@ export default function NewAppointmentPage() {
                   required
                   value={formData.startTime}
                   onChange={handleStartTimeChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               <div>
@@ -265,7 +265,7 @@ export default function NewAppointmentPage() {
                   required
                   value={formData.endTime}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
             </div>
@@ -281,7 +281,7 @@ export default function NewAppointmentPage() {
                 value={formData.reason}
                 onChange={handleInputChange}
                 placeholder="Brief description of the reason for the appointment"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
               />
             </div>
             <div className="mt-6">
@@ -295,7 +295,7 @@ export default function NewAppointmentPage() {
                 value={formData.notes}
                 onChange={handleInputChange}
                 placeholder="Any additional notes or special requirements"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
               />
             </div>
           </div>

@@ -147,7 +147,7 @@ export default function LabOrderDetailPage({ params }: { params: { id: string } 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -182,7 +182,7 @@ export default function LabOrderDetailPage({ params }: { params: { id: string } 
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Lab Order Information */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
           <div className="flex justify-between items-start mb-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">{labOrder.labOrderId}</h2>
@@ -260,8 +260,8 @@ export default function LabOrderDetailPage({ params }: { params: { id: string } 
         </div>
 
         {/* Test Results */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
             <h2 className="text-lg font-semibold text-gray-900">Test Results</h2>
             <p className="text-sm text-gray-600 mt-1">
               {labOrder.tests.length} test{labOrder.tests.length !== 1 ? 's' : ''} ordered
@@ -317,7 +317,7 @@ export default function LabOrderDetailPage({ params }: { params: { id: string } 
         </div>
 
         {/* Summary */}
-        <div className="mt-6 bg-white p-6 rounded-lg shadow-sm border">
+        <div className="mt-6 bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Test Summary</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

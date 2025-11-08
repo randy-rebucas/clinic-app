@@ -204,10 +204,10 @@ export default function LabOrdersPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as 'all' | 'pending' | 'in-progress' | 'completed')}
-                  className={`flex items-center px-1 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  className={`flex items-center px-1 py-4 text-sm font-medium transition-colors ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'text-blue-600 shadow-[0_-2px_0_0_#3b82f6_inset]'
+                      : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   <Icon className="h-4 w-4 mr-2" />
@@ -236,7 +236,7 @@ export default function LabOrdersPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by lab order ID, patient ID, or doctor ID..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
             </div>
@@ -258,8 +258,8 @@ export default function LabOrdersPage() {
             </h3>
           </div>
           <div className="space-y-1">
-            {filteredLabOrders.map((order) => (
-              <div key={order.id} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
+            {filteredLabOrders.map((order, index) => (
+              <div key={order.id || order.labOrderId || `lab-order-${index}`} className="p-6 hover:bg-gray-50 shadow-sm rounded-lg mx-2 my-1">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="flex-shrink-0">
@@ -298,9 +298,9 @@ export default function LabOrdersPage() {
                       {/* Test Results Summary */}
                       <div className="mt-2 flex items-center space-x-2">
                         <span className="text-sm text-gray-600">Tests:</span>
-                        {order.tests.map((test, index) => (
+                        {order.tests.map((test, testIndex) => (
                           <span
-                            key={index}
+                            key={test.testCode || test.testName || `test-${testIndex}`}
                             className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium shadow-sm bg-gray-100 text-gray-800"
                           >
                             {getTestStatusIcon(test.status)}

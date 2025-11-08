@@ -14,7 +14,8 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  XCircle
+  XCircle,
+  ArrowLeft
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -195,10 +196,17 @@ export default function BillingPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
+              <Link
+                href="/"
+                className="mr-4 p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title="Go back to dashboard"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
               <CreditCard className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Billing Management</h1>
             </div>
@@ -236,11 +244,11 @@ export default function BillingPage() {
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'invoices' | 'payments')}
-                  className={`flex items-center px-1 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  onClick={() => setActiveTab(tab.id as 'invoices' | 'payments' | 'summary')}
+                  className={`flex items-center px-1 py-4 text-sm font-medium transition-colors ${
                     activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'text-blue-600 shadow-[0_-2px_0_0_#3b82f6_inset]'
+                      : 'text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   <Icon className="h-4 w-4 mr-2" />
@@ -253,7 +261,7 @@ export default function BillingPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+          <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
@@ -263,7 +271,7 @@ export default function BillingPage() {
           <div className="space-y-6">
             {summary && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <div className="flex items-center">
                     <DollarSign className="h-8 w-8 text-blue-600" />
                     <div className="ml-4">
@@ -272,7 +280,7 @@ export default function BillingPage() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <div className="flex items-center">
                     <CheckCircle className="h-8 w-8 text-green-600" />
                     <div className="ml-4">
@@ -281,7 +289,7 @@ export default function BillingPage() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <div className="flex items-center">
                     <AlertCircle className="h-8 w-8 text-red-600" />
                     <div className="ml-4">
@@ -290,7 +298,7 @@ export default function BillingPage() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <div className="flex items-center">
                     <FileText className="h-8 w-8 text-purple-600" />
                     <div className="ml-4">
@@ -308,7 +316,7 @@ export default function BillingPage() {
         {activeTab === 'invoices' && (
           <div className="space-y-6">
             {/* Filters */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-lg shadow-sm">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
@@ -318,7 +326,7 @@ export default function BillingPage() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search by invoice ID or patient ID..."
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                 </div>
@@ -327,7 +335,7 @@ export default function BillingPage() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="shadow-sm rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   >
                     <option value="all">All Status</option>
                     <option value="draft">Draft</option>
@@ -341,15 +349,15 @@ export default function BillingPage() {
             </div>
 
             {/* Invoices List */}
-            <div className="bg-white rounded-lg shadow-sm border">
-              <div className="px-6 py-4 border-b border-gray-200">
+            <div className="bg-white rounded-lg shadow-sm">
+              <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
                 <h3 className="text-lg font-medium text-gray-900">
                   Invoices ({filteredInvoices.length})
                 </h3>
               </div>
               <div className="divide-y divide-gray-200">
-                {filteredInvoices.map((invoice) => (
-                  <div key={invoice.id} className="p-6 hover:bg-gray-50">
+                {filteredInvoices.map((invoice, index) => (
+                  <div key={invoice.id || `invoice-${index}`} className="p-6 hover:bg-gray-50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="flex-shrink-0">
@@ -405,15 +413,15 @@ export default function BillingPage() {
         {/* Payments Tab */}
         {activeTab === 'payments' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border">
-              <div className="px-6 py-4 border-b border-gray-200">
+            <div className="bg-white rounded-lg shadow-sm">
+              <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
                 <h3 className="text-lg font-medium text-gray-900">
                   Recent Payments ({payments.length})
                 </h3>
               </div>
               <div className="divide-y divide-gray-200">
-                {payments.map((payment) => (
-                  <div key={payment.id} className="p-6 hover:bg-gray-50">
+                {payments.map((payment, index) => (
+                  <div key={payment.id || `payment-${index}`} className="p-6 hover:bg-gray-50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div className="flex-shrink-0">

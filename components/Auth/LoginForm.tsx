@@ -90,12 +90,12 @@ export default function LoginForm() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={`w-full pl-10 pr-10 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                  className={`w-full pl-10 pr-10 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md transition-all duration-200 ${
                     emailError 
-                      ? 'border-red-300 bg-red-50 focus:ring-red-500' 
+                      ? 'bg-red-50 focus:ring-red-500 shadow-red-100' 
                       : email && !emailError 
-                        ? 'border-green-300 bg-green-50 focus:ring-green-500' 
-                        : 'border-gray-300 bg-white hover:border-gray-400'
+                        ? 'bg-green-50 focus:ring-green-500 shadow-green-100' 
+                        : 'bg-white'
                   }`}
                   placeholder="Enter your email"
                 />
@@ -129,12 +129,12 @@ export default function LoginForm() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full pl-10 pr-10 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                  className={`w-full pl-10 pr-10 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md transition-all duration-200 ${
                     passwordError 
-                      ? 'border-red-300 bg-red-50 focus:ring-red-500' 
+                      ? 'bg-red-50 focus:ring-red-500 shadow-red-100' 
                       : password && !passwordError 
-                        ? 'border-green-300 bg-green-50 focus:ring-green-500' 
-                        : 'border-gray-300 bg-white hover:border-gray-400'
+                        ? 'bg-green-50 focus:ring-green-500 shadow-green-100' 
+                        : 'bg-white'
                   }`}
                   placeholder="Enter your password"
                 />
@@ -169,7 +169,7 @@ export default function LoginForm() {
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 shadow-sm rounded"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
                 Remember me
@@ -183,7 +183,7 @@ export default function LoginForm() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm flex items-center">
+            <div className="bg-red-50 shadow-sm text-red-600 px-4 py-3 rounded-xl text-sm flex items-center">
               <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
               {error}
             </div>

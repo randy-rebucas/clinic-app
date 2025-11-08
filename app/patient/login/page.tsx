@@ -110,7 +110,7 @@ export default function PatientLoginPage() {
                   required
                   value={patientId}
                   onChange={(e) => setPatientId(e.target.value.toUpperCase())}
-                  className={`w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full pl-10 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md ${
                     patientIdError ? 'border-red-300' : patientId && !patientIdError ? 'border-green-500' : 'border-gray-300'
                   }`}
                   placeholder="PAT-2024-ABC123DEF"
@@ -144,7 +144,7 @@ export default function PatientLoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  className={`w-full pl-10 pr-10 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md ${
                     passwordError ? 'border-red-300' : password && !passwordError ? 'border-green-500' : 'border-gray-300'
                   }`}
                   placeholder="Enter your password"
@@ -171,7 +171,7 @@ export default function PatientLoginPage() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
+            <div className="bg-red-50 shadow-sm text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
               <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
               {error}
             </div>
@@ -189,7 +189,7 @@ export default function PatientLoginPage() {
             >
               {loading ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                   Signing in...
                 </div>
               ) : (

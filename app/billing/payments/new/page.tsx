@@ -160,7 +160,7 @@ export default function NewPaymentPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -181,7 +181,7 @@ export default function NewPaymentPage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Invoice Selection */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Invoice Information</h2>
             
             {selectedInvoice ? (
@@ -244,18 +244,18 @@ export default function NewPaymentPage() {
                       setShowInvoiceSearch(true);
                     }}
                     placeholder="Search for invoice by ID or patient ID..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 
                 {showInvoiceSearch && invoices.length > 0 && (
-                  <div className="border border-gray-200 rounded-md max-h-60 overflow-y-auto">
+                  <div className="shadow-sm rounded-md max-h-60 overflow-y-auto">
                     {invoices.map((invoice) => (
                       <button
                         key={invoice.id}
                         type="button"
                         onClick={() => handleInvoiceSelect(invoice)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                        className="w-full px-4 py-3 text-left hover:bg-gray-50 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] border-gray-100 last:shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-0"
                       >
                         <div className="flex justify-between items-center">
                           <div>
@@ -288,7 +288,7 @@ export default function NewPaymentPage() {
           </div>
 
           {/* Payment Details */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Details</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -304,7 +304,7 @@ export default function NewPaymentPage() {
                     step="0.01"
                     value={formData.amount}
                     onChange={(e) => setFormData(prev => ({ ...prev, amount: parseFloat(e.target.value) || 0 }))}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     placeholder="0.00"
                     required
                   />
@@ -323,7 +323,7 @@ export default function NewPaymentPage() {
                 <select
                   value={formData.paymentMethod}
                   onChange={(e) => setFormData(prev => ({ ...prev, paymentMethod: e.target.value as 'cash' | 'card' | 'insurance' | 'bank-transfer' }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   required
                 >
                   <option value="cash">Cash</option>
@@ -341,7 +341,7 @@ export default function NewPaymentPage() {
                   type="text"
                   value={formData.reference}
                   onChange={(e) => setFormData(prev => ({ ...prev, reference: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Transaction ID, check number, etc."
                 />
               </div>
@@ -350,7 +350,7 @@ export default function NewPaymentPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Processed By
                 </label>
-                <div className="flex items-center px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
+                <div className="flex items-center px-3 py-2 bg-gray-50 shadow-sm rounded-md">
                   <User className="h-4 w-4 text-gray-400 mr-2" />
                   <span className="text-gray-900">{employee?.name || 'System'}</span>
                 </div>
@@ -365,7 +365,7 @@ export default function NewPaymentPage() {
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 placeholder="Additional payment notes..."
               />
             </div>
@@ -373,7 +373,7 @@ export default function NewPaymentPage() {
 
           {/* Payment Summary */}
           {selectedInvoice && (
-            <div className="bg-white p-6 rounded-lg shadow-sm border">
+            <div className="bg-white p-6 rounded-lg shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">Payment Summary</h2>
               
               <div className="space-y-2">
@@ -413,7 +413,7 @@ export default function NewPaymentPage() {
 
           {/* Error and Success Messages */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+            <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md">
               {error}
             </div>
           )}
@@ -428,7 +428,7 @@ export default function NewPaymentPage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/billing"
-              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 shadow-sm rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </Link>
@@ -439,7 +439,7 @@ export default function NewPaymentPage() {
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                   Processing...
                 </>
               ) : (

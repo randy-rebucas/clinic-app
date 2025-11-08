@@ -96,8 +96,8 @@ export default function NewPrescriptionPage() {
     }
   };
 
-  const handlePatientSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handlePatientSearch = (e?: React.FormEvent | React.MouseEvent | React.KeyboardEvent) => {
+    e?.preventDefault();
     searchPatients(patientSearch);
   };
 
@@ -199,7 +199,7 @@ export default function NewPrescriptionPage() {
                 <label htmlFor="patientSearch" className="block text-sm font-medium text-gray-700 mb-1">
                   Search Patient *
                 </label>
-                <form onSubmit={handlePatientSearch} className="flex gap-2">
+                <div className="flex gap-2">
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
@@ -207,17 +207,24 @@ export default function NewPrescriptionPage() {
                       id="patientSearch"
                       value={patientSearch}
                       onChange={(e) => setPatientSearch(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handlePatientSearch(e);
+                        }
+                      }}
                       placeholder="Search by patient ID, name, email, or phone..."
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={handlePatientSearch}
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
                   >
                     Search
                   </button>
-                </form>
+                </div>
               </div>
               
               {selectedPatient && (
@@ -249,7 +256,7 @@ export default function NewPrescriptionPage() {
                   value={formData.appointmentId}
                   onChange={handleInputChange}
                   placeholder="Optional appointment ID"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               <div>
@@ -263,7 +270,7 @@ export default function NewPrescriptionPage() {
                   value={formData.validUntil}
                   onChange={handleInputChange}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
             </div>
@@ -279,7 +286,7 @@ export default function NewPrescriptionPage() {
                 value={formData.diagnosis}
                 onChange={handleInputChange}
                 placeholder="Enter the diagnosis"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
               />
             </div>
             <div className="mt-6">
@@ -293,7 +300,7 @@ export default function NewPrescriptionPage() {
                 value={formData.notes}
                 onChange={handleInputChange}
                 placeholder="Any additional notes or instructions"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
               />
             </div>
           </div>
@@ -314,7 +321,7 @@ export default function NewPrescriptionPage() {
             
             <div className="space-y-4">
               {medications.map((medication, index) => (
-                <div key={index} className="grid grid-cols-12 gap-4 items-end p-4 shadow-sm border border-gray-200 rounded-lg">
+                <div key={index} className="grid grid-cols-12 gap-4 items-end p-4 shadow-sm rounded-lg">
                   <div className="col-span-3">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Medication Name *
@@ -324,7 +331,7 @@ export default function NewPrescriptionPage() {
                       value={medication.name}
                       onChange={(e) => handleMedicationChange(index, 'name', e.target.value)}
                       placeholder="e.g., Amoxicillin"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <div className="col-span-2">
@@ -336,7 +343,7 @@ export default function NewPrescriptionPage() {
                       value={medication.dosage}
                       onChange={(e) => handleMedicationChange(index, 'dosage', e.target.value)}
                       placeholder="e.g., 500mg"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <div className="col-span-2">
@@ -348,7 +355,7 @@ export default function NewPrescriptionPage() {
                       value={medication.frequency}
                       onChange={(e) => handleMedicationChange(index, 'frequency', e.target.value)}
                       placeholder="e.g., 3 times daily"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <div className="col-span-2">
@@ -360,7 +367,7 @@ export default function NewPrescriptionPage() {
                       value={medication.duration}
                       onChange={(e) => handleMedicationChange(index, 'duration', e.target.value)}
                       placeholder="e.g., 7 days"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <div className="col-span-2">
@@ -372,7 +379,7 @@ export default function NewPrescriptionPage() {
                       min="1"
                       value={medication.quantity}
                       onChange={(e) => handleMedicationChange(index, 'quantity', parseInt(e.target.value) || 1)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <div className="col-span-1">
@@ -395,7 +402,7 @@ export default function NewPrescriptionPage() {
                       value={medication.instructions || ''}
                       onChange={(e) => handleMedicationChange(index, 'instructions', e.target.value)}
                       placeholder="e.g., Take with food"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                 </div>

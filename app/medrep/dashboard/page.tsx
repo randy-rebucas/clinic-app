@@ -201,7 +201,7 @@ export default function MedRepDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -224,7 +224,7 @@ export default function MedRepDashboard() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <Package className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
@@ -234,7 +234,7 @@ export default function MedRepDashboard() {
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <Truck className="h-8 w-8 text-green-600" />
               <div className="ml-4">
@@ -248,7 +248,7 @@ export default function MedRepDashboard() {
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <CheckCircle className="h-8 w-8 text-green-600" />
               <div className="ml-4">
@@ -263,7 +263,7 @@ export default function MedRepDashboard() {
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <AlertCircle className="h-8 w-8 text-yellow-600" />
               <div className="ml-4">
@@ -277,7 +277,7 @@ export default function MedRepDashboard() {
         </div>
 
         {/* Search and Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -288,7 +288,7 @@ export default function MedRepDashboard() {
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Search prescriptions or deliveries..."
                 />
               </div>
@@ -322,8 +322,8 @@ export default function MedRepDashboard() {
 
         {/* Tab Content */}
         {activeTab === 'prescriptions' && (
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="px-6 py-4 border-b border-gray-200">
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
               <h3 className="text-lg font-medium text-gray-900">Prescriptions</h3>
             </div>
             <div className="divide-y divide-gray-200">
@@ -418,8 +418,8 @@ export default function MedRepDashboard() {
         )}
 
         {activeTab === 'deliveries' && (
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="px-6 py-4 border-b border-gray-200">
+          <div className="bg-white rounded-lg shadow-sm">
+            <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
               <h3 className="text-lg font-medium text-gray-900">Deliveries</h3>
             </div>
             <div className="divide-y divide-gray-200">
@@ -505,7 +505,7 @@ export default function MedRepDashboard() {
         )}
 
         {activeTab === 'map' && (
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Delivery Map</h3>
             <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
               <div className="text-center">

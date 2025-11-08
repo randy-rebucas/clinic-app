@@ -278,7 +278,7 @@ export default function UserManagementPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -299,7 +299,7 @@ export default function UserManagementPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -308,13 +308,13 @@ export default function UserManagementPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search users..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
               />
             </div>
             <select
               value={filters.role}
               onChange={(e) => setFilters(prev => ({ ...prev, role: e.target.value }))}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
             >
               <option value="">All Roles</option>
               <option value="admin">Admin</option>
@@ -327,7 +327,7 @@ export default function UserManagementPage() {
             <select
               value={filters.department}
               onChange={(e) => setFilters(prev => ({ ...prev, department: e.target.value }))}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
             >
               <option value="">All Departments</option>
               <option value="cardiology">Cardiology</option>
@@ -340,7 +340,7 @@ export default function UserManagementPage() {
             <select
               value={filters.isActive}
               onChange={(e) => setFilters(prev => ({ ...prev, isActive: e.target.value }))}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
             >
               <option value="">All Status</option>
               <option value="active">Active</option>
@@ -350,8 +350,8 @@ export default function UserManagementPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
             <h3 className="text-lg font-medium text-gray-900">
               Users ({filteredUsers.length})
             </h3>
@@ -600,7 +600,7 @@ export default function UserManagementPage() {
                       type="text"
                       value={createForm.name}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Enter full name"
                     />
                   </div>
@@ -610,7 +610,7 @@ export default function UserManagementPage() {
                       type="email"
                       value={createForm.email}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Enter email address"
                     />
                   </div>
@@ -620,7 +620,7 @@ export default function UserManagementPage() {
                       type="password"
                       value={createForm.password}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, password: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Enter password"
                     />
                   </div>
@@ -629,7 +629,7 @@ export default function UserManagementPage() {
                     <select
                       value={createForm.role}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, role: e.target.value as any }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     >
                       <option value="employee">Employee</option>
                       <option value="doctor">Doctor</option>
@@ -643,7 +643,7 @@ export default function UserManagementPage() {
                     <select
                       value={createForm.department}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, department: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     >
                       <option value="">Select Department</option>
                       <option value="cardiology">Cardiology</option>
@@ -660,7 +660,7 @@ export default function UserManagementPage() {
                       type="text"
                       value={createForm.position}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, position: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Enter position"
                     />
                   </div>
@@ -670,7 +670,7 @@ export default function UserManagementPage() {
                       type="text"
                       value={createForm.employeeId}
                       onChange={(e) => setCreateForm(prev => ({ ...prev, employeeId: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Enter employee ID"
                     />
                   </div>
@@ -682,7 +682,7 @@ export default function UserManagementPage() {
                           type="text"
                           value={createForm.specialization}
                           onChange={(e) => setCreateForm(prev => ({ ...prev, specialization: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                           placeholder="Enter specialization"
                         />
                       </div>
@@ -692,7 +692,7 @@ export default function UserManagementPage() {
                           type="text"
                           value={createForm.licenseNumber}
                           onChange={(e) => setCreateForm(prev => ({ ...prev, licenseNumber: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                           placeholder="Enter license number"
                         />
                       </div>
@@ -704,7 +704,7 @@ export default function UserManagementPage() {
               <div className="flex justify-end space-x-3 mt-6">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 shadow-sm rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
@@ -744,7 +744,7 @@ export default function UserManagementPage() {
                       type="text"
                       value={editForm.name}
                       onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <div>
@@ -753,7 +753,7 @@ export default function UserManagementPage() {
                       type="email"
                       value={editForm.email}
                       onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <div>
@@ -761,7 +761,7 @@ export default function UserManagementPage() {
                     <select
                       value={editForm.role}
                       onChange={(e) => setEditForm(prev => ({ ...prev, role: e.target.value as any }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     >
                       <option value="employee">Employee</option>
                       <option value="doctor">Doctor</option>
@@ -775,7 +775,7 @@ export default function UserManagementPage() {
                     <select
                       value={editForm.department}
                       onChange={(e) => setEditForm(prev => ({ ...prev, department: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     >
                       <option value="">Select Department</option>
                       <option value="cardiology">Cardiology</option>
@@ -792,7 +792,7 @@ export default function UserManagementPage() {
                       type="text"
                       value={editForm.position}
                       onChange={(e) => setEditForm(prev => ({ ...prev, position: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   <div>
@@ -801,7 +801,7 @@ export default function UserManagementPage() {
                       type="text"
                       value={editForm.employeeId}
                       onChange={(e) => setEditForm(prev => ({ ...prev, employeeId: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   {editForm.role === 'doctor' && (
@@ -812,7 +812,7 @@ export default function UserManagementPage() {
                           type="text"
                           value={editForm.specialization}
                           onChange={(e) => setEditForm(prev => ({ ...prev, specialization: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                         />
                       </div>
                       <div>
@@ -821,7 +821,7 @@ export default function UserManagementPage() {
                           type="text"
                           value={editForm.licenseNumber}
                           onChange={(e) => setEditForm(prev => ({ ...prev, licenseNumber: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                         />
                       </div>
                     </>
@@ -841,7 +841,7 @@ export default function UserManagementPage() {
               <div className="flex justify-end space-x-3 mt-6">
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 shadow-sm rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>

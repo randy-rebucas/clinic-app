@@ -161,7 +161,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={formData.firstName}
                   onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   required
                 />
               </div>
@@ -174,7 +174,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={formData.lastName}
                   onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   required
                 />
               </div>
@@ -189,7 +189,7 @@ export default function NewPatientPage() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
               </div>
@@ -204,7 +204,7 @@ export default function NewPatientPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
               </div>
@@ -219,7 +219,7 @@ export default function NewPatientPage() {
                     type="date"
                     value={formData.dateOfBirth}
                     onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     required
                   />
                 </div>
@@ -232,7 +232,7 @@ export default function NewPatientPage() {
                 <select
                   value={formData.gender}
                   onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value as 'male' | 'female' | 'other' }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   required
                 >
                   <option value="male">Male</option>
@@ -262,7 +262,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     address: { ...prev.address, street: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               
@@ -278,7 +278,7 @@ export default function NewPatientPage() {
                       ...prev, 
                       address: { ...prev.address, city: e.target.value }
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 
@@ -293,7 +293,7 @@ export default function NewPatientPage() {
                       ...prev, 
                       address: { ...prev.address, state: e.target.value }
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 
@@ -308,7 +308,7 @@ export default function NewPatientPage() {
                       ...prev, 
                       address: { ...prev.address, zipCode: e.target.value }
                     }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
               </div>
@@ -331,7 +331,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     emergencyContact: { ...prev.emergencyContact, name: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               
@@ -346,7 +346,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     emergencyContact: { ...prev.emergencyContact, relationship: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="e.g., Spouse, Parent, Sibling"
                 />
               </div>
@@ -362,7 +362,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     emergencyContact: { ...prev.emergencyContact, phone: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
             </div>
@@ -385,7 +385,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={newMedicalHistory}
                   onChange={(e) => setNewMedicalHistory(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="flex-1 px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Add medical condition..."
                 />
                 <button
@@ -428,7 +428,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={newAllergy}
                   onChange={(e) => setNewAllergy(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="flex-1 px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Add allergy..."
                 />
                 <button
@@ -472,7 +472,7 @@ export default function NewPatientPage() {
                   type="text"
                   value={newMedication}
                   onChange={(e) => setNewMedication(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="flex-1 px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Add medication..."
                 />
                 <button
@@ -522,7 +522,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     insurance: { ...prev.insurance, provider: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               
@@ -537,7 +537,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     insurance: { ...prev.insurance, policyNumber: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               
@@ -552,7 +552,7 @@ export default function NewPatientPage() {
                     ...prev, 
                     insurance: { ...prev.insurance, groupNumber: e.target.value }
                   }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
             </div>
@@ -575,7 +575,7 @@ export default function NewPatientPage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/patients"
-              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+              className="px-6 py-2 shadow-sm rounded-md text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
             >
               Cancel
             </Link>
@@ -586,7 +586,7 @@ export default function NewPatientPage() {
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                   Creating...
                 </>
               ) : (

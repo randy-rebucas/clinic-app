@@ -54,7 +54,7 @@ export default function PatientDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -88,7 +88,7 @@ export default function PatientDashboard() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <Calendar className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
@@ -97,7 +97,7 @@ export default function PatientDashboard() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <FileText className="h-8 w-8 text-green-600" />
               <div className="ml-4">
@@ -106,7 +106,7 @@ export default function PatientDashboard() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <TestTube className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
@@ -115,7 +115,7 @@ export default function PatientDashboard() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <CreditCard className="h-8 w-8 text-orange-600" />
               <div className="ml-4">
@@ -134,7 +134,7 @@ export default function PatientDashboard() {
               <a
                 key={item.name}
                 href={item.href}
-                className="group relative bg-white p-6 rounded-lg shadow-sm border-2 border-gray-200 transition-all duration-200 hover:shadow-md hover:border-blue-300"
+                className="group relative bg-white p-6 rounded-lg shadow-sm-2 border-gray-200 transition-all duration-200 hover:shadow-md hover:shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-300"
               >
                 <div className="flex items-center">
                   <div className={`flex-shrink-0 p-3 rounded-lg bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-600`}>
@@ -157,7 +157,7 @@ export default function PatientDashboard() {
         {/* Recent Activity */}
         <div className="mt-12">
           <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h3>
-          <div className="bg-white rounded-lg shadow-sm border">
+          <div className="bg-white rounded-lg shadow-sm">
             <div className="p-6">
               <div className="text-center py-8">
                 <Activity className="h-12 w-12 text-gray-400 mx-auto mb-4" />

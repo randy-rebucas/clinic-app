@@ -14,8 +14,10 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  Eye
+  Eye,
+  ArrowLeft
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface NotificationTemplate {
   id: string;
@@ -225,10 +227,17 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
+              <Link
+                href="/"
+                className="mr-4 p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title="Go back to dashboard"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
               <Bell className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Notification Center</h1>
             </div>
@@ -245,7 +254,7 @@ export default function NotificationsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Template Selection */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Template</h3>
             
             <div className="space-y-3">
@@ -257,7 +266,7 @@ export default function NotificationsPage() {
                     onClick={() => handleTemplateChange(template.id)}
                     className={`w-full p-4 text-left border rounded-lg transition-colors ${
                       selectedTemplate === template.id
-                        ? 'border-blue-500 bg-blue-50'
+                        ? 'shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-500 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
@@ -287,7 +296,7 @@ export default function NotificationsPage() {
           </div>
 
           {/* Notification Form */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Send Notification</h3>
             
             {selectedTemplate ? (
@@ -301,7 +310,7 @@ export default function NotificationsPage() {
                     type="text"
                     value={recipients}
                     onChange={(e) => setRecipients(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     placeholder="Enter email addresses or phone numbers (comma-separated)"
                   />
                   <p className="mt-1 text-sm text-gray-500">
@@ -325,7 +334,7 @@ export default function NotificationsPage() {
                             type="text"
                             value={variables[variable] || ''}
                             onChange={(e) => handleVariableChange(variable, e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                             placeholder={`Enter ${variable}`}
                           />
                         </div>
@@ -347,7 +356,7 @@ export default function NotificationsPage() {
 
                 {/* Preview */}
                 {previewMode && selectedTemplateData && (
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="bg-gray-50 shadow-sm rounded-lg p-4">
                     <h4 className="font-medium text-gray-900 mb-2">Preview</h4>
                     <div className="text-sm text-gray-600">
                       <p><strong>Type:</strong> {selectedTemplateData.type}</p>
@@ -379,7 +388,7 @@ export default function NotificationsPage() {
                 >
                   {loading ? (
                     <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                       Sending...
                     </div>
                   ) : (
@@ -406,7 +415,7 @@ export default function NotificationsPage() {
             )}
 
             {error && (
-              <div className="mt-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
+              <div className="mt-4 bg-red-50 shadow-sm text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
                 <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
                 {error}
               </div>
@@ -415,7 +424,7 @@ export default function NotificationsPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm border p-6">
+        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
@@ -424,7 +433,7 @@ export default function NotificationsPage() {
                 setRecipients('');
                 setVariables({});
               }}
-              className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-left"
+              className="p-4 shadow-sm rounded-lg hover:shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-300 hover:bg-blue-50 transition-colors text-left"
             >
               <Clock className="h-6 w-6 text-blue-600 mb-2" />
               <h4 className="font-medium text-gray-900">Send Appointment Reminders</h4>
@@ -437,7 +446,7 @@ export default function NotificationsPage() {
                 setRecipients('');
                 setVariables({});
               }}
-              className="p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors text-left"
+              className="p-4 shadow-sm rounded-lg hover:border-green-300 hover:bg-green-50 transition-colors text-left"
             >
               <TestTube className="h-6 w-6 text-green-600 mb-2" />
               <h4 className="font-medium text-gray-900">Notify Lab Results</h4>
@@ -450,7 +459,7 @@ export default function NotificationsPage() {
                 setRecipients('');
                 setVariables({});
               }}
-              className="p-4 border border-gray-200 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors text-left"
+              className="p-4 shadow-sm rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors text-left"
             >
               <CreditCard className="h-6 w-6 text-red-600 mb-2" />
               <h4 className="font-medium text-gray-900">Payment Reminders</h4>

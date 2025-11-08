@@ -175,7 +175,7 @@ export default function BackupPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -196,14 +196,14 @@ export default function BackupPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+          <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <Database className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
@@ -212,7 +212,7 @@ export default function BackupPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <HardDrive className="h-8 w-8 text-green-600" />
               <div className="ml-4">
@@ -223,7 +223,7 @@ export default function BackupPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <FileText className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
@@ -234,7 +234,7 @@ export default function BackupPage() {
               </div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center">
               <Calendar className="h-8 w-8 text-orange-600" />
               <div className="ml-4">
@@ -248,8 +248,8 @@ export default function BackupPage() {
         </div>
 
         {/* Backups List */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
             <h3 className="text-lg font-medium text-gray-900">Available Backups</h3>
           </div>
           
@@ -410,7 +410,7 @@ export default function BackupPage() {
                       description: e.target.value
                     }))}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     placeholder="Enter a description for this backup..."
                   />
                 </div>
@@ -419,7 +419,7 @@ export default function BackupPage() {
               <div className="flex justify-end space-x-3 mt-6">
                 <button
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 shadow-sm rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
@@ -520,7 +520,7 @@ export default function BackupPage() {
               <div className="flex justify-end space-x-3 mt-6">
                 <button
                   onClick={() => setShowRestoreModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 shadow-sm rounded-md text-gray-700 hover:bg-gray-50"
                 >
                   Cancel
                 </button>

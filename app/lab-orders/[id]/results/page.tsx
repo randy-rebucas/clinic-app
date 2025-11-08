@@ -212,7 +212,7 @@ export default function LabResultsPage({ params }: { params: { id: string } }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -232,7 +232,7 @@ export default function LabResultsPage({ params }: { params: { id: string } }) {
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Lab Order Information */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Lab Order Information</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -290,7 +290,7 @@ export default function LabResultsPage({ params }: { params: { id: string } }) {
 
         {/* Error and Success Messages */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+          <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
@@ -302,8 +302,8 @@ export default function LabResultsPage({ params }: { params: { id: string } }) {
         )}
 
         {/* Test Results */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
             <h2 className="text-lg font-semibold text-gray-900">Test Results</h2>
             <p className="text-sm text-gray-600 mt-1">
               Enter test results and mark status for each test. Click &quot;Save Result&quot; for individual tests or &quot;Complete Order&quot; when all tests are done.
@@ -330,7 +330,7 @@ export default function LabResultsPage({ params }: { params: { id: string } }) {
                     <select
                       value={test.status as string}
                       onChange={(e) => updateTestResult(index, 'status', e.target.value)}
-                      className="px-3 py-1 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="px-3 py-1 shadow-sm rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     >
                       <option value="pending">Pending</option>
                       <option value="normal">Normal</option>
@@ -349,7 +349,7 @@ export default function LabResultsPage({ params }: { params: { id: string } }) {
                       type="text"
                       value={(test.value as string) || ''}
                       onChange={(e) => updateTestResult(index, 'value', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Enter test result value"
                     />
                   </div>
@@ -362,7 +362,7 @@ export default function LabResultsPage({ params }: { params: { id: string } }) {
                       type="text"
                       value={(test.notes as string) || ''}
                       onChange={(e) => updateTestResult(index, 'notes', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Additional notes"
                     />
                   </div>
@@ -377,7 +377,7 @@ export default function LabResultsPage({ params }: { params: { id: string } }) {
                   >
                     {saving ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                         Saving...
                       </>
                     ) : (
@@ -404,7 +404,7 @@ export default function LabResultsPage({ params }: { params: { id: string } }) {
             >
               {saving ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                   Completing...
                 </>
               ) : (

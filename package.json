@@ -10,9 +10,9 @@
     "start": "next start",
     "start:socket": "NODE_ENV=production tsx server.ts",
     "lint": "eslint",
-    "setup": "node scripts/setup.js",
-    "setup:check": "node scripts/setup.js --check",
-    "setup:reset": "node scripts/setup.js --reset",
+    "setup": "tsx scripts/setup.js",
+    "setup:check": "tsx scripts/setup.js --check",
+    "setup:reset": "tsx scripts/setup.js --reset",
     "test:reset": "node scripts/test-reset.js",
     "test:reset:esm": "node scripts/test-reset-simple.mjs"
   },

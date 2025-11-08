@@ -197,7 +197,7 @@ export default function NewInvoicePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -218,7 +218,7 @@ export default function NewInvoicePage() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Patient Selection */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Patient Information</h2>
             
             {selectedPatient ? (
@@ -256,18 +256,18 @@ export default function NewInvoicePage() {
                       setShowPatientSearch(true);
                     }}
                     placeholder="Search for patient by name, ID, email, or phone..."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 
                 {showPatientSearch && patients.length > 0 && (
-                  <div className="border border-gray-200 rounded-md max-h-60 overflow-y-auto">
+                  <div className="shadow-sm rounded-md max-h-60 overflow-y-auto">
                     {patients.map((patient) => (
                       <button
                         key={patient.id}
                         type="button"
                         onClick={() => handlePatientSelect(patient)}
-                        className="w-full px-4 py-3 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                        className="w-full px-4 py-3 text-left hover:bg-gray-50 shadow-[0_1px_0_0_rgba(0,0,0,0.05)] border-gray-100 last:shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-0"
                       >
                         <div className="font-medium text-gray-900">
                           {patient.firstName} {patient.lastName}
@@ -286,7 +286,7 @@ export default function NewInvoicePage() {
           </div>
 
           {/* Invoice Items */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Invoice Items</h2>
               <button
@@ -301,7 +301,7 @@ export default function NewInvoicePage() {
 
             <div className="space-y-4">
               {items.map((item, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 border border-gray-200 rounded-lg">
+                <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 shadow-sm rounded-lg">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Description
@@ -310,7 +310,7 @@ export default function NewInvoicePage() {
                       type="text"
                       value={item.description}
                       onChange={(e) => updateItem(index, 'description', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Item description"
                     />
                   </div>
@@ -322,7 +322,7 @@ export default function NewInvoicePage() {
                     <select
                       value={item.category}
                       onChange={(e) => updateItem(index, 'category', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     >
                       <option value="consultation">Consultation</option>
                       <option value="medication">Medication</option>
@@ -341,7 +341,7 @@ export default function NewInvoicePage() {
                       min="1"
                       value={item.quantity}
                       onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 1)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   
@@ -355,7 +355,7 @@ export default function NewInvoicePage() {
                       step="0.01"
                       value={item.unitPrice}
                       onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                   
@@ -364,7 +364,7 @@ export default function NewInvoicePage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Total
                       </label>
-                      <div className="px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-900">
+                      <div className="px-3 py-2 bg-gray-50 shadow-sm rounded-md text-gray-900">
                         ${item.totalPrice.toFixed(2)}
                       </div>
                     </div>
@@ -384,7 +384,7 @@ export default function NewInvoicePage() {
           </div>
 
           {/* Invoice Settings */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Invoice Settings</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -399,7 +399,7 @@ export default function NewInvoicePage() {
                   step="0.01"
                   value={formData.taxRate}
                   onChange={(e) => setFormData(prev => ({ ...prev, taxRate: parseFloat(e.target.value) || 0 }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               
@@ -413,7 +413,7 @@ export default function NewInvoicePage() {
                   step="0.01"
                   value={formData.discountAmount}
                   onChange={(e) => setFormData(prev => ({ ...prev, discountAmount: parseFloat(e.target.value) || 0 }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               
@@ -425,7 +425,7 @@ export default function NewInvoicePage() {
                   type="date"
                   value={formData.dueDate}
                   onChange={(e) => setFormData(prev => ({ ...prev, dueDate: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               
@@ -437,7 +437,7 @@ export default function NewInvoicePage() {
                   type="text"
                   value={formData.appointmentId}
                   onChange={(e) => setFormData(prev => ({ ...prev, appointmentId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="APT-..."
                 />
               </div>
@@ -451,14 +451,14 @@ export default function NewInvoicePage() {
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 placeholder="Additional notes for the invoice..."
               />
             </div>
           </div>
 
           {/* Invoice Summary */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <Calculator className="h-5 w-5 mr-2" />
               Invoice Summary
@@ -488,7 +488,7 @@ export default function NewInvoicePage() {
 
           {/* Error and Success Messages */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+            <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md">
               {error}
             </div>
           )}
@@ -503,7 +503,7 @@ export default function NewInvoicePage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/billing"
-              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 shadow-sm rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </Link>
@@ -514,7 +514,7 @@ export default function NewInvoicePage() {
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                   Creating...
                 </>
               ) : (

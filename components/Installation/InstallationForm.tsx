@@ -232,7 +232,7 @@ export default function InstallationForm() {
                   required
                   value={formData.adminName}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Enter administrator name"
                 />
               </div>
@@ -253,7 +253,7 @@ export default function InstallationForm() {
                   required
                   value={formData.adminEmail}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Enter administrator email"
                 />
               </div>
@@ -274,7 +274,7 @@ export default function InstallationForm() {
                   required
                   value={formData.adminPassword}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Enter administrator password"
                 />
               </div>
@@ -295,12 +295,12 @@ export default function InstallationForm() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-3 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:border-transparent ${
+                  className={`w-full pl-10 pr-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:shadow-md ${
                     formData.confirmPassword && formData.adminPassword !== formData.confirmPassword
-                      ? 'border-red-300 focus:ring-red-500'
+                      ? 'focus:ring-red-500 shadow-red-100'
                       : formData.confirmPassword && formData.adminPassword === formData.confirmPassword
-                      ? 'border-green-300 focus:ring-green-500'
-                      : 'border-gray-300 focus:ring-blue-500'
+                      ? 'focus:ring-green-500 shadow-green-100'
+                      : 'focus:ring-blue-500'
                   }`}
                   placeholder="Confirm administrator password"
                 />
@@ -329,7 +329,7 @@ export default function InstallationForm() {
                 required
                 value={formData.clinicName}
                 onChange={handleInputChange}
-                className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 placeholder="Enter clinic name"
               />
             </div>
@@ -349,7 +349,7 @@ export default function InstallationForm() {
                   required
                   value={formData.clinicAddress}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Enter street address"
                 />
               </div>
@@ -367,7 +367,7 @@ export default function InstallationForm() {
                   required
                   value={formData.clinicCity}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="City"
                 />
               </div>
@@ -382,7 +382,7 @@ export default function InstallationForm() {
                   required
                   value={formData.clinicState}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="State"
                 />
               </div>
@@ -400,7 +400,7 @@ export default function InstallationForm() {
                   required
                   value={formData.clinicZipCode}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="ZIP Code"
                 />
               </div>
@@ -415,7 +415,7 @@ export default function InstallationForm() {
                   required
                   value={formData.clinicCountry}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Country"
                 />
               </div>
@@ -436,7 +436,7 @@ export default function InstallationForm() {
                   required
                   value={formData.clinicPhone}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Enter phone number"
                 />
               </div>
@@ -457,7 +457,7 @@ export default function InstallationForm() {
                   required
                   value={formData.clinicEmail}
                   onChange={handleInputChange}
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Enter clinic email"
                 />
               </div>
@@ -473,7 +473,7 @@ export default function InstallationForm() {
                 type="url"
                 value={formData.clinicWebsite}
                 onChange={handleInputChange}
-                className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 placeholder="https://your-clinic.com"
               />
             </div>
@@ -501,7 +501,7 @@ export default function InstallationForm() {
                     name={`businessHours.${day}.isOpen`}
                     checked={hours.isOpen}
                     onChange={handleInputChange}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 shadow-sm rounded"
                   />
                   <span className="text-sm text-gray-600">Open</span>
                 </div>
@@ -513,7 +513,7 @@ export default function InstallationForm() {
                       name={`businessHours.${day}.open`}
                       value={hours.open}
                       onChange={handleInputChange}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="px-3 py-2 shadow-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                     <span className="text-gray-500">to</span>
                     <input
@@ -521,7 +521,7 @@ export default function InstallationForm() {
                       name={`businessHours.${day}.close`}
                       value={hours.close}
                       onChange={handleInputChange}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="px-3 py-2 shadow-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                 )}
@@ -542,7 +542,7 @@ export default function InstallationForm() {
                 name="timezone"
                 value={formData.timezone}
                 onChange={handleInputChange}
-                className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
               >
                 <option value="Asia/Beijing">Asia/Beijing (China Standard Time)</option>
                 <option value="America/Chicago">Central Time (CT)</option>
@@ -564,7 +564,7 @@ export default function InstallationForm() {
                 name="currency"
                 value={formData.currency}
                 onChange={handleInputChange}
-                className="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-3 shadow-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md"
               >
                 <option value="PHP">Philippine Peso (PHP)</option>
                 <option value="EUR">Euro (EUR)</option>
@@ -637,7 +637,7 @@ export default function InstallationForm() {
           </p>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8">
           {/* Progress Steps */}
           <div className="mb-8">
             <div className="flex items-center justify-between">
@@ -648,12 +648,12 @@ export default function InstallationForm() {
                 
                 return (
                   <div key={step.id} className="flex items-center">
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
                       isActive 
-                        ? 'bg-blue-600 border-blue-600 text-white' 
+                        ? 'bg-blue-600 text-white shadow-lg' 
                         : isCompleted 
-                        ? 'bg-green-500 border-green-500 text-white'
-                        : 'bg-white border-gray-300 text-gray-400'
+                        ? 'bg-green-500 text-white shadow-lg'
+                        : 'bg-white text-gray-400 shadow-sm'
                     }`}>
                       {isCompleted ? (
                         <CheckCircle className="h-5 w-5" />
@@ -690,7 +690,7 @@ export default function InstallationForm() {
               type="button"
               onClick={handlePrevious}
               disabled={currentStep === 1}
-              className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              className="px-6 py-3 shadow-sm rounded-xl text-gray-700 hover:bg-gray-50 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               Previous
             </button>
@@ -727,7 +727,7 @@ export default function InstallationForm() {
 
           {/* Result Display */}
           {result && !result.success && (
-            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+            <div className="mt-6 p-4 bg-red-50 shadow-sm rounded-xl">
               <div className="flex items-center mb-2">
                 <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
                 <p className="font-medium text-red-800">{result.message}</p>

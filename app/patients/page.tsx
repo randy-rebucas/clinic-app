@@ -308,7 +308,7 @@ export default function PatientsPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search by name, patient ID, email, or phone..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               <button
@@ -325,7 +325,7 @@ export default function PatientsPage() {
                 <select
                   value={filters.gender}
                   onChange={(e) => setFilters(prev => ({ ...prev, gender: e.target.value }))}
-                  className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 >
                   <option value="">All Genders</option>
                   <option value="male">Male</option>
@@ -335,7 +335,7 @@ export default function PatientsPage() {
                 <select
                   value={filters.isActive}
                   onChange={(e) => setFilters(prev => ({ ...prev, isActive: e.target.value }))}
-                  className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 >
                   <option value="">All Status</option>
                   <option value="active">Active</option>
@@ -343,7 +343,7 @@ export default function PatientsPage() {
                 </select>
                 <button
                   onClick={() => setFilters({ gender: '', ageRange: '', isActive: '' })}
-                  className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"
+                  className="px-4 py-2 shadow-sm rounded-md hover:bg-gray-50 transition-colors flex items-center justify-center"
                 >
                   <Filter className="h-4 w-4 mr-2" />
                   Clear Filters
@@ -764,7 +764,7 @@ export default function PatientsPage() {
                     value={editForm.medicalHistory}
                     onChange={(e) => setEditForm(prev => ({ ...prev, medicalHistory: e.target.value }))}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 
@@ -774,7 +774,7 @@ export default function PatientsPage() {
                     value={editForm.allergies}
                     onChange={(e) => setEditForm(prev => ({ ...prev, allergies: e.target.value }))}
                     rows={2}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 

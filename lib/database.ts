@@ -462,6 +462,13 @@ export const getLabOrdersRequiringFollowUp = async (): Promise<ILabOrder[]> => {
   return labOrders;
 };
 
+export const getAllLabOrders = async (): Promise<ILabOrder[]> => {
+  await connectDB();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const labOrders = await (LabOrder as any).find({}).sort({ orderedDate: -1 });
+  return labOrders;
+};
+
 // Enhanced Billing Functions
 export const updateInvoiceStatus = async (invoiceId: string, status: string, paymentMethod?: string, paidDate?: Date) => {
   await connectDB();
@@ -495,6 +502,13 @@ export const getPaymentsByPatient = async (patientId: string): Promise<IPayment[
   return payments;
 };
 
+export const getAllPayments = async (): Promise<IPayment[]> => {
+  await connectDB();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const payments = await (Payment as any).find({}).sort({ paymentDate: -1 });
+  return payments;
+};
+
 export const getPayment = async (paymentId: string): Promise<IPayment | null> => {
   await connectDB();
   if (!Types.ObjectId.isValid(paymentId)) {
@@ -511,6 +525,26 @@ export const getBillingSummary = async (patientId: string) => {
   const invoices = await (Invoice as any).find({ patientId });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const payments = await (Payment as any).find({ patientId });
+  
+  const totalInvoiced = invoices.reduce((sum: number, inv: { totalAmount: number }) => sum + inv.totalAmount, 0);
+  const totalPaid = payments.reduce((sum: number, pay: { amount: number }) => sum + pay.amount, 0);
+  const outstanding = totalInvoiced - totalPaid;
+  
+  return {
+    totalInvoiced,
+    totalPaid,
+    outstanding,
+    invoiceCount: invoices.length,
+    paymentCount: payments.length
+  };
+};
+
+export const getOverallBillingSummary = async () => {
+  await connectDB();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const invoices = await (Invoice as any).find({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const payments = await (Payment as any).find({});
   
   const totalInvoiced = invoices.reduce((sum: number, inv: { totalAmount: number }) => sum + inv.totalAmount, 0);
   const totalPaid = payments.reduce((sum: number, pay: { amount: number }) => sum + pay.amount, 0);

@@ -317,7 +317,7 @@ export default function PatientRegisterPage() {
                     isCompleted 
                       ? 'bg-green-500 border-green-500 text-white' 
                       : isActive 
-                        ? 'bg-blue-500 border-blue-500 text-white' 
+                        ? 'bg-blue-500 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-500 text-white' 
                         : 'bg-white border-gray-300 text-gray-400'
                   }`}>
                     <Icon className="h-5 w-5" />
@@ -346,7 +346,7 @@ export default function PatientRegisterPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border p-8">
+        <div className="bg-white rounded-lg shadow-sm p-8">
           <form 
             onSubmit={handleSubmit} 
             onKeyDown={handleKeyDown}
@@ -375,7 +375,7 @@ export default function PatientRegisterPage() {
                     value={formData.firstName}
                     onChange={handleInputChange}
                     aria-describedby={getFieldError('firstName') ? 'firstName-error' : undefined}
-                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md ${
                       getFieldError('firstName') 
                         ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
                         : 'border-gray-300'
@@ -398,7 +398,7 @@ export default function PatientRegisterPage() {
                     required
                     value={formData.lastName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -411,7 +411,7 @@ export default function PatientRegisterPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -426,7 +426,7 @@ export default function PatientRegisterPage() {
                     onChange={handlePhoneChange}
                     placeholder="(555) 123-4567"
                     aria-describedby={getFieldError('phone') ? 'phone-error' : undefined}
-                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:shadow-md ${
                       getFieldError('phone') 
                         ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
                         : 'border-gray-300'
@@ -449,7 +449,7 @@ export default function PatientRegisterPage() {
                     required
                     value={formData.dateOfBirth}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -462,7 +462,7 @@ export default function PatientRegisterPage() {
                     required
                     value={formData.gender}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   >
                     <option value="">Select Gender</option>
                     <option value="male">Male</option>
@@ -492,7 +492,7 @@ export default function PatientRegisterPage() {
                     name="street"
                     value={formData.street}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -505,7 +505,7 @@ export default function PatientRegisterPage() {
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -518,7 +518,7 @@ export default function PatientRegisterPage() {
                     name="state"
                     value={formData.state}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -531,7 +531,7 @@ export default function PatientRegisterPage() {
                     name="zipCode"
                     value={formData.zipCode}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -544,7 +544,7 @@ export default function PatientRegisterPage() {
                     name="country"
                     value={formData.country}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
               </div>
@@ -569,7 +569,7 @@ export default function PatientRegisterPage() {
                     name="emergencyContactName"
                     value={formData.emergencyContactName}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -582,7 +582,7 @@ export default function PatientRegisterPage() {
                     name="emergencyContactRelationship"
                     value={formData.emergencyContactRelationship}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -595,7 +595,7 @@ export default function PatientRegisterPage() {
                     name="emergencyContactPhone"
                     value={formData.emergencyContactPhone}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
               </div>
@@ -620,7 +620,7 @@ export default function PatientRegisterPage() {
                     rows={3}
                     value={formData.medicalHistory}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                     placeholder="e.g., Diabetes, Hypertension, Heart Disease"
                   />
                 </div>
@@ -634,7 +634,7 @@ export default function PatientRegisterPage() {
                     rows={3}
                     value={formData.allergies}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                     placeholder="e.g., Penicillin, Shellfish, Latex"
                   />
                 </div>
@@ -648,7 +648,7 @@ export default function PatientRegisterPage() {
                     rows={3}
                     value={formData.medications}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                     placeholder="e.g., Metformin, Lisinopril, Aspirin"
                   />
                 </div>
@@ -674,7 +674,7 @@ export default function PatientRegisterPage() {
                     name="insuranceProvider"
                     value={formData.insuranceProvider}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -687,7 +687,7 @@ export default function PatientRegisterPage() {
                     name="insurancePolicyNumber"
                     value={formData.insurancePolicyNumber}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 <div>
@@ -700,7 +700,7 @@ export default function PatientRegisterPage() {
                     name="insuranceGroupNumber"
                     value={formData.insuranceGroupNumber}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 shadow-sm rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
               </div>
@@ -708,7 +708,7 @@ export default function PatientRegisterPage() {
             )}
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
+              <div className="bg-red-50 shadow-sm text-red-600 px-4 py-3 rounded-lg text-sm flex items-center">
                 <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
                 {error}
               </div>
@@ -738,7 +738,7 @@ export default function PatientRegisterPage() {
               <div className="flex items-center space-x-4">
                 {isValidating && (
                   <div className="text-sm text-blue-600 flex items-center">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-600 mr-2"></div>
                     Validating...
                   </div>
                 )}
@@ -772,7 +772,7 @@ export default function PatientRegisterPage() {
                   >
                     {loading ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                         Registering...
                       </>
                     ) : (

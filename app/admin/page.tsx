@@ -243,7 +243,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {loading && (
             <div className="col-span-full flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-600"></div>
               <span className="ml-2 text-gray-600">Loading dashboard...</span>
             </div>
           )}
@@ -446,8 +446,8 @@ export default function AdminDashboard() {
         )}
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-lg shadow-sm border">
-          <div className="px-6 py-4 border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm">
+          <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
             <h3 className="text-lg font-medium text-gray-900">Recent Activity</h3>
           </div>
           <div className="p-6">

@@ -419,6 +419,49 @@ export const seedData = {
       status: 'waiting' as const,
       estimatedWaitTime: 10
     }
+  ],
+
+  // Sample deliveries
+  getSampleDeliveries: (
+    prescriptionIds: string[], 
+    patientIds: string[], 
+    patientData: Array<{ firstName: string; lastName: string; phone?: string; address?: { street: string; city: string; state: string; zipCode: string; country: string } }>,
+    medRepIds: string[]
+  ) => [
+    {
+      prescriptionId: prescriptionIds[0],
+      patientId: patientIds[0],
+      patientName: `${patientData[0].firstName} ${patientData[0].lastName}`,
+      patientPhone: patientData[0].phone,
+      deliveryAddress: patientData[0].address || {
+        street: '123 Main Street',
+        city: 'Springfield',
+        state: 'IL',
+        zipCode: '62701',
+        country: 'PH'
+      },
+      scheduledTime: new Date('2024-01-20T10:00:00'),
+      medRepId: medRepIds[0],
+      status: 'scheduled' as const,
+      notes: 'Please deliver during business hours'
+    },
+    {
+      prescriptionId: prescriptionIds[1],
+      patientId: patientIds[1],
+      patientName: `${patientData[1].firstName} ${patientData[1].lastName}`,
+      patientPhone: patientData[1].phone,
+      deliveryAddress: patientData[1].address || {
+        street: '456 Oak Avenue',
+        city: 'Springfield',
+        state: 'IL',
+        zipCode: '62702',
+        country: 'PH'
+      },
+      scheduledTime: new Date('2024-01-21T14:00:00'),
+      medRepId: medRepIds[0],
+      status: 'in-transit' as const,
+      notes: 'Patient will be home after 2 PM'
+    }
   ]
 };
 

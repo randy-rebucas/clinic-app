@@ -11,6 +11,7 @@
  */
 
 const readline = require('readline');
+// Using tsx to run this script allows importing TypeScript files
 const { setupApplication, resetApplication, isApplicationSetup, getSetupStatus } = require('../lib/setup');
 
 // Parse command line arguments
@@ -158,6 +159,9 @@ async function main() {
       options.resetExisting = true;
     }
 
+    // If resetExisting is true, we'll reset the database in setup.ts
+    // This ensures a clean state before setup
+
     // Get setup options
     const setupOptions = await getSetupOptions();
     setupOptions.resetExisting = options.resetExisting;
@@ -186,6 +190,7 @@ async function main() {
         if (result.data.createdInvoices) console.log(`- Invoices: ${result.data.createdInvoices}`);
         if (result.data.createdPayments) console.log(`- Payments: ${result.data.createdPayments}`);
         if (result.data.createdQueueEntries) console.log(`- Queue Entries: ${result.data.createdQueueEntries}`);
+        if (result.data.createdDeliveries) console.log(`- Deliveries: ${result.data.createdDeliveries}`);
       }
 
       console.log('\n🎉 You can now access the application!');

@@ -63,7 +63,7 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-600"></div>
           <div className="text-gray-600 font-medium">Checking system status...</div>
         </div>
       </div>
@@ -74,7 +74,7 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-600"></div>
           <div className="text-gray-600 font-medium">Loading your dashboard...</div>
         </div>
       </div>

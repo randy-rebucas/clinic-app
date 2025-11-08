@@ -17,8 +17,10 @@ import {
   RefreshCw,
   PieChart,
   LineChart,
-  Activity
+  Activity,
+  ArrowLeft
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface ReportData {
   totalPatients: number;
@@ -148,10 +150,17 @@ export default function ReportsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
+              <Link
+                href="/"
+                className="mr-4 p-2 hover:bg-gray-100 rounded-md transition-colors"
+                title="Go back to dashboard"
+              >
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Link>
               <BarChart3 className="h-8 w-8 text-blue-600 mr-3" />
               <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
             </div>
@@ -178,7 +187,7 @@ export default function ReportsPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Date Range Filter */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
           <div className="flex items-center space-x-4">
             <Filter className="h-5 w-5 text-gray-500" />
             <div className="flex items-center space-x-4">
@@ -188,7 +197,7 @@ export default function ReportsPage() {
                   type="date"
                   value={dateRange.start}
                   onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
               <div>
@@ -197,7 +206,7 @@ export default function ReportsPage() {
                   type="date"
                   value={dateRange.end}
                   onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 />
               </div>
             </div>
@@ -205,8 +214,8 @@ export default function ReportsPage() {
         </div>
 
         {/* Report Tabs */}
-        <div className="bg-white rounded-lg shadow-sm border mb-6">
-          <div className="border-b border-gray-200">
+        <div className="bg-white rounded-lg shadow-sm mb-6">
+          <div className="shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
             <nav className="flex space-x-8 px-6">
               {[
                 { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -218,9 +227,9 @@ export default function ReportsPage() {
                 <button
                   key={tab.id}
                   onClick={() => setSelectedReport(tab.id)}
-                  className={`flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
+                  className={`flex items-center py-4 px-1 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 font-medium text-sm ${
                     selectedReport === tab.id
-                      ? 'border-blue-500 text-blue-600'
+                      ? 'shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-500 text-blue-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
@@ -248,7 +257,7 @@ export default function ReportsPage() {
               <div className="space-y-6">
                 {/* Key Metrics */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="bg-white p-6 rounded-lg shadow-sm border">
+                  <div className="bg-white p-6 rounded-lg shadow-sm">
                     <div className="flex items-center">
                       <Users className="h-8 w-8 text-blue-600" />
                       <div className="ml-4">
@@ -261,7 +270,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-white p-6 rounded-lg shadow-sm border">
+                  <div className="bg-white p-6 rounded-lg shadow-sm">
                     <div className="flex items-center">
                       <Calendar className="h-8 w-8 text-green-600" />
                       <div className="ml-4">
@@ -270,7 +279,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-white p-6 rounded-lg shadow-sm border">
+                  <div className="bg-white p-6 rounded-lg shadow-sm">
                     <div className="flex items-center">
                       <DollarSign className="h-8 w-8 text-yellow-600" />
                       <div className="ml-4">
@@ -283,7 +292,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-white p-6 rounded-lg shadow-sm border">
+                  <div className="bg-white p-6 rounded-lg shadow-sm">
                     <div className="flex items-center">
                       <Clock className="h-8 w-8 text-purple-600" />
                       <div className="ml-4">
@@ -296,7 +305,7 @@ export default function ReportsPage() {
 
                 {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="bg-white p-6 rounded-lg shadow-sm border">
+                  <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Appointment Trends</h3>
                     <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
                       <div className="text-center">
@@ -306,7 +315,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-white p-6 rounded-lg shadow-sm border">
+                  <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">Revenue Trends</h3>
                     <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
                       <div className="text-center">
@@ -323,7 +332,7 @@ export default function ReportsPage() {
             {/* Financial Report */}
             {selectedReport === 'financial' && (
               <div className="space-y-6">
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Revenue by Department</h3>
                   <div className="space-y-4">
                     {reportData.departmentStats.map((dept, index) => (
@@ -343,7 +352,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Top Performing Doctors</h3>
                   <div className="space-y-4">
                     {reportData.topDoctors.map((doctor, index) => (
@@ -368,7 +377,7 @@ export default function ReportsPage() {
             {/* Patient Report */}
             {selectedReport === 'patients' && (
               <div className="space-y-6">
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Patient Statistics</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center">
@@ -386,7 +395,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Patient Growth</h3>
                   <div className="space-y-4">
                     {reportData.monthlyStats.map((month, index) => (
@@ -408,7 +417,7 @@ export default function ReportsPage() {
             {/* Appointment Report */}
             {selectedReport === 'appointments' && (
               <div className="space-y-6">
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Appointment Statistics</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="text-center">
@@ -426,7 +435,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Monthly Appointment Trends</h3>
                   <div className="space-y-4">
                     {reportData.monthlyStats.map((month, index) => (
@@ -448,7 +457,7 @@ export default function ReportsPage() {
             {/* Department Report */}
             {selectedReport === 'departments' && (
               <div className="space-y-6">
-                <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <div className="bg-white p-6 rounded-lg shadow-sm">
                   <h3 className="text-lg font-medium text-gray-900 mb-4">Department Performance</h3>
                   <div className="space-y-4">
                     {reportData.departmentStats.map((dept, index) => (

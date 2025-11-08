@@ -147,7 +147,7 @@ export default function NewQueuePage() {
       case 'high':
         return 'text-orange-600 bg-orange-50 border-orange-200';
       case 'normal':
-        return 'text-blue-600 bg-blue-50 border-blue-200';
+        return 'text-blue-600 bg-blue-50 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]lue-200';
       case 'low':
         return 'text-gray-600 bg-gray-50 border-gray-200';
       default:
@@ -229,12 +229,12 @@ export default function NewQueuePage() {
                       setShowPatientSearch(true);
                     }}
                     placeholder="Search for patient by name, ID, email, or phone..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 
                 {showPatientSearch && patients.length > 0 && (
-                  <div className="shadow-sm border border-gray-200 rounded-md max-h-60 overflow-y-auto">
+                  <div className="shadow-sm shadow-sm rounded-md max-h-60 overflow-y-auto">
                     {patients.map((patient) => (
                       <button
                         key={patient.id}
@@ -270,7 +270,7 @@ export default function NewQueuePage() {
                 <select
                   value={formData.priority}
                   onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value as 'low' | 'normal' | 'high' | 'emergency' }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   required
                 >
                   <option value="low">Low</option>
@@ -293,7 +293,7 @@ export default function NewQueuePage() {
                 <select
                   value={formData.type}
                   onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'consultation' | 'follow-up' | 'emergency' | 'routine' }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   required
                 >
                   <option value="consultation">Consultation</option>
@@ -310,7 +310,7 @@ export default function NewQueuePage() {
                 <select
                   value={formData.assignedDoctorId}
                   onChange={(e) => setFormData(prev => ({ ...prev, assignedDoctorId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                 >
                   <option value="">Select Doctor (Optional)</option>
                   {doctors.map((doctor) => (
@@ -333,7 +333,7 @@ export default function NewQueuePage() {
                     max="240"
                     value={formData.estimatedWaitTime}
                     onChange={(e) => setFormData(prev => ({ ...prev, estimatedWaitTime: parseInt(e.target.value) || 30 }))}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
               </div>
@@ -346,7 +346,7 @@ export default function NewQueuePage() {
                   type="text"
                   value={formData.appointmentId}
                   onChange={(e) => setFormData(prev => ({ ...prev, appointmentId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="APT-..."
                 />
               </div>
@@ -366,7 +366,7 @@ export default function NewQueuePage() {
                   value={formData.reason}
                   onChange={(e) => setFormData(prev => ({ ...prev, reason: e.target.value }))}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Describe the reason for the visit..."
                   required
                 />
@@ -380,7 +380,7 @@ export default function NewQueuePage() {
                   value={formData.notes}
                   onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Any additional information or special requirements..."
                 />
               </div>
@@ -419,7 +419,7 @@ export default function NewQueuePage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/queue"
-              className="px-6 py-2 shadow-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 shadow-sm shadow-sm rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </Link>
@@ -430,7 +430,7 @@ export default function NewQueuePage() {
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                   Adding...
                 </>
               ) : (

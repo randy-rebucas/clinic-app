@@ -269,12 +269,12 @@ export default function NewLabOrderPage() {
                       setShowPatientSearch(true);
                     }}
                     placeholder="Search for patient by name, ID, email, or phone..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   />
                 </div>
                 
                 {showPatientSearch && patients.length > 0 && (
-                  <div className="shadow-sm border border-gray-200 rounded-md max-h-60 overflow-y-auto">
+                  <div className="shadow-sm shadow-sm rounded-md max-h-60 overflow-y-auto">
                     {patients.map((patient) => (
                       <button
                         key={patient.id}
@@ -307,7 +307,7 @@ export default function NewLabOrderPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Ordering Doctor
                 </label>
-                <div className="flex items-center px-3 py-2 bg-gray-50 border border-gray-300 rounded-md">
+                <div className="flex items-center px-3 py-2 bg-gray-50 shadow-sm rounded-md">
                   <User className="h-4 w-4 text-gray-400 mr-2" />
                   <span className="text-gray-900">{employee?.name || 'Current User'}</span>
                 </div>
@@ -321,7 +321,7 @@ export default function NewLabOrderPage() {
                   type="text"
                   value={formData.appointmentId}
                   onChange={(e) => setFormData(prev => ({ ...prev, appointmentId: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="APT-..."
                 />
               </div>
@@ -334,7 +334,7 @@ export default function NewLabOrderPage() {
                   value={formData.notes}
                   onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                   placeholder="Additional notes for the lab order..."
                 />
               </div>
@@ -374,7 +374,7 @@ export default function NewLabOrderPage() {
 
             <div className="space-y-4">
               {tests.map((test, index) => (
-                <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 shadow-sm border border-gray-200 rounded-lg">
+                <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 shadow-sm shadow-sm rounded-lg">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Test Name
@@ -383,7 +383,7 @@ export default function NewLabOrderPage() {
                       type="text"
                       value={test.testName}
                       onChange={(e) => updateTest(index, 'testName', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Test name"
                     />
                   </div>
@@ -396,7 +396,7 @@ export default function NewLabOrderPage() {
                       type="text"
                       value={test.testCode}
                       onChange={(e) => updateTest(index, 'testCode', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Code"
                     />
                   </div>
@@ -409,7 +409,7 @@ export default function NewLabOrderPage() {
                       type="text"
                       value={test.normalRange}
                       onChange={(e) => updateTest(index, 'normalRange', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Normal range"
                     />
                   </div>
@@ -422,7 +422,7 @@ export default function NewLabOrderPage() {
                       type="text"
                       value={test.unit}
                       onChange={(e) => updateTest(index, 'unit', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                       placeholder="Unit"
                     />
                   </div>
@@ -472,7 +472,7 @@ export default function NewLabOrderPage() {
                       type="date"
                       value={formData.followUpDate}
                       onChange={(e) => setFormData(prev => ({ ...prev, followUpDate: e.target.value }))}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full pl-10 pr-4 py-2 shadow-sm rounded-md focus:ring-2 focus:ring-blue-500 focus:shadow-md"
                     />
                   </div>
                 </div>
@@ -497,7 +497,7 @@ export default function NewLabOrderPage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/lab-orders"
-              className="px-6 py-2 shadow-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-6 py-2 shadow-sm shadow-sm rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Cancel
             </Link>
@@ -508,7 +508,7 @@ export default function NewLabOrderPage() {
             >
               {loading ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]-2 border-white mr-2"></div>
                   Creating...
                 </>
               ) : (

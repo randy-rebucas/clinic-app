@@ -8,6 +8,7 @@ import {
   createInvoice, 
   createPayment, 
   addToQueue,
+  createDelivery,
   initializeApplicationSettings,
   getUserByEmail,
   resetDatabase,
@@ -30,6 +31,11 @@ export interface SetupResult {
     createdInvoices?: number;
     createdPayments?: number;
     createdQueueEntries?: number;
+    createdDeliveries?: number;
+    resetResults?: Record<string, any>;
+    resetStats?: Record<string, number>;
+    successCount?: number;
+    totalCount?: number;
   };
   errors?: string[];
 }
@@ -79,6 +85,20 @@ export async function setupApplication(options: {
     // Connect to database
     await connectDB();
     console.log('Connected to database for setup...');
+
+    // Reset database if resetExisting is true
+    if (options.resetExisting) {
+      console.log('Resetting database before setup...');
+      const resetResult = await resetDatabase();
+      if (!resetResult.success) {
+        return {
+          success: false,
+          message: 'Database reset failed before setup',
+          errors: resetResult.errors || ['Unknown error during reset']
+        };
+      }
+      console.log('Database reset completed:', resetResult.message);
+    }
 
     // Check if admin user already exists
     const existingAdmin = await getUserByEmail(options.adminEmail || seedData.adminUser.email);
@@ -145,7 +165,8 @@ async function createSeedData(adminUserId: string) {
     createdLabOrders: 0,
     createdInvoices: 0,
     createdPayments: 0,
-    createdQueueEntries: 0
+    createdQueueEntries: 0,
+    createdDeliveries: 0
   };
 
   try {
@@ -172,9 +193,11 @@ async function createSeedData(adminUserId: string) {
     }
 
     // Create medical representatives
+    const medRepIds: string[] = [];
     for (const medrep of seedData.medreps) {
       try {
-        await createUser(medrep);
+        const medRepId = await createUser(medrep);
+        medRepIds.push(medRepId);
         createdData.createdUsers++;
       } catch (error) {
         console.error('Failed to create medrep:', medrep.name, error);
@@ -264,6 +287,24 @@ async function createSeedData(adminUserId: string) {
         createdData.createdQueueEntries++;
       } catch (error) {
         console.error('Failed to create queue entry:', queueEntry.queueId, error);
+      }
+    }
+
+    // Create deliveries
+    // Note: prescriptionIds are MongoDB _id strings, but Delivery model expects prescriptionId as string
+    // We'll use the MongoDB _id as the prescriptionId for deliveries
+    const sampleDeliveries = seedData.getSampleDeliveries(
+      prescriptionIds, // These are MongoDB _id strings
+      patientIds, // These are MongoDB _id strings
+      seedData.patients, // Patient data for names and addresses
+      medRepIds // MedRep MongoDB _id strings
+    );
+    for (const delivery of sampleDeliveries) {
+      try {
+        await createDelivery(delivery);
+        createdData.createdDeliveries++;
+      } catch (error) {
+        console.error('Failed to create delivery:', delivery.prescriptionId, error);
       }
     }
 

@@ -235,7 +235,7 @@ export default function PatientPortalPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -262,7 +262,7 @@ export default function PatientPortalPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:w-64">
-            <nav className="bg-white rounded-lg shadow-sm border p-4">
+            <nav className="bg-white rounded-lg shadow-sm p-4">
               <ul className="space-y-2">
                 {[
                   { id: 'overview', label: 'Overview', icon: User },
@@ -296,7 +296,7 @@ export default function PatientPortalPage() {
           {/* Main Content */}
           <div className="flex-1">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+              <div className="bg-red-50 shadow-sm text-red-700 px-4 py-3 rounded-md mb-6">
                 {error}
               </div>
             )}
@@ -304,7 +304,7 @@ export default function PatientPortalPage() {
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
-                <div className="bg-white rounded-lg shadow-sm border p-6">
+                <div className="bg-white rounded-lg shadow-sm p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">Personal Information</h2>
                   {patientData && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -336,7 +336,7 @@ export default function PatientPortalPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="bg-white rounded-lg shadow-sm border p-6">
+                  <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center">
                       <Calendar className="h-8 w-8 text-blue-600" />
                       <div className="ml-4">
@@ -345,7 +345,7 @@ export default function PatientPortalPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-white rounded-lg shadow-sm border p-6">
+                  <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center">
                       <FileText className="h-8 w-8 text-green-600" />
                       <div className="ml-4">
@@ -354,7 +354,7 @@ export default function PatientPortalPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="bg-white rounded-lg shadow-sm border p-6">
+                  <div className="bg-white rounded-lg shadow-sm p-6">
                     <div className="flex items-center">
                       <TestTube className="h-8 w-8 text-purple-600" />
                       <div className="ml-4">
@@ -369,8 +369,8 @@ export default function PatientPortalPage() {
 
             {/* Appointments Tab */}
             {activeTab === 'appointments' && (
-              <div className="bg-white rounded-lg shadow-sm border">
-                <div className="px-6 py-4 border-b border-gray-200">
+              <div className="bg-white rounded-lg shadow-sm">
+                <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
                   <h2 className="text-xl font-semibold text-gray-900">My Appointments</h2>
                 </div>
                 <div className="divide-y divide-gray-200">
@@ -400,8 +400,8 @@ export default function PatientPortalPage() {
 
             {/* Prescriptions Tab */}
             {activeTab === 'prescriptions' && (
-              <div className="bg-white rounded-lg shadow-sm border">
-                <div className="px-6 py-4 border-b border-gray-200">
+              <div className="bg-white rounded-lg shadow-sm">
+                <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
                   <h2 className="text-xl font-semibold text-gray-900">My Prescriptions</h2>
                 </div>
                 <div className="divide-y divide-gray-200">
@@ -437,8 +437,8 @@ export default function PatientPortalPage() {
 
             {/* Lab Results Tab */}
             {activeTab === 'lab-results' && (
-              <div className="bg-white rounded-lg shadow-sm border">
-                <div className="px-6 py-4 border-b border-gray-200">
+              <div className="bg-white rounded-lg shadow-sm">
+                <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
                   <h2 className="text-xl font-semibold text-gray-900">Lab Results</h2>
                 </div>
                 <div className="divide-y divide-gray-200">
@@ -473,8 +473,8 @@ export default function PatientPortalPage() {
 
             {/* Billing Tab */}
             {activeTab === 'billing' && (
-              <div className="bg-white rounded-lg shadow-sm border">
-                <div className="px-6 py-4 border-b border-gray-200">
+              <div className="bg-white rounded-lg shadow-sm">
+                <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
                   <h2 className="text-xl font-semibold text-gray-900">Billing History</h2>
                 </div>
                 <div className="divide-y divide-gray-200">
@@ -509,8 +509,8 @@ export default function PatientPortalPage() {
 
             {/* Notifications Tab */}
             {activeTab === 'notifications' && (
-              <div className="bg-white rounded-lg shadow-sm border">
-                <div className="px-6 py-4 border-b border-gray-200">
+              <div className="bg-white rounded-lg shadow-sm">
+                <div className="px-6 py-4 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
                   <h2 className="text-xl font-semibold text-gray-900">Notifications</h2>
                 </div>
                 <div className="p-6">

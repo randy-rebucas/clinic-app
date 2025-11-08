@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createPayment, getInvoice, getPaymentsByInvoice, getPaymentsByPatient, getBillingSummary } from '@/lib/database';
+import { createPayment, getInvoice, getPaymentsByInvoice, getPaymentsByPatient, getBillingSummary, getOverallBillingSummary, getAllPayments } from '@/lib/database';
 // import { v4 as uuidv4 } from 'uuid'; // Unused for now
 
 export async function GET(request: NextRequest) {
@@ -9,6 +9,12 @@ export async function GET(request: NextRequest) {
     const patientId = searchParams.get('patientId');
     const summary = searchParams.get('summary');
 
+    // Handle overall summary request (no patientId or invoiceId required)
+    if (summary === 'true' && !invoiceId && !patientId) {
+      const summaryData = await getOverallBillingSummary();
+      return NextResponse.json(summaryData);
+    }
+
     if (invoiceId) {
       const payments = await getPaymentsByInvoice(invoiceId);
       return NextResponse.json(payments);
@@ -16,14 +22,16 @@ export async function GET(request: NextRequest) {
 
     if (patientId) {
       if (summary === 'true') {
-        const summary = await getBillingSummary(patientId);
-        return NextResponse.json(summary);
+        const summaryData = await getBillingSummary(patientId);
+        return NextResponse.json(summaryData);
       }
       const payments = await getPaymentsByPatient(patientId);
       return NextResponse.json(payments);
     }
 
-    return NextResponse.json({ error: 'Invoice ID or patient ID is required' }, { status: 400 });
+    // If no parameters provided, return all payments
+    const payments = await getAllPayments();
+    return NextResponse.json(payments);
   } catch (error) {
     console.error('Error fetching payments:', error);
     return NextResponse.json({ error: 'Failed to fetch payments' }, { status: 500 });
